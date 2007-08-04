@@ -10,13 +10,17 @@
 */
 
 
-class registrationSentZone extends jZone {
+class registration_confirmationZone extends jZone {
 
-   protected $_tplname='registration_sent';
+   protected $_tplname='registration_confirmation';
 
 
     protected function _prepareTpl(){
-
+        $form = jForms::get('confirmation');
+        if($form == null){
+            $form = jForms::create('confirmation');
+        }
+        $this->_tpl->assign('form',$form->getContainer());
     }
 
 }

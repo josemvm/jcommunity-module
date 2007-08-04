@@ -12,12 +12,12 @@
 
 class registrationOkZone extends jZone {
 
-   protected $_tplname='registrationok';
+   protected $_tplname='registration_ok';
 
 
-    protected function _prepareTpl(){
-    }
-
+   protected function _prepareTpl(){
+        $this->_tpl->assign('already',$this->getParam('already'));
+   }
 }
 
 ?>

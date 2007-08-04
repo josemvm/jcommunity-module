@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      jcommunity
-* @subpackage   
+* @subpackage
 * @author       Laurent Jouanneau <laurent@xulfr.org>
 * @contributor
 * @copyright    2007 Laurent Jouanneau
@@ -10,12 +10,17 @@
 */
 
 
-class registrationSentZone extends jZone {
+class registrationZone extends jZone {
 
-   protected $_tplname='registration_sent';
+   protected $_tplname='registration';
 
 
     protected function _prepareTpl(){
+        $form = jForms::get('registration');
+        if($form == null){
+            $form = jForms::create('registration');
+        }
+        $this->_tpl->assign('form',$form->getContainer());
     }
 
 }

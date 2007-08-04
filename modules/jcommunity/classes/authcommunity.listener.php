@@ -15,7 +15,7 @@ class authcommunityListener extends jEventListener{
    *
    */
    function onAuthCanLogin ($event) {
-        $event->Add(array('canlogin'=>($event->getParam('user')->status >0)));
+        $event->Add(array('canlogin'=>($event->getParam('user')->status >0))); // >0 == VALID or MODIFIED
    }
 }
 ?>

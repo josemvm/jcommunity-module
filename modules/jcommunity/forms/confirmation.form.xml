@@ -13,7 +13,7 @@
       <label>Login</label>
    </input>
 
-   <input ref="email"  required="true" type="email">
-      <label>Email</label>
+   <input ref="key"  required="true">
+      <label>Clef d'activation :</label>
    </input>
 </forms>

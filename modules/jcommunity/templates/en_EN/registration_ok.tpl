@@ -1,7 +1,8 @@
-<h2>Account created</h2>
-
-<p>Your account is created and activated. Now you can identify
+<h2>Account activated</h2>
+{if $already}
+<p>Your account is already activated.</p>
+{else}
+<p>Your account is activated.</p>
+{/if}
+<p>Now you can identify
 yourself on the web site.</p>
-
-<p><a href="">Go to the login page</a></p>
-

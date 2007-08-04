@@ -25,17 +25,9 @@ class registrationCtrl extends jController {
         return $rep;
     }
 
-    protected function randomPassword(){
-        $letter = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        $pass = '';
-        for($i=0;$i<10;$i++){
-            $pass .= $letter{rand(0,61)};
-        }
-        return $pass;
-    }
-
     /**
-    *
+    * save new user and send an email for a confirmation, with
+    * a key to activate the account
     */
     function save() {
         $form = jForms::fill('registration');
@@ -53,7 +45,7 @@ class registrationCtrl extends jController {
             return $rep;
         }
 
-        $pass = $this->randomPassword();
+        $pass = jAuth::getRandomPassword();
         $key = substr(md5($login.'-'.$pass),1,10);
 
         $user = jAuth::createUserObject($login,$pass);
@@ -79,14 +71,15 @@ class registrationCtrl extends jController {
         $mail->Send();
 
         $rep= $this->getResponse("redirect");
-        $rep->action="registration_saveinfo";
+        $rep->action="registration_infosent";
         return $rep;
     }
 
     /**
-    *
+    * display the page which confirm that the user is registered
+    * but his account is not activated yet
     */
-    function saveinfo() {
+    function infosent() {
         $rep = $this->getResponse('html');
         $rep->body->assignZone('MAIN','registrationsent');
         return $rep;
@@ -94,65 +87,63 @@ class registrationCtrl extends jController {
 
 
     /**
-    *
+    * form to enter the confirmation key
+    * to activate the account
     */
     function confirmform() {
-        $form = jForms::get('confirm');
-        if($form == null){
-            $form = jForms::create('confirm');
-        }
-
         $rep = $this->getResponse('html');
-        
+        $rep->body->assignZone('MAIN','registration_confirmation');
         return $rep;
     }
 
     /**
-    *
+    * activate an account. the key should be given as a parameter
     */
     function confirm() {
-        
+        $form = jForms::fill('confirmation');
+        if(!$form->check()){
+            $rep= $this->getResponse("redirect");
+            $rep->action="registration_confirmform";
+            return $rep;
+        }
 
+        $login = $form->getData('login');
+        $user = jAuth::getUser($login);
+        if(!$user){
+            $form->setErrorOn('login',jLocale::get('register.form.confirm.login.doesnt.exist'));
+            $rep= $this->getResponse("redirect");
+            $rep->action="registration_confirmform";
+            return $rep;
+        }
 
+        if($user->status != COMAUTH_STATUS_NEW) {
+            jForms::destroy('confirmation');
+            $rep = $this->getResponse('html');
+            $rep->body->assignZone('MAIN','registrationok', array('already'=>true));
+            return $rep;
+        }
 
-        $rep = $this->getResponse('redirect');
-        $rep->action="registration_confirmok";
-        return $rep;
+        if($form->getData('key') == $user->keyactivate) {
+            $user->status = COMAUTH_STATUS_VALID;
+            jAuth::updateUser($user);
+            $rep = $this->getResponse('redirect');
+            $rep->action="registration_confirmok";
+            return $rep;
+        }
+        else {
+            $form->setErrorOn('key',jLocale::get('register.form.confirm.bad.key'));
+            $rep= $this->getResponse("redirect");
+            $rep->action="registration_confirmform";
+            return $rep;
+        }
     }
 
     /**
-    *
+    * Page which confirm that the account is activated
     */
     function confirmok() {
         $rep = $this->getResponse('html');
         $rep->body->assignZone('MAIN','registrationok');
-        return $rep;
-    }
-
-    /**
-    *
-    */
-    function getpwd() {
-        $rep = $this->getResponse('html');
-        
-        return $rep;
-    }
-
-    /**
-    *
-    */
-    function sendpwd() {
-        $rep = $this->getResponse('redirect');
-        
-        return $rep;
-    }
-
-    /**
-    *
-    */
-    function pwdsent() {
-        $rep = $this->getResponse('html');
-        
         return $rep;
     }
 }
