@@ -18,5 +18,19 @@ class defaultCtrl extends jController {
         
         return $rep;
     }
+    
+    /**
+    * 
+    */
+    function login() {
+        $rep = $this->getResponse('html');
+
+        $rep->body->assignZone('MAIN','jauth~loginform', array(
+            'login' => $this->param('login'),
+            'failed' => $this->param('failed'),
+            'showRememberMe' => jAuth::isPersistant()));
+        return $rep;
+    }
 }
+
 ?>
