@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <dao xmlns="http://jelix.org/ns/dao/1.0">
    <datasources>
-      <primarytable name="usr" realname="community_user" primarykey="login" />
+      <primarytable name="user" realname="community_user" primarykey="login" />
    </datasources>
    <record>
       <property name="login" fieldname="login"
@@ -21,7 +21,7 @@
       <property name="email" fieldname="email"
                 datatype="string" required="yes" maxlength="255" />
       
-      <property name="pseudo" fieldname="pseudo"
+      <property name="nickname" fieldname="nickname"
                 datatype="string" required="yes" maxlength="50" />
 
       <property name="keyactivate" fieldname="keyactivate"

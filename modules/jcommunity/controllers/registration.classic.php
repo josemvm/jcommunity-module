@@ -50,7 +50,7 @@ class registrationCtrl extends jController {
 
         $user = jAuth::createUserObject($login,$pass);
         $user->email = $form->getData('email');
-        $user->pseudo = $login;
+        $user->nickname = $login;
         $user->status = COMAUTH_STATUS_NEW;
         $user->keyactivate = $key;
         jAuth::saveNewUser($user);
@@ -100,8 +100,15 @@ class registrationCtrl extends jController {
     * activate an account. the key should be given as a parameter
     */
     function confirm() {
-        $form = jForms::fill('confirmation');
-        if(!$form->check()){
+        $form = jForms::get('confirmation');
+        if ($form == null) {
+            $form = jForms::create('confirmation');
+            $form->setData('login', $this->param('login'));
+            $form->setData('key', $this->param('key'));
+        } else {
+            $form = jForms::fill('confirmation');
+        }
+        if (!$form->check()) {
             $rep= $this->getResponse("redirect");
             $rep->action="registration_confirmform";
             return $rep;
@@ -109,28 +116,27 @@ class registrationCtrl extends jController {
 
         $login = $form->getData('login');
         $user = jAuth::getUser($login);
-        if(!$user){
+        if (!$user) {
             $form->setErrorOn('login',jLocale::get('register.form.confirm.login.doesnt.exist'));
             $rep= $this->getResponse("redirect");
             $rep->action="registration_confirmform";
             return $rep;
         }
 
-        if($user->status != COMAUTH_STATUS_NEW) {
+        if ($user->status != COMAUTH_STATUS_NEW) {
             jForms::destroy('confirmation');
             $rep = $this->getResponse('html');
             $rep->body->assignZone('MAIN','registrationok', array('already'=>true));
             return $rep;
         }
 
-        if($form->getData('key') == $user->keyactivate) {
+        if ($form->getData('key') == $user->keyactivate) {
             $user->status = COMAUTH_STATUS_VALID;
             jAuth::updateUser($user);
             $rep = $this->getResponse('redirect');
             $rep->action="registration_confirmok";
             return $rep;
-        }
-        else {
+        } else {
             $form->setErrorOn('key',jLocale::get('register.form.confirm.bad.key'));
             $rep= $this->getResponse("redirect");
             $rep->action="registration_confirmform";
