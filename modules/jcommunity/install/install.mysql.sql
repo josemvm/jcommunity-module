@@ -1,13 +1,11 @@
---
--- Structure of the table community_user
---
-
-CREATE TABLE `community_user` (
-    `login` VARCHAR(20) NOT NULL,
-    `password` VARCHAR(40) NOT NULL DEFAULT '',
-    `status` INT NOT NULL DEFAULT 0,
-    `email` VARCHAR(128) NOT NULL DEFAULT '',
-    `nickname` VARCHAR(128) NOT NULL DEFAULT '',
-    `keyactivate` VARCHAR(10) NOT NULL DEFAULT '',
-    PRIMARY KEY (`login`)
+CREATE TABLE `community_users` (
+  `login` varchar(50) NOT NULL,
+  `password` varchar(50) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `nickname` varchar(50) default NULL,
+  `status` tinyint(4) NOT NULL default '0',
+  `keyactivate` varchar(10) default NULL,
+  `new_password` varchar(50) default NULL,
+  `request_date` datetime default NULL,
+  PRIMARY KEY  (`login`)
 );

@@ -8,9 +8,9 @@ Voici vos informations de connection :
 
 Mais pour vous connecter, vous devez activer votre compte.
 Pour cela, soit vous cliquez sur le lien suivant :
-http://{$server}{jurl 'jcommunity~registration_confirm', array('login'=>$login,'key'=>$key)}
+http://{$server}{jurl 'jcommunity~registration:confirm', array('login'=>$login,'key'=>$key)}
 
-Soit vous pouvez aller sur la page http://{$server}{jurl 'jcommunity~registration_confirmform'} 
+Soit vous pouvez aller sur la page http://{$server}{jurl 'jcommunity~registration:confirmform'} 
 et indiquer votre login et la clé d'activation suivante : {$key}.
 
 

@@ -9,13 +9,20 @@
 * @licence      http://www.gnu.org/licenses/gpl.html GNU General Public Licence, see LICENCE file
 */
 
-class authcommunityListener extends jEventListener{
 
-   /**
-   *
-   */
-   function onAuthCanLogin ($event) {
-        $event->Add(array('canlogin'=>($event->getParam('user')->status > 0))); // >0 == VALID or MODIFIED
-   }
+class passwordZone extends jZone {
+
+   protected $_tplname='passwordform';
+
+
+    protected function _prepareTpl(){
+        $form = jForms::get('password');
+        if($form == null){
+            $form = jForms::create('password');
+        }
+        $this->_tpl->assign('form',$form);
+    }
+
 }
+
 ?>

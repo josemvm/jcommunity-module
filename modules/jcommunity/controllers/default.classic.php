@@ -15,10 +15,10 @@ class defaultCtrl extends jController {
     */
     function index() {
         $rep = $this->getResponse('html');
-        
+
         return $rep;
     }
-    
+
     /**
     * 
     */
@@ -32,5 +32,4 @@ class defaultCtrl extends jController {
         return $rep;
     }
 }
-
 ?>

@@ -30,10 +30,12 @@ class registrationCtrl extends jController {
     * a key to activate the account
     */
     function save() {
+        global $gJConfig;
+
         $form = jForms::fill('registration');
         if(!$form->check()){
             $rep= $this->getResponse("redirect");
-            $rep->action="registration_index";
+            $rep->action="registration:index";
             return $rep;
         }
 
@@ -41,7 +43,7 @@ class registrationCtrl extends jController {
         if(jAuth::getUser($login)){
             $form->setErrorOn('login',jLocale::get('register.form.login.exists'));
             $rep= $this->getResponse("redirect");
-            $rep->action="registration_index";
+            $rep->action="registration:index";
             return $rep;
         }
 
@@ -56,9 +58,9 @@ class registrationCtrl extends jController {
         jAuth::saveNewUser($user);
 
         $mail = new jMailer();
-        $mail->From = 'webmaster@xulfr.org';
-        $mail->FromName = 'Webmaster Xulfr';
-        $mail->Sender = 'webmaster@xulfr.org';
+        $mail->From = $gJConfig->mailer['webmasterEmail'];
+        $mail->FromName = $gJConfig->mailer['webmasterName'];
+        $mail->Sender = $gJConfig->mailer['webmasterEmail'];
         $mail->Subject = jLocale::get('register.mail.new.subject');
 
         $tpl = new jTpl();
@@ -71,7 +73,7 @@ class registrationCtrl extends jController {
         $mail->Send();
 
         $rep= $this->getResponse("redirect");
-        $rep->action="registration_infosent";
+        $rep->action="registration:infosent";
         return $rep;
     }
 
@@ -110,7 +112,7 @@ class registrationCtrl extends jController {
         }
         if (!$form->check()) {
             $rep= $this->getResponse("redirect");
-            $rep->action="registration_confirmform";
+            $rep->action="registration:confirmform";
             return $rep;
         }
 
@@ -119,7 +121,7 @@ class registrationCtrl extends jController {
         if (!$user) {
             $form->setErrorOn('login',jLocale::get('register.form.confirm.login.doesnt.exist'));
             $rep= $this->getResponse("redirect");
-            $rep->action="registration_confirmform";
+            $rep->action="registration:confirmform";
             return $rep;
         }
 
@@ -134,12 +136,13 @@ class registrationCtrl extends jController {
             $user->status = COMAUTH_STATUS_VALID;
             jAuth::updateUser($user);
             $rep = $this->getResponse('redirect');
-            $rep->action="registration_confirmok";
+            $rep->action="registration:confirmok";
             return $rep;
-        } else {
+        }
+        else {
             $form->setErrorOn('key',jLocale::get('register.form.confirm.bad.key'));
             $rep= $this->getResponse("redirect");
-            $rep->action="registration_confirmform";
+            $rep->action="registration:confirmform";
             return $rep;
         }
     }

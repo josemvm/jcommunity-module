@@ -3,7 +3,7 @@
 <p>Pour pouvoir profiter au mieux des services du site, inscrivez-vous
 en remplissant le formulaire suivant.</p>
 
-<form action="{formurl 'jcommunity~registration_save'}" method="POST">
+<form action="{formurl 'jcommunity~registration:save'}" method="POST">
 <fieldset>
    <legend>Informations à indiquer</legend>
     <p><label for="login">Login :</label> 
@@ -30,7 +30,7 @@ en remplissant le formulaire suivant.</p>
             {/if}</span>
         {/if}
     </p>
-    {formurlparam 'jcommunity~registration_save'}
+    {formurlparam 'jcommunity~registration:save'}
 </fieldset>
 <p>Un e-mail vous sera envoyé pour que vous puissiez confirmer votre inscription
 et ensuite pouvoir vous identifier sur le site.</p>

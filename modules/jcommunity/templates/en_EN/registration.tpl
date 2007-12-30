@@ -2,7 +2,7 @@
 
 <p>To use web site services, register yourself by filling the following form.</p>
 
-<form action="{formurl 'jcommunity~registration_save'}" method="POST">
+<form action="{formurl 'jcommunity~registration:save'}" method="POST">
 <fieldset>
    <legend>Informations</legend>
     <p><label for="login">Login:</label> 
@@ -29,7 +29,7 @@
             {/if}</span>
         {/if}
     </p>
-    {formurlparam 'jcommunity~registration_save'}
+    {formurlparam 'jcommunity~registration:save'}
 </fieldset>
 <p>An email will be sent to you with a link to confirm your registration. After it, 
 you could identified yourself on the site.</p>
