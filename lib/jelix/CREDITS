@@ -1,0 +1,139 @@
+Credits
+=======
+
+Core team developers
+--------------------
+
+Laurent Jouanneau (laurentj):
+ - Conceptor and main developer of Jelix
+
+Loic Mathaud (bballizlife):
+ - testor, many bug fixes and many patches on jelix
+ - jtpl contributor: standalone edition of jTpl, tag for comments, {for}, stripslashes modifier
+ - sqlite driver for jdb
+ - operators in jDao
+ - features to run Jelix application from a command line
+ - implementation of jResponseXML, jResponseRss20
+ - documentation
+ - many improvements (jClasses::inc(), jIniFile, jAppManager, jelix-scripts etc )
+
+Contributors
+------------
+By alphabetic order on the name
+
+Vincent Bonnard
+ - bug fix in jXmlRpc.class.php (#190)
+ 
+Cedric
+ - bug fix in jFile::read
+
+Uriel Corfa
+ - Support of class datasources in jForms (#323)
+ - contribution à jResponseTcpdf (#131)
+
+Dandelionmood
+ - added counter_records tpl plugin (#370)
+
+Antoine Detante (aka antoinefr)
+ - support of persistant authentification in jAuth and auth plugin (#229)
+
+F. Fernandez (aka e-media)
+ - little improvement in jLog.(#344)
+ - little improvement in formcontrols plugin (#353)
+
+Mickaël Fradin (aka mike)
+ - improvements in the jtpl plugin: formcontrols (#223)
+
+Olivier Gambier (aka d-m-p)
+ - code reviewer, bug fixes
+
+Gildas Givaja (aka Giviz)
+ - testor, bug fixes
+ - bug fix in jXmlRpc.class.php (#192)
+
+Frédéric Guillot (aka fg)
+ - patch for multiple authentification in a same session (#207)
+ - bug fixes in support of XML-RPC request and response
+
+Florian Hatat
+ - improvements on jDateTime + RFC2822 support (#379)
+
+Julien Issler
+ - updated JSON class (#231)
+ - table prefix support in jDb and jDao (#293)
+ - fixed a bug with jAuthDummyUser (#352)
+ - jSession implementation (#354)
+ - jResponsePdf and jTcpdf classes (#131)
+
+Bastien Jaillot (aka bastnic)
+ - bug fix in jDaoGenerator (#282)
+ - little improvement in the jControllerDaoCrud API (#330)
+
+Nicolas Jeudy (aka njeudy)
+ - auth driver: jAuthDriverLDS (pour les annuaires ldap LDS)
+ - jResponseCss
+
+Nicolas Lassalle
+ - bug fix in jResponseBinary (#188)
+ 
+Yannick Le Guédart (aka Torgan)
+ - auth driver: jAuthDriverClass
+ - jtpl plugin: date_format
+ - some bug fixes and little improvements
+ - Contribution on jResponseRss and jResponseAtom
+ - jdb driver for Intuition
+
+Hugues Magnier
+ - tpl plugin stripws (#140)
+
+Aubanel Monnier
+ - jResponseLatexToPdf and jtpl plugins for latex
+ - patch for anchors support in jResponseRedirect
+
+Dominique Papin (aka bibo)
+ - added j_themepath variable in jtpl (#346)
+ - improved addCssLink usability for IE (#348)
+ - added support of 'else' keyword for block plugin in jtpl (#349)
+ - fixed bug in firebug support (#362)
+ - added support of <reset> in jforms (#258)
+
+Thibault Piront (aka nuks)
+ - fixed bug in significant url engine (#364)
+ - big part of the patch about new action selectors (#317)
+ - counter* plugins for jtpl (#375)
+
+Laurent Raufaste (aka analogue)
+ - patch on postgresql driver (#123)
+
+Rahal
+ - improvement on locale selectors : possibility to overload locales (#358)
+
+M. Thiriot (aka Doubleface)
+ - testor
+ - bug fixes on PDO support in jDb
+
+Christian Tritten
+ - improvements on pagelinks plugin (#340)
+
+Yann
+ - improvements in jResponseHtml (description and keywords)
+
+Sylvain de Vathaire (aka sylvain261)
+ - little bug fix in exception handler (#356)
+ - little improvement in exception handler and error handler (#357)
+
+Thanks for all users, especially those who reported bugs. :-)
+
+Thanks for their works:
+-----------------------
+
+Brent R. Matzelle
+    for his PHPMailer class (jMailer in Jelix)
+Chris Ryan
+    for his SMTP classe (jSmtp in Jelix)
+Copix Team
+    in particulary Gerald Croes, co-author of source parts from Copix project
+    (version 2.3dev20050901), under copyright 2001-2005 Copix Team
+    (http://www.copix.org)
+
+(updated svn-533)
