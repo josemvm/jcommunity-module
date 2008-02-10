@@ -10,7 +10,7 @@
 */
 
 
-class registrationOkZone extends jZone {
+class passwordOkZone extends jZone {
 
    protected $_tplname='password_ok';
 

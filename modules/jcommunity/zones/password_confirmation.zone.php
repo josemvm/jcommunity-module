@@ -4,13 +4,13 @@
 * @subpackage   
 * @author       Laurent Jouanneau <laurent@xulfr.org>
 * @contributor
-* @copyright    2007 Laurent Jouanneau
+* @copyright    2008 Laurent Jouanneau
 * @link         http://jelix.org
 * @licence      http://www.gnu.org/licenses/gpl.html GNU General Public Licence, see LICENCE file
 */
 
 
-class registration_confirmationZone extends jZone {
+class password_confirmationZone extends jZone {
 
    protected $_tplname='password_confirmation';
 
@@ -20,7 +20,7 @@ class registration_confirmationZone extends jZone {
         if($form == null){
             $form = jForms::create('confirmation');
         }
-        $this->_tpl->assign('form',$form->getContainer());
+        $this->_tpl->assign('form',$form);
     }
 
 }

@@ -2,7 +2,7 @@
 <forms xmlns="http://jelix.org/ns/forms/1.0">
 <!--
 @package      jcommunity
-@subpackage   
+@subpackage
 @author       Laurent Jouanneau <laurent@xulfr.org>
 @contributor
 @copyright    2007 Laurent Jouanneau
@@ -14,6 +14,11 @@
    </input>
 
    <input ref="key"  required="true">
-      <label>Clef d'activation :</label>
+      <label>Clef d'activation</label>
    </input>
+
+   <submit ref="submit">
+       <label>Activer</label>
+   </submit>
+   
 </forms>

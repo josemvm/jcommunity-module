@@ -16,4 +16,8 @@
    <input ref="email"  required="true" type="email">
       <label>Email</label>
    </input>
+   
+   <submit ref="submit">
+       <label>Créer un compte</label>
+   </submit>
 </forms>

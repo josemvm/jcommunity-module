@@ -6,6 +6,7 @@ Si vous voulez confirmer ce changement, soit vous cliquez
 sur le lien suivant :
 http://{$server}{jurl 'jcommunity~password:confirm', array('login'=>$login,'key'=>$key)}
 
+
 Soit vous pouvez aller sur la page http://{$server}{jurl 'jcommunity~password:confirmform'} 
 et indiquer votre login et la clé d'activation suivante : {$key}.
 

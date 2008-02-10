@@ -2,18 +2,14 @@
 /**
 * @package      jcommunity
 * @subpackage
-* @author       Laurent Jouanneau <laurent@xulfr.org>
+* @author       Laurent Jouanneau <laurent@jelix.org>
 * @contributor
-* @copyright    2007 Laurent Jouanneau
+* @copyright    2007-2008 Laurent Jouanneau
 * @link         http://jelix.org
 * @licence      http://www.gnu.org/licenses/gpl.html GNU General Public Licence, see LICENCE file
 */
 
-define('COMAUTH_STATUS_VALID',2);
-define('COMAUTH_STATUS_MODIFIED',1);
-define('COMAUTH_STATUS_NEW',0);
-define('COMAUTH_STATUS_DEACTIVATED',-1);
-define('COMAUTH_STATUS_DELETED',-2);
+include(dirname(__FILE__).'/../classes/defines.php');
 
 class registrationCtrl extends jController {
     /**
@@ -53,7 +49,7 @@ class registrationCtrl extends jController {
         $user = jAuth::createUserObject($login,$pass);
         $user->email = $form->getData('email');
         $user->nickname = $login;
-        $user->status = COMAUTH_STATUS_NEW;
+        $user->status = JCOMMUNITY_STATUS_NEW;
         $user->keyactivate = $key;
         jAuth::saveNewUser($user);
 
@@ -74,6 +70,7 @@ class registrationCtrl extends jController {
 
         $rep= $this->getResponse("redirect");
         $rep->action="registration:infosent";
+        jForms::destroy('registration');
         return $rep;
     }
 
@@ -125,7 +122,7 @@ class registrationCtrl extends jController {
             return $rep;
         }
 
-        if ($user->status != COMAUTH_STATUS_NEW) {
+        if ($user->status != JCOMMUNITY_STATUS_NEW) {
             jForms::destroy('confirmation');
             $rep = $this->getResponse('html');
             $rep->body->assignZone('MAIN','registrationok', array('already'=>true));
@@ -133,7 +130,7 @@ class registrationCtrl extends jController {
         }
 
         if ($form->getData('key') == $user->keyactivate) {
-            $user->status = COMAUTH_STATUS_VALID;
+            $user->status = JCOMMUNITY_STATUS_VALID;
             jAuth::updateUser($user);
             $rep = $this->getResponse('redirect');
             $rep->action="registration:confirmok";

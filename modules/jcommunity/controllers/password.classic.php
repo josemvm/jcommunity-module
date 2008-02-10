@@ -4,16 +4,12 @@
 * @subpackage
 * @author       Laurent Jouanneau <laurent@xulfr.org>
 * @contributor
-* @copyright    2007 Laurent Jouanneau
+* @copyright    2007-2008 Laurent Jouanneau
 * @link         http://jelix.org
 * @licence      http://www.gnu.org/licenses/gpl.html GNU General Public Licence, see LICENCE file
 */
 
-define('COMAUTH_STATUS_VALID',2);
-define('COMAUTH_STATUS_MODIFIED',1);
-define('COMAUTH_STATUS_NEW',0);
-define('COMAUTH_STATUS_DEACTIVATED',-1);
-define('COMAUTH_STATUS_DELETED',-2);
+include(dirname(__FILE__).'/../classes/defines.php');
 
 class passwordCtrl extends jController {
 
@@ -86,7 +82,6 @@ class passwordCtrl extends jController {
         return $rep;
     }
 
-
     /**
     * form to enter the confirmation key
     * to activate the account
@@ -112,27 +107,29 @@ class passwordCtrl extends jController {
         $login = $form->getData('login');
         $user = jAuth::getUser($login);
         if(!$user){
-            $form->setErrorOn('login',jLocale::get('register.form.confirm.login.doesnt.exist'));
+            $form->setErrorOn('login',jLocale::get('password.form.confirm.login.doesnt.exist'));
             return $rep;
         }
 
-        /*if($user->status != COMAUTH_STATUS_NEW) {
+        if($user->status != JCOMMUNITY_STATUS_PWD_CHANGED) {
             jForms::destroy('confirmation');
             $rep = $this->getResponse('html');
             $rep->body->assignZone('MAIN','passwordok', array('already'=>true));
             return $rep;
-        }*/
+        }
 
         if($form->getData('key') == $user->keyactivate) {
-            $user->status = COMAUTH_STATUS_VALID;
+            $form->setErrorOn('key',jLocale::get('password.form.confirm.bad.key'));
+            return $rep;
+        }
+
+        if($form->getData('key') == $user->keyactivate) {
+            $user->status = JCOMMUNITY_STATUS_VALID;
             jAuth::updateUser($user);
             $rep->action="password:confirmok";
             return $rep;
         }
         else {
-            $form->setErrorOn('key',jLocale::get('register.form.confirm.bad.key'));
-            return $rep;
-        }
     }
 
     /**

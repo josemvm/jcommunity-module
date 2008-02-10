@@ -1,10 +1,11 @@
 Bonjour,
 
 Vous venez de vous inscrire sur le site.
-Voici vos informations de connection :
+Voici vos informations de connexion :
 
 - Votre login : {$login} 
 - Le mot de passe : {$pass}
+
 
 Mais pour vous connecter, vous devez activer votre compte.
 Pour cela, soit vous cliquez sur le lien suivant :
