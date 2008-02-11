@@ -10,6 +10,7 @@ But before to connect yourself on our site, please activate your account. You ca
 
 - by clicking on this link:
 http://{$server}{jurl 'jcommunity~registration:confirm', array('login'=>$login,'key'=>$key)}
+
 - Or by going on this page http://{$server}{jurl 'jcommunity~registration:confirmform'} and
  fill the form with your login and this key : {$key}
 

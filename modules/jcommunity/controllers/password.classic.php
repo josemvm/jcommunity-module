@@ -50,8 +50,10 @@ class passwordCtrl extends jController {
         $pass = jAuth::getRandomPassword();
         $key = substr(md5($login.'-'.$pass),1,10);
 
+        $user->status = JCOMMUNITY_STATUS_PWD_CHANGED;
         $user->new_password = $pass;
         $user->request_date = date('Y-m-d H:i:s');
+        $user->keyactivate = $key;
         jAuth::updateUser($user);
 
         $mail = new jMailer();
@@ -69,6 +71,7 @@ class passwordCtrl extends jController {
         //$mail->SMTPDebug = true;
         $mail->Send();
 
+        jForms::destroy('password');
         $rep->action="password:pwdsent";
         return $rep;
     }
@@ -78,58 +81,82 @@ class passwordCtrl extends jController {
     */
     function pwdsent() {
         $rep = $this->getResponse('html');
-        $rep->body->assignZone('MAIN','passwordsent');
+        $tpl = new jTpl();
+        $rep->body->assign('MAIN',$tpl->fetch('password_sent'));
         return $rep;
     }
 
     /**
     * form to enter the confirmation key
-    * to activate the account
+    * to activate the new password
     */
     function confirmform() {
         $rep = $this->getResponse('html');
-        $rep->body->assignZone('MAIN','password_confirmation');
+
+        $form = jForms::get('confirmation');
+        if($form == null){
+            $form = jForms::create('confirmation');
+        }
+        $tpl = new jTpl();
+        $tpl->assign('form',$form);
+        $rep->body->assign('MAIN',$tpl->fetch('password_confirmation'));
         return $rep;
     }
 
     /**
-    * activate an account. the key should be given as a parameter
+    * activate a new password. the key should be given as a parameter
     */
     function confirm() {
         $rep= $this->getResponse("redirect");
         $rep->action="password:confirmform";
 
         $form = jForms::fill('confirmation');
-        if(!$form->check()){
+        if($form == null){
+            $form = jForms::create('confirmation');
+            $form = jForms::fill('confirmation');
+        }
+        if (!$form->check()) {
             return $rep;
         }
 
         $login = $form->getData('login');
         $user = jAuth::getUser($login);
-        if(!$user){
+        if (!$user) {
             $form->setErrorOn('login',jLocale::get('password.form.confirm.login.doesnt.exist'));
             return $rep;
         }
 
-        if($user->status != JCOMMUNITY_STATUS_PWD_CHANGED) {
+        if ($user->status != JCOMMUNITY_STATUS_PWD_CHANGED) {
             jForms::destroy('confirmation');
             $rep = $this->getResponse('html');
-            $rep->body->assignZone('MAIN','passwordok', array('already'=>true));
+            $tpl = new jTpl();
+            $tpl->assign('status',1);
+            $rep->body->assign('MAIN',$tpl->fetch('password_ok'));
             return $rep;
         }
 
-        if($form->getData('key') == $user->keyactivate) {
+        if ( strcmp($user->request_date , date('Y-m-d H:i:s', time()-(48*60*60))) < 0 ) {
+            jForms::destroy('confirmation');
+            $rep = $this->getResponse('html');
+            $tpl = new jTpl();
+            $tpl->assign('status',2);
+            $rep->body->assign('MAIN',$tpl->fetch('password_ok'));
+            return $rep;
+        }
+
+        if ($form->getData('key') != $user->keyactivate) {
             $form->setErrorOn('key',jLocale::get('password.form.confirm.bad.key'));
             return $rep;
         }
 
-        if($form->getData('key') == $user->keyactivate) {
-            $user->status = JCOMMUNITY_STATUS_VALID;
-            jAuth::updateUser($user);
-            $rep->action="password:confirmok";
-            return $rep;
-        }
-        else {
+        jForms::destroy('confirmation');
+        $passwd = $user->new_password;
+        $user->new_password = null;
+        $user->status = JCOMMUNITY_STATUS_VALID;
+        jAuth::updateUser($user);
+        jAuth::changePassword($login, $passwd);
+        $rep->action="password:confirmok";
+        return $rep;
     }
 
     /**
@@ -137,7 +164,9 @@ class passwordCtrl extends jController {
     */
     function confirmok() {
         $rep = $this->getResponse('html');
-        $rep->body->assignZone('MAIN','passwordok');
+        $tpl = new jTpl();
+        $tpl->assign('status',0);
+        $rep->body->assign('MAIN',$tpl->fetch('password_ok'));
         return $rep;
     }
 

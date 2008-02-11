@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<urls xmlns="http://jelix.org/ns/urls/1.0">
+    <classicentrypoint name="index" default="true">
+
+        <url pathinfo="/users/dologin" module="jauth" action="login:in">
+        </url>
+        
+        
+        <!-- all urls for the jcommunity module -->
+
+        <url pathinfo="/users" module="jcommunity" action="default:index">
+        </url>
+        <url pathinfo="/users/registration" module="jcommunity" action="registration:index">
+        </url>
+        <url pathinfo="/users/registration/save" module="jcommunity" action="registration:save">
+        </url>
+        <url pathinfo="/users/registration/infosent" module="jcommunity" action="registration:infosent">
+        </url>
+        <url pathinfo="/users/registration/confirm" module="jcommunity" action="registration:confirm">
+        </url>
+        <url pathinfo="/users/registration/confirmform" module="jcommunity" action="registration:confirmform">
+        </url>
+        <url pathinfo="/users/registration/confirmok" module="jcommunity" action="registration:confirmok">
+        </url>
+
+        <url pathinfo="/users/password" module="jcommunity" action="password:index">
+        </url>
+        <url pathinfo="/users/password/send" module="jcommunity" action="password:send">
+        </url>
+        <url pathinfo="/users/password/pwdsent" module="jcommunity" action="password:pwdsent">
+        </url>
+        <url pathinfo="/users/password/confirm" module="jcommunity" action="password:confirm">
+        </url>
+        <url pathinfo="/users/password/confirmform" module="jcommunity" action="password:confirmform">
+        </url>
+        <url pathinfo="/users/password/confirmok" module="jcommunity" action="password:confirmok">
+        </url>
+
+
+    </classicentrypoint>
+
+</urls>
