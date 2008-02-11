@@ -10,15 +10,15 @@
 @licence      http://www.gnu.org/licenses/gpl.html GNU General Public Licence, see LICENCE file
 -->
    <input ref="login" required="true">
-      <label>Login</label>
+       <label locale="register.form.confirm.label.login"/>
    </input>
 
    <input ref="key"  required="true">
-      <label>Clef d'activation</label>
+       <label locale="register.form.confirm.label.key"/>
    </input>
 
    <submit ref="submit">
-       <label>Activer</label>
+       <label locale="register.form.confirm.label.activate"/>
    </submit>
    
 </forms>

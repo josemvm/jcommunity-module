@@ -10,14 +10,14 @@
 @licence      http://www.gnu.org/licenses/gpl.html GNU General Public Licence, see LICENCE file
 -->
    <input ref="login" required="true">
-      <label>Login</label>
+      <label locale="register.form.create.login"/>
    </input>
 
    <input ref="email"  required="true" type="email">
-      <label>Email</label>
+       <label locale="register.form.create.email"/>
    </input>
-   
+
    <submit ref="submit">
-       <label>Créer un compte</label>
+       <label locale="register.form.create.submit" />
    </submit>
 </forms>

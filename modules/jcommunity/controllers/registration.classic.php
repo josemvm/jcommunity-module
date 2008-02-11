@@ -27,19 +27,17 @@ class registrationCtrl extends jController {
     */
     function save() {
         global $gJConfig;
+        $rep= $this->getResponse("redirect");
+        $rep->action="registration:index";
 
         $form = jForms::fill('registration');
         if(!$form->check()){
-            $rep= $this->getResponse("redirect");
-            $rep->action="registration:index";
             return $rep;
         }
 
         $login = $form->getData('login');
         if(jAuth::getUser($login)){
             $form->setErrorOn('login',jLocale::get('register.form.login.exists'));
-            $rep= $this->getResponse("redirect");
-            $rep->action="registration:index";
             return $rep;
         }
 
@@ -50,6 +48,7 @@ class registrationCtrl extends jController {
         $user->email = $form->getData('email');
         $user->nickname = $login;
         $user->status = JCOMMUNITY_STATUS_NEW;
+        $user->request_date = date('Y-m-d H:i:s');
         $user->keyactivate = $key;
         jAuth::saveNewUser($user);
 
@@ -68,9 +67,9 @@ class registrationCtrl extends jController {
         //$mail->SMTPDebug = true;
         $mail->Send();
 
-        $rep= $this->getResponse("redirect");
-        $rep->action="registration:infosent";
         jForms::destroy('registration');
+
+        $rep->action="registration:infosent";
         return $rep;
     }
 
@@ -80,7 +79,8 @@ class registrationCtrl extends jController {
     */
     function infosent() {
         $rep = $this->getResponse('html');
-        $rep->body->assignZone('MAIN','registrationsent');
+        $tpl = new jTpl();
+        $rep->body->assign('MAIN',$tpl->fetch('registration_sent'));
         return $rep;
     }
 
@@ -91,7 +91,13 @@ class registrationCtrl extends jController {
     */
     function confirmform() {
         $rep = $this->getResponse('html');
-        $rep->body->assignZone('MAIN','registration_confirmation');
+        $form = jForms::get('confirmation');
+        if($form == null){
+            $form = jForms::create('confirmation');
+        }
+        $tpl = new jTpl();
+        $tpl->assign('form',$form);
+        $rep->body->assign('MAIN',$tpl->fetch('registration_confirmation'));
         return $rep;
     }
 
@@ -99,17 +105,16 @@ class registrationCtrl extends jController {
     * activate an account. the key should be given as a parameter
     */
     function confirm() {
-        $form = jForms::get('confirmation');
+        $rep= $this->getResponse("redirect");
+        $rep->action="registration:confirmform";
+
+        $form = jForms::fill('confirmation');
         if ($form == null) {
             $form = jForms::create('confirmation');
-            $form->setData('login', $this->param('login'));
-            $form->setData('key', $this->param('key'));
-        } else {
             $form = jForms::fill('confirmation');
         }
+
         if (!$form->check()) {
-            $rep= $this->getResponse("redirect");
-            $rep->action="registration:confirmform";
             return $rep;
         }
 
@@ -117,29 +122,26 @@ class registrationCtrl extends jController {
         $user = jAuth::getUser($login);
         if (!$user) {
             $form->setErrorOn('login',jLocale::get('register.form.confirm.login.doesnt.exist'));
-            $rep= $this->getResponse("redirect");
-            $rep->action="registration:confirmform";
             return $rep;
         }
 
         if ($user->status != JCOMMUNITY_STATUS_NEW) {
             jForms::destroy('confirmation');
             $rep = $this->getResponse('html');
-            $rep->body->assignZone('MAIN','registrationok', array('already'=>true));
+            $tpl = new jTpl();
+            $tpl->assign('already',true);
+            $rep->body->assign('MAIN',$tpl->fetch('registration_ok'));
             return $rep;
         }
 
         if ($form->getData('key') == $user->keyactivate) {
             $user->status = JCOMMUNITY_STATUS_VALID;
             jAuth::updateUser($user);
-            $rep = $this->getResponse('redirect');
             $rep->action="registration:confirmok";
             return $rep;
         }
         else {
             $form->setErrorOn('key',jLocale::get('register.form.confirm.bad.key'));
-            $rep= $this->getResponse("redirect");
-            $rep->action="registration:confirmform";
             return $rep;
         }
     }
@@ -149,7 +151,9 @@ class registrationCtrl extends jController {
     */
     function confirmok() {
         $rep = $this->getResponse('html');
-        $rep->body->assignZone('MAIN','registrationok');
+        $tpl = new jTpl();
+        $tpl->assign('already',false);
+        $rep->body->assign('MAIN',$tpl->fetch('registration_ok'));
         return $rep;
     }
 }

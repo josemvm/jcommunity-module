@@ -20,7 +20,7 @@ class registrationZone extends jZone {
         if($form == null){
             $form = jForms::create('registration');
         }
-        $this->_tpl->assign('form',$form->getContainer());
+        $this->_tpl->assign('form',$form);
     }
 
 }
