@@ -4,36 +4,44 @@
 
         <url pathinfo="/users/dologin" module="jauth" action="login:in">
         </url>
-        
-        
         <!-- all urls for the jcommunity module -->
 
         <url pathinfo="/users" module="jcommunity" action="default:index">
         </url>
-        <url pathinfo="/users/registration" module="jcommunity" action="registration:index">
+        <url pathinfo="/users/:user" module="jcommunity" action="account:show">
+            <param name="user" />
         </url>
-        <url pathinfo="/users/registration/save" module="jcommunity" action="registration:save">
+        <url pathinfo="/users/:user/edit" module="jcommunity" action="account:edit" actionoverride="account:save">
+            <param name="user" />
         </url>
-        <url pathinfo="/users/registration/infosent" module="jcommunity" action="registration:infosent">
-        </url>
-        <url pathinfo="/users/registration/confirm" module="jcommunity" action="registration:confirm">
-        </url>
-        <url pathinfo="/users/registration/confirmform" module="jcommunity" action="registration:confirmform">
-        </url>
-        <url pathinfo="/users/registration/confirmok" module="jcommunity" action="registration:confirmok">
+        <url pathinfo="/users/:user/destroy" module="jcommunity" action="account:destroy" actionoverride="account:dodestroy">
+            <param name="user" />
         </url>
 
-        <url pathinfo="/users/password" module="jcommunity" action="password:index">
+        <url pathinfo="/registration" module="jcommunity" action="registration:index">
         </url>
-        <url pathinfo="/users/password/send" module="jcommunity" action="password:send">
+        <url pathinfo="/registration/save" module="jcommunity" action="registration:save">
         </url>
-        <url pathinfo="/users/password/pwdsent" module="jcommunity" action="password:pwdsent">
+        <url pathinfo="/registration/infosent" module="jcommunity" action="registration:infosent">
         </url>
-        <url pathinfo="/users/password/confirm" module="jcommunity" action="password:confirm">
+        <url pathinfo="/registration/confirm" module="jcommunity" action="registration:confirm">
         </url>
-        <url pathinfo="/users/password/confirmform" module="jcommunity" action="password:confirmform">
+        <url pathinfo="/registration/confirmform" module="jcommunity" action="registration:confirmform">
         </url>
-        <url pathinfo="/users/password/confirmok" module="jcommunity" action="password:confirmok">
+        <url pathinfo="/registration/confirmok" module="jcommunity" action="registration:confirmok">
+        </url>
+
+        <url pathinfo="/registration/password" module="jcommunity" action="password:index">
+        </url>
+        <url pathinfo="/registration/password/send" module="jcommunity" action="password:send">
+        </url>
+        <url pathinfo="/registration/password/pwdsent" module="jcommunity" action="password:pwdsent">
+        </url>
+        <url pathinfo="/registration/password/confirm" module="jcommunity" action="password:confirm">
+        </url>
+        <url pathinfo="/registration/password/confirmform" module="jcommunity" action="password:confirmform">
+        </url>
+        <url pathinfo="/registration/password/confirmok" module="jcommunity" action="password:confirmok">
         </url>
 
 
