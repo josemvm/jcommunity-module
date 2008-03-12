@@ -59,7 +59,7 @@ enable_after_logout_override = on
 ;============ Parameters for the persistance of the authentification
 
 ; enable the persistance of the authentification between two sessions
-persistant_enable=off
+persistant_enable=on
 
 ; key to use to crypt the password in the cookie. replace it by your own words !
 persistant_crypt_key= exampleOfCryptKey
@@ -68,7 +68,7 @@ persistant_crypt_key= exampleOfCryptKey
 persistant_cookie_name=jelixAuthentificationCookie
 
 ; duration of the validity of the cookie (in days). default is 1 day.
-persistant_duration = 1
+persistant_duration = 15
 
 ; base path for the cookie. If empty, it uses the basePath value from the main configuration.
 persistant_cookie_path =

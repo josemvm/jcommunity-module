@@ -16,12 +16,14 @@ class loginZone extends jZone {
 
 
     protected function _prepareTpl(){
-        $this->_tpl->assignIfNone('login','');
+        if(jAuth::isConnected()) {
+            $this->_tpl->assign('login',jAuth::getUserSession ()->login);
+        }
+        else {
+            $this->_tpl->assign('login','');
+        }
         $this->_tpl->assignIfNone('password','');
-
     }
-
-
 }
 
 ?>
