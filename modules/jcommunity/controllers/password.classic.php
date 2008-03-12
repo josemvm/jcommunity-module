@@ -47,7 +47,7 @@ class passwordCtrl extends jController {
             return $rep;
         }
 
-        $pass = jAuth::getRandomPassword();
+        $pass = jAuth::getRandomPassword(8);
         $key = substr(md5($login.'-'.$pass),1,10);
 
         $user->status = JCOMMUNITY_STATUS_PWD_CHANGED;

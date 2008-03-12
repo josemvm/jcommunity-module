@@ -41,7 +41,7 @@ class registrationCtrl extends jController {
             return $rep;
         }
 
-        $pass = jAuth::getRandomPassword();
+        $pass = jAuth::getRandomPassword(8);
         $key = substr(md5($login.'-'.$pass),1,10);
 
         $user = jAuth::createUserObject($login,$pass);
@@ -135,6 +135,7 @@ class registrationCtrl extends jController {
         }
 
         if ($form->getData('key') == $user->keyactivate) {
+            jForms::destroy('confirmation');
             $user->status = JCOMMUNITY_STATUS_VALID;
             jAuth::updateUser($user);
             $rep->action="registration:confirmok";
