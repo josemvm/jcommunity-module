@@ -9,15 +9,15 @@
 @link         http://jelix.org
 @licence      http://www.gnu.org/licenses/gpl.html GNU General Public Licence, see LICENCE file
 -->
-   <input ref="login" required="true">
+   <input ref="conf_login" required="true">
        <label locale="register.form.confirm.label.login"/>
    </input>
 
-   <input ref="key"  required="true">
+   <input ref="conf_key"  required="true">
        <label locale="register.form.confirm.label.key"/>
    </input>
 
-   <submit ref="submit">
+   <submit ref="conf_submit">
        <label locale="register.form.confirm.label.activate"/>
    </submit>
    

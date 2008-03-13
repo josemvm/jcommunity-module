@@ -5,8 +5,8 @@
 {form $form,'jcommunity~registration:save', array()}
 <fieldset>
     <legend>Informations</legend>
-    <p>{ctrl_label 'login'} : {ctrl_control 'login'}</p>
-    <p>{ctrl_label 'email'} : {ctrl_control 'email'}</p>
+    <p>{ctrl_label 'reg_login'} : {ctrl_control 'reg_login'}</p>
+    <p>{ctrl_label 'reg_email'} : {ctrl_control 'reg_email'}</p>
 </fieldset>
 <p>An email will be sent to you with a link to confirm your registration. After it, 
 you could identified yourself on the site.</p>

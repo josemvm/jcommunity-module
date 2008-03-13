@@ -12,6 +12,11 @@
 include(dirname(__FILE__).'/../classes/defines.php');
 
 class registrationCtrl extends jController {
+
+    public $pluginParams = array(
+      '*'=>array('auth.required'=>false)
+    );
+
     /**
     * registration form
     */
@@ -35,9 +40,9 @@ class registrationCtrl extends jController {
             return $rep;
         }
 
-        $login = $form->getData('login');
+        $login = $form->getData('reg_login');
         if(jAuth::getUser($login)){
-            $form->setErrorOn('login',jLocale::get('register.form.login.exists'));
+            $form->setErrorOn('reg_login',jLocale::get('register.form.login.exists'));
             return $rep;
         }
 
@@ -45,7 +50,7 @@ class registrationCtrl extends jController {
         $key = substr(md5($login.'-'.$pass),1,10);
 
         $user = jAuth::createUserObject($login,$pass);
-        $user->email = $form->getData('email');
+        $user->email = $form->getData('reg_email');
         $user->nickname = $login;
         $user->status = JCOMMUNITY_STATUS_NEW;
         $user->request_date = date('Y-m-d H:i:s');
@@ -118,10 +123,10 @@ class registrationCtrl extends jController {
             return $rep;
         }
 
-        $login = $form->getData('login');
+        $login = $form->getData('conf_login');
         $user = jAuth::getUser($login);
         if (!$user) {
-            $form->setErrorOn('login',jLocale::get('register.form.confirm.login.doesnt.exist'));
+            $form->setErrorOn('conf_login',jLocale::get('register.form.confirm.login.doesnt.exist'));
             return $rep;
         }
 
@@ -134,7 +139,7 @@ class registrationCtrl extends jController {
             return $rep;
         }
 
-        if ($form->getData('key') == $user->keyactivate) {
+        if ($form->getData('conf_key') == $user->keyactivate) {
             jForms::destroy('confirmation');
             $user->status = JCOMMUNITY_STATUS_VALID;
             jAuth::updateUser($user);
@@ -142,7 +147,7 @@ class registrationCtrl extends jController {
             return $rep;
         }
         else {
-            $form->setErrorOn('key',jLocale::get('register.form.confirm.bad.key'));
+            $form->setErrorOn('conf_key',jLocale::get('register.form.confirm.bad.key'));
             return $rep;
         }
     }

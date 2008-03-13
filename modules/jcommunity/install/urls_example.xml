@@ -2,10 +2,14 @@
 <urls xmlns="http://jelix.org/ns/urls/1.0">
     <classicentrypoint name="index" default="true">
 
-        <url pathinfo="/users/dologin" module="jauth" action="login:in">
-        </url>
         <!-- all urls for the jcommunity module -->
 
+        <url pathinfo="/auth/dologin" module="jcommunity" action="login:in">
+        </url>
+        <url pathinfo="/auth/dologout" module="jcommunity" action="login:out">
+        </url>
+
+        
         <url pathinfo="/users" module="jcommunity" action="default:index">
         </url>
         <url pathinfo="/users/:user" module="jcommunity" action="account:show">

@@ -6,8 +6,8 @@ have received.</p>
 {form $form,'jcommunity~password:confirm', array()}
 <fieldset>
     <legend>Activation</legend>
-    <p>{ctrl_label 'login'} : {ctrl_control 'login'}</p>
-    <p>{ctrl_label 'key'} : {ctrl_control 'key'}</p>
+    <p>{ctrl_label 'conf_login'} : {ctrl_control 'conf_login'}</p>
+    <p>{ctrl_label 'conf_key'} : {ctrl_control 'conf_key'}</p>
 </fieldset>
 <p>{formsubmit}</p>
 {/form}

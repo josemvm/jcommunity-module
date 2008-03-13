@@ -4,7 +4,7 @@ Vous venez de demander un nouveau mot de passe sur le site.
 
 Si vous voulez confirmer ce changement, soit vous cliquez
 sur le lien suivant :
-http://{$server}{jurl 'jcommunity~password:confirm', array('login'=>$login,'key'=>$key)}
+http://{$server}{jurl 'jcommunity~password:confirm', array('conf_login'=>$login,'conf_key'=>$key)}
 
 
 Soit vous pouvez aller sur la page http://{$server}{jurl 'jcommunity~password:confirmform'} 

@@ -1,20 +1,19 @@
 Bonjour,
 
 Vous venez de vous inscrire sur le site.
-Voici vos informations de connexion :
+
+Pour vous connecter, vous devez d'abord activer votre compte.
+Pour cela, soit vous cliquez sur le lien suivant :
+http://{$server}{jurl 'jcommunity~registration:confirm', array('conf_login'=>$login,'conf_key'=>$key)}
+
+Soit vous allez sur la page http://{$server}{jurl 'jcommunity~registration:confirmform'} 
+et indiquez votre login et la clé d'activation suivante : {$key}.
+
+
+Une fois l'activation confirmée vous pourrez vous identifier sur le site 
+avec les informations de connexion suivantes:
 
 - Votre login : {$login} 
-- Le mot de passe : {$pass}
-
-
-Mais pour vous connecter, vous devez activer votre compte.
-Pour cela, soit vous cliquez sur le lien suivant :
-http://{$server}{jurl 'jcommunity~registration:confirm', array('login'=>$login,'key'=>$key)}
-
-Soit vous pouvez aller sur la page http://{$server}{jurl 'jcommunity~registration:confirmform'} 
-et indiquer votre login et la clé d'activation suivante : {$key}.
-
-
-Une fois l'activation confirmée vous pourrez vous identifier sur le site.
+- Votre mot de passe : {$pass}
 
 À bientôt sur notre site.

@@ -33,10 +33,10 @@ on_error = 1
 error_message = "jauth~autherror.notlogged"
 
 ; action to execute on a missing authentification when on_error=2
-on_error_action = "jauth~login:out"
+on_error_action = "jcommunity~login:out"
 
 ; action to execute when a bad ip is checked with secure_with_ip=1 and on_error=2
-bad_ip_action = "jauth~login:out"
+bad_ip_action = "jcommunity~login:out"
 
 
 ;=========== Parameters for jauth module

@@ -13,6 +13,10 @@ include(dirname(__FILE__).'/../classes/defines.php');
 
 class passwordCtrl extends jController {
 
+    public $pluginParams = array(
+      '*'=>array('auth.required'=>false)
+    );
+
     /**
     * form to retrieve a lost password
     */
@@ -35,15 +39,15 @@ class passwordCtrl extends jController {
             return $rep;
         }
 
-        $login = $form->getData('login');
+        $login = $form->getData('pass_login');
         $user = jAuth::getUser($login);
         if(!$user){
-            $form->setErrorOn('login',jLocale::get('password.login.doesnt.exist'));
+            $form->setErrorOn('pass_login',jLocale::get('password.login.doesnt.exist'));
             return $rep;
         }
 
-        if($user->email != $form->getData('email')){
-            $form->setErrorOn('email',jLocale::get('password.email.unknown'));
+        if($user->email != $form->getData('pass_email')){
+            $form->setErrorOn('pass_email',jLocale::get('password.email.unknown'));
             return $rep;
         }
 
@@ -119,10 +123,10 @@ class passwordCtrl extends jController {
             return $rep;
         }
 
-        $login = $form->getData('login');
+        $login = $form->getData('conf_login');
         $user = jAuth::getUser($login);
         if (!$user) {
-            $form->setErrorOn('login',jLocale::get('password.form.confirm.login.doesnt.exist'));
+            $form->setErrorOn('conf_login',jLocale::get('password.form.confirm.login.doesnt.exist'));
             return $rep;
         }
 
@@ -144,8 +148,8 @@ class passwordCtrl extends jController {
             return $rep;
         }
 
-        if ($form->getData('key') != $user->keyactivate) {
-            $form->setErrorOn('key',jLocale::get('password.form.confirm.bad.key'));
+        if ($form->getData('conf_key') != $user->keyactivate) {
+            $form->setErrorOn('conf_key',jLocale::get('password.form.confirm.bad.key'));
             return $rep;
         }
 

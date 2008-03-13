@@ -5,7 +5,7 @@ You have asked a new password on our site.
 If you want to confirm this change, you should :
 
 - click on this link:
-http://{$server}{jurl 'jcommunity~password:confirm', array('login'=>$login,'key'=>$key)}
+http://{$server}{jurl 'jcommunity~password:confirm', array('conf_login'=>$login,'conf_key'=>$key)}
 - Or go on this page http://{$server}{jurl 'jcommunity~password:confirmform'} and
  fill the form with your login and this key : {$key}
 
