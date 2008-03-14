@@ -74,21 +74,9 @@ class registrationCtrl extends jController {
 
         jForms::destroy('registration');
 
-        $rep->action="registration:infosent";
+        $rep->action="registration:confirmform";
         return $rep;
     }
-
-    /**
-    * display the page which confirm that the user is registered
-    * but his account is not activated yet
-    */
-    function infosent() {
-        $rep = $this->getResponse('html');
-        $tpl = new jTpl();
-        $rep->body->assign('MAIN',$tpl->fetch('registration_sent'));
-        return $rep;
-    }
-
 
     /**
     * form to enter the confirmation key

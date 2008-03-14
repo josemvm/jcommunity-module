@@ -76,17 +76,7 @@ class passwordCtrl extends jController {
         $mail->Send();
 
         jForms::destroy('password');
-        $rep->action="password:pwdsent";
-        return $rep;
-    }
-
-    /**
-    * message which confirm that a new password has been sent
-    */
-    function pwdsent() {
-        $rep = $this->getResponse('html');
-        $tpl = new jTpl();
-        $rep->body->assign('MAIN',$tpl->fetch('password_sent'));
+        $rep->action="password:confirmform";
         return $rep;
     }
 

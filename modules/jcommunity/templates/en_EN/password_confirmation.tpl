@@ -1,7 +1,8 @@
 <h2>Activation of your new password</h2>
 
-<p>To activate your new password, please fill the following form with the key given in the email you should
-have received.</p>
+<p>An email has been sent to you which contains your new password and a key.
+In order to confirm the password change. you should indicate the key in the following form.
+After that, the new password given in the mail will be valid.</p>
 
 {form $form,'jcommunity~password:confirm', array()}
 <fieldset>

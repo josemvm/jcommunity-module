@@ -1,7 +1,7 @@
 <h2>Activation de votre nouveau mot de passe</h2>
 
-<p>Pour activer votre nouveau mot de passe, indiquez la clé (un mot avec des chiffres et des lettres) qui vous a
-été donné par mail aprés avoir fait votre demande de mot de passe.</p>
+<p>Un mail vous a été envoyé, contenant votre nouveau mot de passe, et une clé. Pour valider le nouveau
+mot de passe, indiquez la clé dans le formulaire suivant.</p>
 
 {form $form,'jcommunity~password:confirm', array()}
 <fieldset>

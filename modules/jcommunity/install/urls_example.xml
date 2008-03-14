@@ -26,8 +26,6 @@
         </url>
         <url pathinfo="/registration/save" module="jcommunity" action="registration:save">
         </url>
-        <url pathinfo="/registration/infosent" module="jcommunity" action="registration:infosent">
-        </url>
         <url pathinfo="/registration/confirm" module="jcommunity" action="registration:confirm">
         </url>
         <url pathinfo="/registration/confirmform" module="jcommunity" action="registration:confirmform">
@@ -38,8 +36,6 @@
         <url pathinfo="/registration/password" module="jcommunity" action="password:index">
         </url>
         <url pathinfo="/registration/password/send" module="jcommunity" action="password:send">
-        </url>
-        <url pathinfo="/registration/password/pwdsent" module="jcommunity" action="password:pwdsent">
         </url>
         <url pathinfo="/registration/password/confirm" module="jcommunity" action="password:confirm">
         </url>

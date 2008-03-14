@@ -1,7 +1,10 @@
 <h2>Activation de votre compte</h2>
 
-<p>Pour activer votre compte, indiquez la clé (un mot avec des chiffres et des lettres) qui vous a
-donné par mail aprés avoir créer votre compte.</p>
+<p>Un email vous a été envoyé. Il contient votre nouveau mot de passe, mais aussi
+une clé (un mot avec des chiffres et des lettres). Avant de pouvoir vous 
+identifier sur le site, vous devez activer votre compte.</p>
+
+<p>Pour activer votre compte, indiquez la clé ci dessous.</p>
 
 {form $form,'jcommunity~registration:confirm', array()}
 <fieldset>
