@@ -21,6 +21,9 @@ class registrationCtrl extends jController {
     * registration form
     */
     function index() {
+        if(jAuth::isConnected())
+            return $this->noaccess();
+
         $rep = $this->getResponse('html');
         $rep->body->assignZone('MAIN','registration');
         return $rep;
@@ -31,6 +34,9 @@ class registrationCtrl extends jController {
     * a key to activate the account
     */
     function save() {
+        if(jAuth::isConnected())
+            return $this->noaccess();
+
         global $gJConfig;
         $rep= $this->getResponse("redirect");
         $rep->action="registration:index";
@@ -83,6 +89,9 @@ class registrationCtrl extends jController {
     * to activate the account
     */
     function confirmform() {
+        if(jAuth::isConnected())
+            return $this->noaccess();
+
         $rep = $this->getResponse('html');
         $form = jForms::get('confirmation');
         if($form == null){
@@ -98,6 +107,9 @@ class registrationCtrl extends jController {
     * activate an account. the key should be given as a parameter
     */
     function confirm() {
+        if(jAuth::isConnected())
+            return $this->noaccess();
+
         $rep= $this->getResponse("redirect");
         $rep->action="registration:confirmform";
 
@@ -151,6 +163,13 @@ class registrationCtrl extends jController {
         $tpl = new jTpl();
         $tpl->assign('already',false);
         $rep->body->assign('MAIN',$tpl->fetch('registration_ok'));
+        return $rep;
+    }
+
+    protected function noaccess() {
+        $rep = $this->getResponse('html');
+        $tpl = new jTpl();
+        $rep->body->assign('MAIN',$tpl->fetch('no_access'));
         return $rep;
     }
 }

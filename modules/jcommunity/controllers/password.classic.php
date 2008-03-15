@@ -21,6 +21,9 @@ class passwordCtrl extends jController {
     * form to retrieve a lost password
     */
     function index() {
+        if(jAuth::isConnected())
+            return $this->noaccess();
+
         $rep = $this->getResponse('html');
         $rep->body->assignZone('MAIN','password');
         return $rep;
@@ -30,6 +33,9 @@ class passwordCtrl extends jController {
     * send a new password 
     */
     function send() {
+        if(jAuth::isConnected())
+            return $this->noaccess();
+
         global $gJConfig;
         $rep= $this->getResponse("redirect");
         $rep->action="password:index";
@@ -84,6 +90,9 @@ class passwordCtrl extends jController {
     * to activate the new password
     */
     function confirmform() {
+        if(jAuth::isConnected())
+            return $this->noaccess();
+
         $rep = $this->getResponse('html');
         $form = jForms::get('confirmation');
         if($form == null){
@@ -99,6 +108,9 @@ class passwordCtrl extends jController {
     * activate a new password. the key should be given as a parameter
     */
     function confirm() {
+        if(jAuth::isConnected())
+            return $this->noaccess();
+
         $rep= $this->getResponse("redirect");
         $rep->action="password:confirmform";
 
@@ -165,6 +177,11 @@ class passwordCtrl extends jController {
         return $rep;
     }
 
-
+    protected function noaccess() {
+        $rep = $this->getResponse('html');
+        $tpl = new jTpl();
+        $rep->body->assign('MAIN',$tpl->fetch('no_access'));
+        return $rep;
+    }
 }
 ?>
