@@ -101,10 +101,12 @@ class registrationCtrl extends jController {
         $rep= $this->getResponse("redirect");
         $rep->action="registration:confirmform";
 
+        if($_SERVER['REQUEST_METHOD'] != 'POST')
+            return $rep;
+
         $form = jForms::fill('confirmation');
         if ($form == null) {
-            $form = jForms::create('confirmation');
-            $form = jForms::fill('confirmation');
+            return $rep;
         }
 
         if (!$form->check()) {
@@ -127,17 +129,18 @@ class registrationCtrl extends jController {
             return $rep;
         }
 
-        if ($form->getData('conf_key') == $user->keyactivate) {
-            jForms::destroy('confirmation');
-            $user->status = JCOMMUNITY_STATUS_VALID;
-            jAuth::updateUser($user);
-            $rep->action="registration:confirmok";
-            return $rep;
-        }
-        else {
+        if ($form->getData('conf_key') != $user->keyactivate) {
             $form->setErrorOn('conf_key',jLocale::get('register.form.confirm.bad.key'));
             return $rep;
         }
+
+        $user->status = JCOMMUNITY_STATUS_VALID;
+        jAuth::updateUser($user);
+        jAuth::changePassword($login, $form->getData('conf_password'));
+        jAuth::login($login, $form->getData('conf_password'));
+        jForms::destroy('confirmation');
+        $rep->action="registration:confirmok";
+        return $rep;
     }
 
     /**

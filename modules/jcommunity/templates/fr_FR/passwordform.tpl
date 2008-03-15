@@ -8,6 +8,6 @@ et l'adresse e-mail que vous avez indiqué dans votre profil, lors de votre insc
     <p>{ctrl_label 'pass_login'} : {ctrl_control 'pass_login'}</p>
     <p>{ctrl_label 'pass_email'} : {ctrl_control 'pass_email'}</p>
 </fieldset>
-<p>Un email vous sera envoyé avec votre nouveau mot de passe.</p>
+<p>Un email vous sera envoyé avec une clé d'activation vous permettant de choisir un nouveau mot de passe.</p>
 <p>{formsubmit}</p>
 {/form}

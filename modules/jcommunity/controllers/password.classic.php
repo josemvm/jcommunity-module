@@ -55,7 +55,6 @@ class passwordCtrl extends jController {
         $key = substr(md5($login.'-'.$pass),1,10);
 
         $user->status = JCOMMUNITY_STATUS_PWD_CHANGED;
-        $user->new_password = $pass;
         $user->request_date = date('Y-m-d H:i:s');
         $user->keyactivate = $key;
         jAuth::updateUser($user);
@@ -86,7 +85,6 @@ class passwordCtrl extends jController {
     */
     function confirmform() {
         $rep = $this->getResponse('html');
-
         $form = jForms::get('confirmation');
         if($form == null){
             $form = jForms::create('confirmation');
@@ -104,11 +102,14 @@ class passwordCtrl extends jController {
         $rep= $this->getResponse("redirect");
         $rep->action="password:confirmform";
 
+        if($_SERVER['REQUEST_METHOD'] != 'POST')
+            return $rep;
+
         $form = jForms::fill('confirmation');
-        if($form == null){
-            $form = jForms::create('confirmation');
-            $form = jForms::fill('confirmation');
+        if ($form == null) {
+            return $rep;
         }
+
         if (!$form->check()) {
             return $rep;
         }
@@ -143,12 +144,12 @@ class passwordCtrl extends jController {
             return $rep;
         }
 
-        jForms::destroy('confirmation');
-        $passwd = $user->new_password;
-        $user->new_password = null;
+        $passwd = $form->getData('conf_password');
         $user->status = JCOMMUNITY_STATUS_VALID;
         jAuth::updateUser($user);
         jAuth::changePassword($login, $passwd);
+        jAuth::login($login, $passwd);
+        jForms::destroy('confirmation');
         $rep->action="password:confirmok";
         return $rep;
     }

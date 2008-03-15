@@ -1,15 +1,19 @@
 <h2>Activation of your account</h2>
 
-<p>An email has been sent to you which contains your new password and a key. You must activate your account
-before to authenticate yourself on the web site.</p>
+<p>You must activate your account before to authenticate yourself on the web site.
+<strong>An email has been sent to you</strong> which contains a key (a word with some characters and numbers),
+to activate your account.</p>
 
-<p>To activate your account, please fill the following form with the key given in the email.</p>
+<p>Please fill the following form with the key given in the email, and choose a password for your account.</p>
 
 {form $form,'jcommunity~registration:confirm', array()}
 <fieldset>
     <legend>Activation</legend>
-    <p>{ctrl_label 'conf_login'} : {ctrl_control 'conf_login'}</p>
-    <p>{ctrl_label 'conf_key'} : {ctrl_control 'conf_key'}</p>
+    <ul>
+    {formcontrols}
+    <li>{ctrl_label} : {ctrl_control}</li>
+    {/formcontrols}
+    </ul>
 </fieldset>
 <p>{formsubmit}</p>
 {/form}

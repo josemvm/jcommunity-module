@@ -2,18 +2,15 @@ Hello,
 
 You have created a new account on our site.
 
-Before to connect yourself on our site, please activate your account. You can activate it:
+Before to identify yourself on our site, please activate your account. 
 
-- by clicking on this link:
-http://{$server}{jurl 'jcommunity~registration:confirm', array('conf_login'=>$login,'conf_key'=>$key)}
+You can activate it by filling the form displayed after the creation of your account.
+In this form, indicate your login "{$login}" and this key: {$key}
 
-- Or by going on this page http://{$server}{jurl 'jcommunity~registration:confirmform'} and
- fill the form with your login and this key : {$key}
+(the form is available at this page if you loose the page:
+http://{$server}{jurl 'jcommunity~registration:confirmform'} )
 
-After the confirmation of the activating, you can login on our site,
-with this informations:
-
-- Your login: {$login} 
-- Your password: {$pass}
+In the form, you will also indicate a new password for your account. You can choose any
+password. Here is an example you can use {$pass}.
 
 See you soon on our site !

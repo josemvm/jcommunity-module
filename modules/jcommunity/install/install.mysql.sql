@@ -5,7 +5,6 @@ CREATE TABLE `community_users` (
   `nickname` varchar(50) default NULL,
   `status` tinyint(4) NOT NULL default '0',
   `keyactivate` varchar(10) default NULL,
-  `new_password` varchar(50) default NULL,
   `request_date` datetime default NULL,
   PRIMARY KEY  (`login`)
 );

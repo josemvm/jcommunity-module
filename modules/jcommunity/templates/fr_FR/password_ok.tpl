@@ -4,9 +4,9 @@
 {else}
 {if $status == 2}
 <p>L'activation n'est pas possible : la periode de validité de la clé a expirée.
-Si vous voulez récupérer votre mot de passe, <a href="{jurl 'jcommunity~password:index'}">refaîte une demande</a>.</p>
+Si vous voulez récupérer un nouveau mot de passe, <a href="{jurl 'jcommunity~password:index'}">refaîte une demande</a>.</p>
 <p>Vous pouvez toutefois vous identifier sur le site avec votre ancien mot de passe.</p>
 {else}
-<p>Votre nouveau mot de passe est maintenant activé. Vous pouvez vous identifier sur le site.</p>
+<p>Votre nouveau mot de passe est maintenant activé et vous êtes maintenant identifié sur le site.</p>
 {/if}
 {/if}

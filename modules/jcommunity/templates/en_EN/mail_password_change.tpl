@@ -2,14 +2,14 @@ Hello,
 
 You have asked a new password on our site.
 
-If you want to confirm this change, you should :
+If you really want to change it, you should confirm by filling the form displayed after
+your request. In this form, indicate your login "{$login}" and this key: {$key}
 
-- click on this link:
-http://{$server}{jurl 'jcommunity~password:confirm', array('conf_login'=>$login,'conf_key'=>$key)}
-- Or go on this page http://{$server}{jurl 'jcommunity~password:confirmform'} and
- fill the form with your login and this key : {$key}
+(the form is available at this page if you loose the page:
+http://{$server}{jurl 'jcommunity~password:confirmform'} )
 
-After this confirmation, your new password will be :  {$pass}
+In the form, you will also indicate a new password for your account. You can choose any
+password. Here is an example you can use {$pass}.
 
 If you don't want to confirm, ignore this mail, and your
 password won't be changed.

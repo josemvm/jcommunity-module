@@ -7,6 +7,6 @@
 retrieve a new password, <a href="{jurl 'jcommunity~password:index'}">ask a new one</a>.</p>
 <p>However, you can still authenticate yourself with your old password.</p>
 {else}
-<p>The new password is now activated. You can authenticate yourself on the web site now.</p>
+<p>The new password is now activated, and you are identified on the web site now.</p>
 {/if}
 {/if}
