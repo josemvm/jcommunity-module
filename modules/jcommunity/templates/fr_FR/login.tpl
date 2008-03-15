@@ -4,7 +4,7 @@
     {$login}, vous êtes connecté.
     <div class="loginbox-links">
         (<a href="{jurl 'jcommunity~login:out'}">déconnexion</a>,
-        <a href="{jurl 'jcommunity~user:index', array('user'=>$login)}">votre compte</a>)
+        <a href="{jurl 'jcommunity~account:show', array('user'=>$login)}">votre compte</a>)
     </div>
 
 {else}
