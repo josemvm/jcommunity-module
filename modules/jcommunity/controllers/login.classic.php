@@ -16,6 +16,12 @@ class loginCtrl extends jController {
       '*'=>array('auth.required'=>false)
     );
 
+    function index() {
+        $rep = $this->getResponse('html');
+        $rep->body->assignZone('MAIN','jcommunity~login');
+        return $rep;
+    }
+
     /**
     *
     */
@@ -70,4 +76,3 @@ class loginCtrl extends jController {
         return $rep;
     }
 }
-?>

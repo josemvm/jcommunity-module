@@ -184,4 +184,3 @@ class passwordCtrl extends jController {
         return $rep;
     }
 }
-?>

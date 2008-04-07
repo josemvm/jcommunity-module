@@ -4,6 +4,8 @@
 
         <!-- all urls for the jcommunity module -->
 
+        <url pathinfo="/auth/login" module="main" action="login:index">
+        </url>
         <url pathinfo="/auth/dologin" module="jcommunity" action="login:in">
         </url>
         <url pathinfo="/auth/dologout" module="jcommunity" action="login:out">
