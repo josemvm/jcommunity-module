@@ -17,7 +17,7 @@ class statusZone extends jZone {
     protected function _prepareTpl(){
 
         if(jAuth::isConnected()) {
-            $this->body->assign('login',jAuth::getUserSession ()->login);
+            $this->_tpl->assign('login',jAuth::getUserSession ()->login);
         }
     }
 }
