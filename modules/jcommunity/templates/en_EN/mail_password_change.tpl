@@ -1,6 +1,6 @@
 Hello,
 
-You have asked a new password on our site.
+You have asked a new password on http://{$server}.
 
 If you really want to change it, you should confirm by filling the form displayed after
 your request. In this form, indicate your login "{$login}" and this key: {$key}
@@ -14,4 +14,4 @@ password. Here is an example you can use {$pass}.
 If you don't want to confirm, ignore this mail, and your
 password won't be changed.
 
-See you soon on our site !
+See you soon on {$server} !

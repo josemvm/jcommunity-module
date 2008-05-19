@@ -1,6 +1,6 @@
 Hello,
 
-You have created a new account on our site.
+You have created a new account on http://{$server}.
 
 Before to identify yourself on our site, please activate your account. 
 
@@ -13,4 +13,4 @@ http://{$server}{jurl 'jcommunity~registration:confirmform'} )
 In the form, you will also indicate a new password for your account. You can choose any
 password. Here is an example you can use {$pass}.
 
-See you soon on our site !
+See you soon on {$server} !

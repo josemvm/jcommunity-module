@@ -1,6 +1,6 @@
 Bonjour,
 
-Vous venez de demander un nouveau mot de passe sur le site.
+Vous venez de demander un nouveau mot de passe sur le site http://{$server}.
 
 Si vous voulez confirmer ce changement, remplissez le formulaire 
 qui s'est affiché aprés votre demande, en indiquant votre login  "{$login}"
@@ -17,4 +17,4 @@ Si vous ne voulez pas confirmer, ignorez ce mail,
 et votre ancien mot de passe sera toujours valide.
 
 
-À bientôt sur notre site.
+À bientôt sur {$server}.

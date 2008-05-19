@@ -1,6 +1,6 @@
 Bonjour,
 
-Vous venez de vous inscrire sur le site.
+Vous venez de vous inscrire sur le site http://{$server}.
 
 Pour vous identifier, vous devez d'abord activer votre compte.
 
@@ -14,4 +14,4 @@ http://{$server}{jurl 'jcommunity~registration:confirmform'})
 Vous devrez aussi indiquer sur ce formulaire un mot de passe de votre choix.
 Voici une proposition de mot de passe: {$pass}
 
-À bientôt sur notre site.
+À bientôt sur {$server}.
