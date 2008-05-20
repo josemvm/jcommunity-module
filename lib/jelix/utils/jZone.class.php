@@ -30,13 +30,6 @@ class jZone {
     protected $_useCache = false;
 
     /**
-    * parameters name which identify a cache (an article id for exemple)
-    * you should override it in your class if you want a cache for each parameter values
-    * @var array
-    */
-    protected $_cacheParams = array ();
-
-    /**
      * cache timeout (seconds).
      * set to 0 if you want to delete cache manually.
      * @var integer
@@ -123,7 +116,7 @@ class jZone {
 
         if($name !=''){
             $sel = new jSelectorZone($name);
-            $fic = '~'.$sel->module.'~zone'.strtolower($sel->resource).'~';
+            $fic = '~'.$sel->module.'~'.strtolower($sel->resource).'zone~';
         }else{
             $fic = '~';
         }
@@ -201,7 +194,6 @@ class jZone {
         }
     }
 
-
     /**
     * create the content of the zone
     * by default, it uses a template, and so prepare a jtpl object to use in _prepareTpl.
@@ -210,11 +202,11 @@ class jZone {
     * @return string generated content
     */
     protected function _createContent (){
-        if($this->_tplname == '') return '';
         $this->_tpl = new jTpl();
         $this->_tpl->assign($this->_params);
         $this->_prepareTpl();
-        return $this->_tpl->metaFetch($this->_tplname, $this->_tplOuputType);
+        if($this->_tplname == '') return '';
+        return $this->_tpl->fetch($this->_tplname, $this->_tplOuputType);
     }
 
     /**

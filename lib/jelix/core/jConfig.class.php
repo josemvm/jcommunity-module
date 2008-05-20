@@ -34,7 +34,10 @@ class jConfig {
      */
     static public function load($configFile){
         $config=array();
-        $file = JELIX_APP_TEMP_PATH.str_replace('/','~',$configFile).'.resultini.php';
+        if(BYTECODE_CACHE_EXISTS)
+            $file = JELIX_APP_TEMP_PATH.str_replace('/','~',$configFile).'.conf.php';
+        else
+            $file = JELIX_APP_TEMP_PATH.str_replace('/','~',$configFile).'.resultini.php';
         $compil=false;
         if(!file_exists($file)){
             // pas de cache, on compile
@@ -49,8 +52,13 @@ class jConfig {
             }else{
 
                 // on lit le fichier de conf du cache
-                $config = parse_ini_file($file,true);
-                $config = (object) $config;
+                if(BYTECODE_CACHE_EXISTS){
+                    include($file);
+                    $config = (object) $config;
+                }else{
+                    $config = parse_ini_file($file,true);
+                    $config = (object) $config;
+                }
                 // on va verifier tous les chemins
                 if($config->compilation['checkCacheFiletime']){
                     foreach($config->_allBasePath as $path){

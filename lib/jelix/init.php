@@ -17,7 +17,7 @@
  * Version number of Jelix
  * @name  JELIX_VERSION
  */
-define ('JELIX_VERSION', 'SVN-757');
+define ('JELIX_VERSION', '1.0.3');
 
 /**
  * base of namespace path used in xml files of jelix
@@ -44,6 +44,7 @@ define ('LIB_PATH',           realpath(dirname (__FILE__).'/../').'/');
 define ('JELIX_PLUGINS_PATH', LIB_PATH.'jelix-plugins/');
 define ('JELIX_MODULE_PATH',  LIB_PATH.'jelix-modules/');
 
+define ('BYTECODE_CACHE_EXISTS', function_exists('apc_cache_info')|| function_exists('eaccelerator_info'));
 
 if(!defined('E_RECOVERABLE_ERROR'))
     define ('E_RECOVERABLE_ERROR',4096);

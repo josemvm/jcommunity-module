@@ -31,14 +31,14 @@ class jConfigCompiler {
 
         $config = jIniFile::read(JELIX_LIB_CORE_PATH.'defaultconfig.ini.php');
 
-        if( $commonConfig = @parse_ini_file(JELIX_APP_CONFIG_PATH.'defaultconfig.ini.php',true)){
+        if( $commonConfig = parse_ini_file(JELIX_APP_CONFIG_PATH.'defaultconfig.ini.php',true)){
             self::_mergeConfig($config, $commonConfig);
         }
 
         if($configFile !='defaultconfig.ini.php'){
             if(!file_exists(JELIX_APP_CONFIG_PATH.$configFile))
                 die("Jelix config file $configFile is missing !");
-            if( false === ($userConfig = @parse_ini_file(JELIX_APP_CONFIG_PATH.$configFile,true)))
+            if( false === ($userConfig = parse_ini_file(JELIX_APP_CONFIG_PATH.$configFile,true)))
                 die("Syntax error in the Jelix config file $configFile !");
             self::_mergeConfig($config, $userConfig);
         }
@@ -83,7 +83,17 @@ class jConfigCompiler {
             die("Syntax error in the locale parameter in Jelix config file $configFile !");
         }*/
 
-        jIniFile::write($config, JELIX_APP_TEMP_PATH.str_replace('/','~',$configFile).'.resultini.php', ";<?php die('');?>\n");
+        if(BYTECODE_CACHE_EXISTS){
+            $filename=JELIX_APP_TEMP_PATH.str_replace('/','~',$configFile).'.conf.php';
+            if ($f = @fopen($filename, 'wb')) {
+                fwrite($f, '<?php $config = '.var_export($config,true).";\n?>");
+                fclose($f);
+            } else {
+                throw new Exception('(24)Error while writing config cache file '.$filename);
+            }
+        }else{
+            jIniFile::write($config, JELIX_APP_TEMP_PATH.str_replace('/','~',$configFile).'.resultini.php', ";<?php die('');?>\n");
+        }
         $config = (object) $config;
         return $config;
     }
@@ -98,6 +108,7 @@ class jConfigCompiler {
         array_unshift($list, JELIX_LIB_PATH.'core-modules/');
         $result=array();
         foreach($list as $k=>$path){
+            if(trim($path) == '') continue;
             $p = str_replace(array('lib:','app:'), array(LIB_PATH, JELIX_APP_PATH), $path);
             if(!file_exists($p)){
                 trigger_error('The path, '.$path.' given in the jelix config, doesn\'t exists !',E_USER_ERROR);
@@ -128,7 +139,7 @@ class jConfigCompiler {
         $list = split(' *, *',$config['pluginsPath']);
         array_unshift($list, JELIX_LIB_PATH.'plugins/'); 
         foreach($list as $k=>$path){
-            if($path == '') continue;
+            if(trim($path) == '') continue;
             $p = str_replace(array('lib:','app:'), array(LIB_PATH, JELIX_APP_PATH), $path);
             if(!file_exists($p)){
                 trigger_error('The path, '.$path.' given in the jelix config, doesn\'t exists !',E_USER_ERROR);
@@ -165,7 +176,7 @@ class jConfigCompiler {
         $varname = '';
         $extlen = strlen($ext);
 
-        if(strrpos($_SERVER['SCRIPT_NAME'], $ext) === (strlen($_SERVER['SCRIPT_NAME']) - $extlen)) {
+        if(strrpos($_SERVER['SCRIPT_NAME'], $ext) === (strlen($_SERVER['SCRIPT_NAME']) - $extlen) || php_sapi_name() == 'cli') {
             return 'SCRIPT_NAME';
         }else if (isset($_SERVER['REDIRECT_URL']) && strrpos( $_SERVER['REDIRECT_URL'], $ext) === (strlen( $_SERVER['REDIRECT_URL']) -$extlen)) {
             return 'REDIRECT_URL';

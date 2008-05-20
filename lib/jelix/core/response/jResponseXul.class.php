@@ -3,8 +3,9 @@
 * @package     jelix
 * @subpackage  core_response
 * @author      Laurent Jouanneau
-* @contributor Dominique Papin
-* @copyright   2005-2007 Laurent Jouanneau, 2007 Dominique Papin
+* @contributor Dominique Papin, Julien Issler
+* @copyright   2005-2008 Laurent Jouanneau, 2007 Dominique Papin
+* @copyright   2008 Julien Issler
 * @link        http://www.jelix.org
 * @licence     GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
 */
@@ -104,7 +105,7 @@ class jResponseXul extends jResponse {
 
         $this->_httpHeaders['Content-Type']='application/vnd.mozilla.xul+xml;charset='.$GLOBALS['gJConfig']->charset;
         $this->sendHttpHeaders();
-        $this->doAfterActions();
+        $this->_commonProcess();
         if($this->bodyTpl != '')
             $this->body->meta($this->bodyTpl);
         $this->outputHeader();
@@ -131,7 +132,7 @@ class jResponseXul extends jResponse {
                         echo 'console.error("[error ';
                         break;
                     }
-                    echo $e[1].'] '.str_replace('"','\"',$e[2]),' (',str_replace('\\','\\\\',$e[3]),' ',$e[4],')");';
+                    echo $e[1],'] ',str_replace(array('"',"\n","\r","\t"),array('\"','\\n','\\r','\\t'),$e[2]),' (',str_replace('\\','\\\\',$e[3]),' ',$e[4],')");';
                 }
                 echo '}else{alert("there are some errors, you should activate Firebug to see them");}</script>';
             }else{
@@ -154,7 +155,7 @@ class jResponseXul extends jResponse {
             if(count($GLOBALS['gJCoord']->logMessages['firebug'])) {
                 echo '<script type="text/javascript">if(console){';
                 foreach($GLOBALS['gJCoord']->logMessages['firebug'] as $m) {
-                    echo 'console.debug("',str_replace(array('\\','"'),array('\\\\','\"'),$m),'");';
+                    echo 'console.debug("',str_replace(array('\\','"',"\n","\r","\t"),array('\\\\','\"','\\n','\\r','\\t'),$m),'");';
                 }
                 echo '}else{alert("there are log messages, you should activate Firebug to see them");}</script>';
             }
@@ -276,21 +277,11 @@ class jResponseXul extends jResponse {
     }
 
     /**
-     * The method you can overload in your inherited XUL response
-     * overload it if you want to add processes (stylesheet, head settings, additionnal content etc..)
-     * after all actions
-     * @since 1.1
-     */
-    protected function doAfterActions(){
-        $this->_commonProcess(); // for compatibility with jelix 1.0
-    }
-
-    /**
-     * same use as doAfterActions, but deprecated method. It is just here for compatibility with Jelix 1.0.
-     * Use doAfterActions instead
-     * @deprecated
+     * override it into your own xul response object, to do
+     * all things commons to all xul actions
      */
     protected function _commonProcess(){
+
     }
 
     /**
@@ -298,8 +289,18 @@ class jResponseXul extends jResponse {
      */
     protected function _otherthings(){
         // overlays
+
+        // browser sniffing, because "&" should be escaped in a xul-overlay PI in gecko 1.9+
+        $escape = false;
+        if(preg_match('!^Mozilla/5.0 \(.* rv:(\d)\.(\d).*\) Gecko/\d+.*$!',$_SERVER["HTTP_USER_AGENT"],$m)){
+            if(version_compare($m[1].'.'.$m[2], '1.9') >= 0) {
+                $escape = true;
+            }
+        }
+
         if($this->fetchOverlays){
-            $eventresp = jEvent::notify ('FetchXulOverlay', array('tpl'=>$this->bodyTpl));
+            $sel = new jSelectorTpl($this->bodyTpl);
+            $eventresp = jEvent::notify ('FetchXulOverlay', array('tpl'=>$sel->toString()));
             foreach($eventresp->getResponse() as $rep){
                 if(is_array($rep)){
                     $this->_overlays[jUrl::get($rep[0],$rep[1])]=true;
@@ -310,7 +311,7 @@ class jResponseXul extends jResponse {
         }
 
         foreach ($this->_overlays as $src=>$ok){
-            echo  '<?xul-overlay href="',$src,'" ?>',"\n";
+            echo  '<?xul-overlay href="',($escape?htmlspecialchars($src):$src),'" ?>',"\n";
         }
 
         $this->rootAttributes['title']=$this->title;

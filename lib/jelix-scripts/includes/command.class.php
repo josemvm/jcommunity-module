@@ -54,7 +54,7 @@ abstract class JelixScriptCommand {
 
 
    protected function getModulePath($module, $shouldexist=true){
-      $path=JELIX_APP_PATH.'modules/'.strtolower($module).'/';
+      $path=JELIX_APP_PATH.'modules/'.$module.'/';
       if(!file_exists($path) && $shouldexist){
          die("Error: module '".$module."' don't exist ($path)\n");
       }
@@ -76,7 +76,7 @@ abstract class JelixScriptCommand {
       $this->tplparam = $tplparam;
 
       foreach($tpl as $k=>$line){
-         $tpl[$k]= preg_replace_callback('|\{\$(\w+)\}|',array(&$this,'replaceCallback'),$line);
+         $tpl[$k]= preg_replace_callback('|\%\%([a-zA-Z0-9_]+)\%\%|',array(&$this,'replaceCallback'),$line);
       }
 
       $f = fopen($filename,'w');

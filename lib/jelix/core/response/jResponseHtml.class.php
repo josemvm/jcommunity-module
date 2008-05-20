@@ -4,7 +4,7 @@
 * @subpackage  core_response
 * @author      Laurent Jouanneau
 * @contributor Yann (description and keywords), Dominique Papin
-* @copyright   2005-2007 Laurent Jouanneau, 2006 Yann, 2007 Dominique Papin
+* @copyright   2005-2008 Laurent Jouanneau, 2006 Yann, 2007 Dominique Papin
 *              few lines of code are copyrighted CopixTeam http://www.copix.org
 * @link        http://www.jelix.org
 * @licence     GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
@@ -151,9 +151,16 @@ class jResponseHtml extends jResponse {
         }
 
         $this->sendHttpHeaders();
-        $this->outputDoctype();
+        if($this->_isXhtml){
+            echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="',$this->_lang,'" lang="',$this->_lang,'">
+';
+        }else{
+            echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">', "\n";
+            echo '<html lang="',$this->_lang,'">';
+        }
         $this->_headSent = 1;
-        $this->doAfterActions();
+        $this->_commonProcess();
         if($this->bodyTpl != '')
             $this->body->meta($this->bodyTpl);
         $this->outputHtmlHeader();
@@ -185,7 +192,7 @@ class jResponseHtml extends jResponse {
                         echo 'console.error("[error ';
                         break;
                     }
-                    echo $e[1].'] '.str_replace('"','\"',$e[2]),' (',str_replace('\\','\\\\',$e[3]),' ',$e[4],')");';
+                    echo $e[1],'] ',str_replace(array('"',"\n","\r","\t"),array('\"','\\n','\\r','\\t'),$e[2]),' (',str_replace('\\','\\\\',$e[3]),' ',$e[4],')");';
                 }
                 echo '}else{alert("there are some errors, you should activate Firebug to see them");}</script>';
             }else{
@@ -206,7 +213,7 @@ class jResponseHtml extends jResponse {
             if(count($GLOBALS['gJCoord']->logMessages['firebug'])) {
                 echo '<script type="text/javascript">if(console){';
                 foreach($GLOBALS['gJCoord']->logMessages['firebug'] as $m) {
-                    echo 'console.debug("',str_replace(array('\\','"'),array('\\\\','\"'),$m),'");';
+                    echo 'console.debug("',str_replace(array('\\','"',"\n","\r","\t"),array('\\\\','\"','\\n','\\r','\\t'),$m),'");';
                 }
                 echo '}else{alert("there are log messages, you should activate Firebug to see them");}</script>';
             }
@@ -218,19 +225,10 @@ class jResponseHtml extends jResponse {
     /**
      * The method you can overload in your inherited html response
      * overload it if you want to add processes (stylesheet, head settings, additionnal content etc..)
-     * after all actions
-     * @since 1.1
-     */
-    protected function doAfterActions(){
-        $this->_commonProcess(); // for compatibility with jelix 1.0
-    }
-
-    /**
-     * same use as doAfterActions, but deprecated method. It is just here for compatibility with Jelix 1.0.
-     * Use doAfterActions instead
-     * @deprecated
+     * for all actions
      */
     protected function _commonProcess(){
+
     }
 
     /**
@@ -371,20 +369,6 @@ class jResponseHtml extends jResponse {
      */
     final public function addMetaDescription ($content){
         $this->_MetaDescription[] = $content;
-    }
-
-    /**
-     * generate the doctype. You can override it if you want to have your own doctype, like XHTML+MATHML.
-     */
-    protected function outputDoctype (){
-        if($this->_isXhtml){
-            echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="',$this->_lang,'" lang="',$this->_lang,'">
-';
-        }else{
-            echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">', "\n";
-            echo '<html lang="',$this->_lang,'">';
-        }
     }
 
     /**

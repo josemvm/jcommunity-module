@@ -72,7 +72,7 @@ class jDaoCompiler  implements jISimpleCompiler {
         global $gJConfig;
         if(!isset($gJConfig->_pluginsPathList_db[$selector->driver])
             || !file_exists($gJConfig->_pluginsPathList_db[$selector->driver]) ){
-            throw new jException('jelix~db.error.driver.notfound', $profil['driver']);
+            throw new jException('jelix~db.error.driver.notfound', $selector->driver);
         }
         require_once($gJConfig->_pluginsPathList_db[$selector->driver].$selector->driver.'.daobuilder.php');
         $class = $selector->driver.'DaoBuilder';

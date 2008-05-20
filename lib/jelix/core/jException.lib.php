@@ -3,8 +3,9 @@
 * @package    jelix
 * @subpackage core
 * @author     Laurent Jouanneau
-* @contributor Sylvain de Vathaire
+* @contributor Sylvain de Vathaire, Julien Issler
 * @copyright  2005-2007 laurent Jouanneau, 2007 Sylvain de Vathaire
+* @copyright  2008 Julien Issler
 * @link        http://www.jelix.org
 * @licence    GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
 */
@@ -22,17 +23,18 @@ function jExceptionHandler($exception){
     $conf = $gJConfig->error_handling;
     $action = $conf['exception'];
 
-    $doecho=true;
+    $doEchoByResponse=true;
 
     if($gJCoord->request == null){
 
         $msg = 'JELIX PANIC ! Error during initialization !! '.$msg;
-        $doecho = false;
+        $doEchoByResponse = false;
 
     }elseif($gJCoord->response == null){
 
         $ret = $gJCoord->initDefaultResponseOfRequest();
         if(is_string($ret)){
+            $doEchoByResponse = false;
             $msg = 'Double error ! 1)'. $ret.'; 2)'.$msg;
         }
     }
@@ -62,16 +64,19 @@ function jExceptionHandler($exception){
         $messageLog.="\n";
     }
 
+    $echoAsked = false;
     // traitement du message
     if(strpos($action , 'ECHOQUIET') !== false){
-        if(!$doecho){
+        $echoAsked = true;
+        if(!$doEchoByResponse){
             header("HTTP/1.1 500 Internal jelix error");
             header('Content-type: text/plain');
             echo 'JELIX PANIC ! Error during initialization !! ';
         }else
             $gJCoord->addErrorMsg('error', $exception->getCode(), $conf['quietMessage'], '', '');
     }elseif(strpos($action , 'ECHO') !== false){
-        if($doecho)
+        $echoAsked = true;
+        if($doEchoByResponse)
             $gJCoord->addErrorMsg('error', $exception->getCode(), $msg, $exception->getFile(), $exception->getLine());
         else{
             header("HTTP/1.1 500 Internal jelix error");
@@ -89,8 +94,17 @@ function jExceptionHandler($exception){
         error_log($messageLog,0);
     }
 
-    if($doecho)
-        $gJCoord->response->outputErrors();
+    if($doEchoByResponse) {
+        if ($gJCoord->response)
+            $gJCoord->response->outputErrors();
+        else if($echoAsked) {
+            header("HTTP/1.1 500 Internal jelix error");
+            header('Content-type: text/plain');
+            foreach($gJCoord->errorMessages as $msg)
+                echo $msg."\n";
+        }
+    }
+
     jSession::end();
     exit;
 }
@@ -122,14 +136,15 @@ class jException extends Exception {
      * @param array $localeParams parameters for the message (for sprintf)
      * @param integer $code error code (can be provided by the localized message)
      * @param string $lang
+     * @param string $charset
      */
-    public function __construct($localekey, $localeParams=array(), $code = 1, $lang=null) {
+    public function __construct($localekey, $localeParams = array(), $code = 1, $lang = null, $charset = null) {
 
         $this->localeKey = $localekey;
         $this->localeParams = $localeParams;
 
         try{
-            $message = jLocale::get($localekey, $localeParams, $lang);
+            $message = jLocale::get($localekey, $localeParams, $lang, $charset);
         }catch(Exception $e){
             $message = $e->getMessage();
         }

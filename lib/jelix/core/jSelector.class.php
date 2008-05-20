@@ -13,8 +13,10 @@
 * @contributor Loic Mathaud
 * @contributor Rahal
 * @contributor Thibault PIRONT < nuKs >
+* @contributor Julien Issler
 * @copyright   2005-2007 Laurent Jouanneau, 2007 Loic Mathaud, 2007 Rahal
 * @copyright   2007 Thibault PIRONT
+* @copyright   2008 Julien Issler
 * @link        http://www.jelix.org
 * @licence    GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
 */
@@ -350,20 +352,29 @@ class jSelectorClass extends jSelectorModule {
 }
 
 /**
- * selector for business class
+ * selector for interface 
  *
- * business class is a class stored in classname.class.php file in the classes/ module directory
+ * interface is stored in interfacename.iface.php file in the classes/ module directory
  * or one of its subdirectory.
- * syntax : "module~classname" or "module~classname.
+ * syntax : "iface:module~ifacename" or "module~ifacename.
  * @package    jelix
  * @subpackage core_selector
- * @since 1.0b2
+ * @since 1.0.3
  */
-class jSelectorInterface extends jSelectorClass {
+class jSelectorIface extends jSelectorClass {
     protected $type = 'iface';
     protected $_dirname = 'classes/';
     protected $_suffix = '.iface.php';
 }
+
+/**
+ * selector for interface 
+ * @package    jelix
+ * @subpackage core_selector
+ * @since 1.0b2
+ * @deprecated 
+ */
+class jSelectorInterface extends jSelectorIface {}
 
 /**
  * selector for localisation string
@@ -438,15 +449,19 @@ class jSelectorLoc extends jSelectorModule {
         $this->_path = $gJConfig->_modulesPathList[$this->module].$this->_dirname.$this->resource.$this->_suffix;
 
         if (!is_readable ($this->_path)){
-            // to avoid infinite loop in a specific lang, we should check if we don't
+            // to avoid infinite loop in a specific lang or charset, we should check if we don't
             // try to retrieve the same message as the one we use for the exception below,
             // and if it is this message, it means that the error message doesn't exist 
-            // in the specific lang, so we retrieve it in en_EN language
-            if($this->toString() == 'jelix~errors.selector.invalid.target')
+            // in the specific lang or charset, so we retrieve it in en_EN language and UTF-8 charset
+            if($this->toString() == 'jelix~errors.selector.invalid.target'){
                 $l = 'en_EN';
-            else
-                $l=null;
-            throw new jExceptionSelector('jelix~errors.selector.invalid.target', array($this->toString(), "locale"),1,$l);
+                $c = 'UTF-8';
+            }
+            else{
+                $l = null;
+                $c = null;
+            }
+            throw new jExceptionSelector('jelix~errors.selector.invalid.target', array($this->toString(), "locale"), 1, $l, $c);
         }
         $this->_where = 'modules/';
     }
@@ -553,9 +568,12 @@ class jSelectorTpl extends jSelectorModule {
      * @param boolean $trusted  says if the template file is trusted or not
      */
     function __construct($sel, $outputtype='', $trusted=true){
-        if($outputtype == '')
-            $this->outputType = $GLOBALS['gJCoord']->response->getFormatType();
-        else
+        if($outputtype == '') {
+            if($GLOBALS['gJCoord']->response)
+                $this->outputType = $GLOBALS['gJCoord']->response->getFormatType();
+            else
+                $this->outputType = $GLOBALS['gJCoord']->request->defaultResponseType;
+        } else
             $this->outputType = $outputtype;
         $this->trusted = $trusted;
         $this->_compiler='jTplCompiler';
