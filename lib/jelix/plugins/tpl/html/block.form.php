@@ -66,7 +66,7 @@ $t->_privateVars[\'__formbuilder\'] = $t->_privateVars[\'__form\']->getBuilder(\
 $t->_privateVars[\'__formbuilder\']->outputHeader(array('.$errdecorator.','.$helpdecorator.',\''.$method.'\'));
 $t->_privateVars[\'__displayed_ctrl\'] = array();
 ';
-    $compiler->addMetaContent('if($GLOBALS[\'gJCoord\']->response!= null){
+    $compiler->addMetaContent('if($GLOBALS[\'gJCoord\']->response!= null && $GLOBALS[\'gJCoord\']->response->getType() ==\'html\'){
     $GLOBALS[\'gJCoord\']->response->addJSLink($GLOBALS[\'gJConfig\']->urlengine[\'jelixWWWPath\'].\'js/jforms.js\');
     $GLOBALS[\'gJCoord\']->response->addCSSLink($GLOBALS[\'gJConfig\']->urlengine[\'jelixWWWPath\'].\'design/jform.css\');
 }

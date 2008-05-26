@@ -300,17 +300,17 @@ class significantUrlEngine implements jIUrlEngine {
         }
         /*
         urlinfo =
-            array(0,'entrypoint', https true/false, entrypoint true/false,'selecteur handler')
+            array(0,'entrypoint', https true/false,'selecteur handler')
             ou
-            array(1,'entrypoint', https true/false, entrypoint true/false
+            array(1,'entrypoint', https true/false, 
                     array('annee','mois','jour','id','titre'), // liste des paramètres de l'url à prendre en compte
                     array(true, false..), // valeur des escapes
                     "/news/%1/%2/%3/%4-%5", // forme de l'url
                     false, //indique si  c'est une action surchargeante
                     )
             ou
-            array(2,'entrypoint', https true/false, entrypoint true/false); pour les clés du type "@request"
-            array(3,'entrypoint', https true/false, entrypoint true/false); pour les clés du type "module~@request"
+            array(2,'entrypoint', https true/false,); pour les clés du type "@request"
+            array(3,'entrypoint', https true/false); pour les clés du type "module~@request"
             array(4, array(1,..), array(1,..)...);
         */
         if($urlinfo[0]==4){
@@ -358,19 +358,16 @@ class significantUrlEngine implements jIUrlEngine {
             $handler =new $c();
             $handler->create($urlact, $url);
         }elseif($urlinfo[0]==1){
-            $result = $urlinfo[5];
+            $pi = $urlinfo[5];
             foreach ($urlinfo[3] as $k=>$param){
                 if($urlinfo[4][$k]){
-                    $result=str_replace(':'.$param, jUrl::escape($url->getParam($param,''),true), $result);
+                    $pi=str_replace(':'.$param, jUrl::escape($url->getParam($param,''),true), $pi);
                 }else{
-                    $result=str_replace(':'.$param, $url->getParam($param,''), $result);
+                    $pi=str_replace(':'.$param, $url->getParam($param,''), $pi);
                 }
                 $url->delParam($param);
             }
-            if($urlinfo[1])
-                $url->pathInfo = $result;
-            else
-                $url->pathInfo = substr($result,1);
+            $url->pathInfo = $pi;
             if($urlinfo[6])
                 $url->setParam('action',$action);
             // removed parameters corresponding to static values

@@ -71,12 +71,6 @@ abstract class jFormsBase {
     protected $_container=null;
 
     /**
-     * says if the form is readonly
-     * @var boolean
-     */
-    protected $_readOnly = false;
-
-    /**
      * content list of available form builder
      * @var boolean
      */
@@ -107,6 +101,7 @@ abstract class jFormsBase {
     public function initFromRequest(){
         $req = $GLOBALS['gJCoord']->request;
         foreach($this->_controls as $name=>$ctrl){
+            if($ctrl->readonly) continue;
             $value = $req->getParam($name);
             //@todo à prevoir un meilleur test, pour les formulaires sur plusieurs pages
             if($value === null) $value='';
@@ -215,7 +210,7 @@ abstract class jFormsBase {
      * @see jDao
      */
     public function saveToDao($daoSelector, $key = null, $dbProfil=''){
-        $dao = jDao::create($daoSelector, $dbProfil);
+        $dao = jDao::get($daoSelector, $dbProfil);
 
         if($key === null)
             $key = $this->_container->formId;
@@ -224,7 +219,8 @@ abstract class jFormsBase {
             $toInsert= false;
         }else{
             $daorec = jDao::createRecord($daoSelector, $dbProfil);
-            $daorec->setPk($key);
+            if($key != null)
+                $daorec->setPk($key);
             $toInsert= true;
         }
 
@@ -313,7 +309,6 @@ abstract class jFormsBase {
             $primaryKey =array($primaryKey);
 
         $dao = jDao::create($daoSelector, $dbProfil);
-        $daorec = jDao::createRecord($daoSelector, $dbProfil);
 
         $conditions = jDao::createConditions();
         if($primaryKeyNames)
@@ -405,10 +400,11 @@ abstract class jFormsBase {
     }
 
     /**
-     * set the form  read only or read/write
-     * @param boolean $r true if you want read only
+     * method not implemented...
+     * @param boolean $r 
+     * @deprecated since 1.0.4
      */
-    public function setReadOnly($r = true){  $this->_readOnly = $r;  }
+    public function setReadOnly($r = true){   }
 
     /**
      * return list of errors found during the check

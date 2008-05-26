@@ -67,7 +67,10 @@ Julien Issler
  - fixed various bugs (ex: #451)
  - added Session Name support in jSession (#417)
  - fixed bug about infinite loop with non-existent charset (#442)
- - some enhancement in jSession (#445, #504)
+ - some enhancement in jSession (#445, #504, #506)
+ - localization system should work with language code without country (#95)
+ - jForms html shouldn't generate readonly attribute on select (#550)
+ - jResponseZip : on windows files are view like folders (#538)
 
 Bastien Jaillot (aka bastnic)
  - bug fix in jDaoGenerator (#282)
@@ -91,7 +94,7 @@ Yannick Le Guédart (aka Torgan)
  - jdb driver for Intuition
 
 Kévin Lepeltier (aka Lipki)
- - plugin image for jtpl (#474)
+ - plugin image for jtpl (#474, #502, #559, #560)
  - bug fixed in firebug support (#500)
 
 Hugues Magnier (aka BaGroN)
@@ -119,6 +122,9 @@ Laurent Raufaste (aka analogue)
 Rahal
  - improvement on locale selectors : possibility to overload locales (#358)
 
+Warren Seine (aka SooW)
+ - <script /> tags don't end with a newline (#536)
+
 M. Thiriot (aka Doubleface)
  - testor
  - bug fixes on PDO support in jDb
@@ -135,6 +141,7 @@ Sylvain de Vathaire (aka sylvain261)
  - little improvement in exception handler and error handler (#357)
  - little improvement in jResponseXml (#465)
  - little bug fix in jZone (#508)
+ - little bug fix in mysql.dbconnection.php (#97bis)
 
 Thanks for all users, especially those who reported bugs. :-)
 

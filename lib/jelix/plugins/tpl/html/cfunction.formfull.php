@@ -32,7 +32,7 @@ function jtpl_cfunction_html_formfull($compiler, $params=array())
         $compiler->doError2('errors.tplplugin.cfunction.bad.argument.number','formfull','2-6');
     }
 
-    $compiler->addMetaContent('if($GLOBALS[\'gJCoord\']->response!= null){
+    $compiler->addMetaContent('if($GLOBALS[\'gJCoord\']->response!= null && $GLOBALS[\'gJCoord\']->response->getType() ==\'html\'){
         $GLOBALS[\'gJCoord\']->response->addJSLink($GLOBALS[\'gJConfig\']->urlengine[\'jelixWWWPath\'].\'js/jforms.js\');
         $GLOBALS[\'gJCoord\']->response->addCSSLink($GLOBALS[\'gJConfig\']->urlengine[\'jelixWWWPath\'].\'design/jform.css\');
     }

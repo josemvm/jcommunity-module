@@ -3,9 +3,10 @@
 * @package     jelix
 * @subpackage  forms
 * @author      Laurent Jouanneau
-* @contributor Loic Mathaud, Dominique Papin
+* @contributor Loic Mathaud, Dominique Papin, Julien Issler
 * @copyright   2006-2007 Laurent Jouanneau, 2007 Dominique Papin
 * @copyright   2007 Loic Mathaud
+* @copyright   2008 Julien Issler
 * @link        http://www.jelix.org
 * @licence     http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public Licence, see LICENCE file
 */
@@ -109,7 +110,7 @@ abstract class jFormsHtmlBuilderBase extends jFormsBuilderBase {
      */
     public function outputHeader($params){
         $url = jUrl::get($this->_action, $this->_actionParams, 2); // retourne le jurl correspondant
-        echo '<form action="',$url->scriptName,$url->pathInfo,'" method="'.$params[2].'" id="', $this->_name,'" onsubmit="return jForms.verifyForm(this)"';
+        echo '<form action="',$url->getPath(),'" method="'.$params[2].'" id="', $this->_name,'" onsubmit="return jForms.verifyForm(this)"';
         if($this->_form->hasUpload())
             echo ' enctype="multipart/form-data">';
         else
@@ -237,7 +238,7 @@ abstract class jFormsHtmlBuilderBase extends jFormsBuilderBase {
             }
             break;
         case 'menulist':
-            echo '<select',$id,$readonly,$hint,$class,' size="1">';
+            echo '<select',$id,$hint,$class,' size="1">';
             $value = $this->_form->getData($ctrl->ref);
             if(is_array($value)){
                 if(isset($value[0]))
@@ -255,7 +256,7 @@ abstract class jFormsHtmlBuilderBase extends jFormsBuilderBase {
             break;
         case 'listbox':
             if($ctrl->multiple){
-                echo '<select name="',$ctrl->ref,'[]" id="',$this->_name,'_',$ctrl->ref,'"',$readonly,$hint,$class,' size="',$ctrl->size,'" multiple="multiple">';
+                echo '<select name="',$ctrl->ref,'[]" id="',$this->_name,'_',$ctrl->ref,'"',$hint,$class,' size="',$ctrl->size,'" multiple="multiple">';
                 $value = $this->_form->getData($ctrl->ref);
 
                 if(is_array($value) && count($value) == 1)
@@ -281,7 +282,7 @@ abstract class jFormsHtmlBuilderBase extends jFormsBuilderBase {
                         $value ='';
                 }
 
-                echo '<select',$id,$readonly,$hint,$class,' size="',$ctrl->size,'">';
+                echo '<select',$id,$hint,$class,' size="',$ctrl->size,'">';
                 foreach($ctrl->datasource->getDatas() as $v=>$label){
                     echo '<option value="',htmlspecialchars($v),'"',($v==$value?' selected="selected"':''),'>',htmlspecialchars($label),'</option>';
                 }

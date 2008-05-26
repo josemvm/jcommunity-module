@@ -54,6 +54,8 @@ class jConfigCompiler {
 
         if($config['checkTrustedModules']){
             $config['_trustedModules'] = explode(',',$config['trustedModules']);
+            if(!in_array('jelix',$config['_trustedModules']))
+                $config['_trustedModules'][]='jelix';
         }else{
             $config['_trustedModules'] = array_keys($config['_modulesPathList']);
         }

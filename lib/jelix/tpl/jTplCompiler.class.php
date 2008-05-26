@@ -3,8 +3,8 @@
 * @package     jelix
 * @subpackage  jtpl
 * @author      Laurent Jouanneau
-* @contributor Mathaud Loic (version standalone), Dominique Papin
-* @copyright   2005-2007 Laurent Jouanneau
+* @contributor Mathaud Loic (standalone version), Dominique Papin
+* @copyright   2005-2008 Laurent Jouanneau
 * @copyright   2006 Mathaud Loic, 2007 Dominique Papin
 * @link        http://www.jelix.org
 * @licence     GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
@@ -122,7 +122,9 @@ class jTplCompiler
 
         $tplcontent = preg_replace("!{literal}(.*?){/literal}!s", '{literal}', $tplcontent);
 
-        $tplcontent = preg_replace_callback("/{((.).*?)}/s", array($this,'_callback'), $tplcontent);
+        // there is a @ because an exception in the callback function generates a warning in PHP 5.1.2
+        // (not in PHP 5.2)
+        $tplcontent = @preg_replace_callback("/{((.).*?)}/sm", array($this,'_callback'), $tplcontent);
 
         $tplcontent = preg_replace('/\?>\n?<\?php/', '', $tplcontent);
         $tplcontent = preg_replace('/<\?php\\s+\?>/', '', $tplcontent);
@@ -232,7 +234,7 @@ class jTplCompiler
                     $res = 'elseif('.$this->_parseFinal($args,$this->_allowedInExpr).'):';
                 break;
             case 'foreach':
-                $res = 'foreach('.$this->_parseFinal($args,$this->_allowedInForeach, array(';','!')).'):';
+                $res = 'foreach('.$this->_parseFinal($args,$this->_allowedInForeach, array(';','!','(')).'):';
                 array_push($this->_blockStack,'foreach');
                 break;
             case 'while':
@@ -240,7 +242,7 @@ class jTplCompiler
                 array_push($this->_blockStack,'while');
                 break;
             case 'for':
-                $res = 'for('. $this->_parseFinal($args, $this->_allowedInExpr, array()) .'):';
+                $res = 'for('. $this->_parseFinal($args, $this->_allowedInExpr, array('(')) .'):';
                 array_push($this->_blockStack,'for');
                 break;
 
@@ -390,7 +392,7 @@ class jTplCompiler
                     }
                 } elseif ($inLocale && ($tok=='.' || $tok =='~') ) {
                     $locale.=$tok;
-                } elseif ($inLocale || in_array($tok,$exceptchar) || ($first && $tok !='!')) {
+                } elseif ($inLocale || in_array($tok,$exceptchar) || ($first && $tok != '!' && $tok != '(')) {
                     $this->doError2('errors.tpl.tag.character.invalid', $this->_currentTag, $tok);
                 } elseif ($tok =='(') {
                     $bracketcount++;$result.=$tok;
