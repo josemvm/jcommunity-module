@@ -43,6 +43,15 @@
          </conditions>
      </method>
 
+     <method name="verifyNickname" type="selectfirst">
+         <parameter name="login" />
+         <parameter name="nickname" />
+         <conditions>
+             <neq property="login" expr="$login" />
+             <eq property="nickname" expr="$nickname" />
+         </conditions>
+     </method>
+     
      <method name="updatePassword" type="update">
          <parameter name="login" />
          <parameter name="password" />

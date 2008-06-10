@@ -1,4 +1,4 @@
-<h1>Profil de {$user->nickname|eschtml}</h1>
+<h1>Profil de {$user->login|eschtml}</h1>
 
 <table>
 <tr>
@@ -13,7 +13,7 @@
 
 {if $himself}
 <ul>
-    <li><a href="{jurl 'jcommunity~account:edit'}">Editer votre profile</a></li>
-    <li><a href="{jurl 'jcommunity~account:destroy'}">Effacer votre profile</a></li>
+    <li><a href="{jurl 'jcommunity~account:prepareedit', array('user'=>$user->login)}">Editer votre profile</a></li>
+    <li><a href="{jurl 'jcommunity~account:destroy', array('user'=>$user->login)}">Effacer votre profile</a></li>
 </ul>
 {/if}
