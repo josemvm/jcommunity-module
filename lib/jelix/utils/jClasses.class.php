@@ -1,82 +1,66 @@
 <?php
+/* comments & extra-whitespaces have been removed by jBuildTools*/
 /**
 * @package     jelix
 * @subpackage  utils
 * @author      Laurent Jouanneau
 * @contributor Loic Mathaud
+* @contributor Christophe Thiriot
 * @copyright   2005-2007 Laurent Jouanneau
+* @copyright   2008 Christophe Thiriot
 * @link        http://www.jelix.org
 * @licence     GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
 */
-
-/**
-* This object is responsible to include and instancy some classes stored in the classes directory of modules.
-* @package     jelix
-* @subpackage  utils
-* @static
-*/
-class jClasses {
-
-    static protected $_instances = array();
-
-    private function __construct(){}
-
-    /**
-     * include the given class and return an instance
-     * @param string $selector the jelix selector correponding to the class
-     * @return object an instance of the classe
-     */
-    static public function create($selector){
-        $sel = new jSelectorClass($selector);
-        require_once($sel->getPath());
-        $class = $sel->className;
-        return new $class ();
-    }
-
-    /**
-     * alias of create method
-     * @see jClasses::create()
-     */
-    static public function createInstance($selector){
-        return self::create($selector);
-    }
-
-    /**
-     * include the given class and return always the same instance
-     *
-     * @param string $selector the jelix selector correponding to the class
-     * @return object an instance of the classe
-     */
-    static public function getService($selector){
-        $sel = new jSelectorClass($selector);
-        $s = $sel->toString();
-        if (isset(self::$_instances[$s])) {
-            return self::$_instances[$s];
-        } else {
-            $o = self::create($selector);
-            self::$_instances[$s]=$o;
-            return $o;
-        }
-    }
-
-    /**
-     * only include a class
-     * @param string $selector the jelix selector correponding to the class
-     */
-    static public function inc($selector) {
-        $sel = new jSelectorClass($selector);
-        require_once($sel->getPath());
-    }
-
-    /**
-     * include an interface
-     * @param string $selector the jelix selector correponding to the interface
-     * @since 1.0b2
-     */
-    static public function incIface($selector) {
-        $sel = new jSelectorInterface($selector);
-        require_once($sel->getPath());
-    }
+class jClasses{
+	static protected $_instances = array();
+	static protected $_bindings = array();
+	private function __construct(){}
+	static public function create($selector){
+		$sel = new jSelectorClass($selector);
+		require_once($sel->getPath());
+		$class = $sel->className;
+		return new $class();
+	}
+	static public function createBinded($selector){
+		return self::getBinding($selector)->getInstance(false);
+	}
+	static public function createInstance($selector){
+		return self::create($selector);
+	}
+	static public function getService($selector){
+		$sel = new jSelectorClass($selector);
+		$s = $sel->toString();
+		if(isset(self::$_instances[$s])){
+			return self::$_instances[$s];
+		} else{
+			$o = self::create($selector);
+			self::$_instances[$s]=$o;
+			return $o;
+		}
+	}
+	static public function getBindedService($selector){
+		return self::getBinding($selector)->getInstance();
+	}
+	static public function bind($selector){
+		return self::getBinding($selector);
+	}
+	static public function getBinding($selector){
+		$osel = jSelectorFactory::create($selector, 'iface');
+		$s	= $osel->toString(true);
+		if(!isset(self::$_bindings[$s])){
+			self::$_bindings[$s] = new jBinding($osel);
+		}
+		return self::$_bindings[$s];
+	}
+	static public function resetBindings(){
+		self::$_bindings = array();
+	}
+	static public function inc($selector){
+		$sel = new jSelectorClass($selector);
+		require_once($sel->getPath());
+	}
+	static public function incIface($selector){
+		$sel = new jSelectorIface($selector);
+		require_once($sel->getPath());
+	}
 }
-
-?>

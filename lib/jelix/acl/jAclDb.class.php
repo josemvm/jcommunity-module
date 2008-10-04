@@ -1,4 +1,5 @@
 <?php
+/* comments & extra-whitespaces have been removed by jBuildTools*/
 /**
 * @package     jelix
 * @subpackage  acl
@@ -8,37 +9,18 @@
 * @licence     http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public Licence, see LICENCE file
 * @since 1.0b3
 */
-
-
-/**
- * Utility class for all classes used for the db driver of jAcl
- * @package     jelix
- * @subpackage  acl
- * @static
- */
-class jAclDb {
-
-    /**
-     * @internal The constructor is private, because all methods are static
-     */
-    private function __construct (){ }
-
-    /**
-     * return the profil name used for jacl connection
-     * @return string profil name
-     */
-    public static function getProfil(){
-        static $profil='';
-        if($profil== ''){
-            try{
-                $prof = jDb::getProfil ('jacl_profil', true);
-            }catch(Exception $e){
-                $prof = jDb::getProfil ();
-            }
-            $profil = $prof['name'];
-        }
-        return $profil;
-    }
+class jAclDb{
+	private function __construct(){}
+	public static function getProfil(){
+		static $profil='';
+		if($profil== ''){
+			try{
+				$prof = jDb::getProfil('jacl_profil', true);
+			}catch(Exception $e){
+				$prof = jDb::getProfil();
+			}
+			$profil = $prof['name'];
+		}
+		return $profil;
+	}
 }
-
-?>

@@ -6,9 +6,10 @@
 .jforms-help {}
 .jforms-label {}
 .jforms-value {}
+.jforms-readonly { color:#aaa; }
 
-.jforms-required { font-weight:bold; }
-.jforms-required:after { content:"*"; font-weight:bold; color:red; }
+span.jforms-required, label.jforms-required { font-weight:bold; }
+label.jforms-required:after, span.jforms-required:after { content:"*"; font-weight:bold; color:red; }
 
 .jforms-error-list { color:red; border:1px solid red;}
 

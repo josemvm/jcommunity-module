@@ -1,4 +1,5 @@
 <?php
+/* comments & extra-whitespaces have been removed by jBuildTools*/
 /**
 * @package     jelix
 * @subpackage  core_response
@@ -9,53 +10,29 @@
 * @link        http://www.jelix.org
 * @licence     GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
 */
-
-/**
- * Send CSS content
- * @package  jelix
- * @subpackage core_response
- * @since 1.0b1
- */
-class jResponseCss extends jResponse {
-
-    /**
-    * @var string
-    */
-    protected $_type = 'css';
-
-    /**
-     * CSS content
-     * @var string
-     */
-    public $content = '';
-
-
-    /**
-     * send the css content
-     * @return boolean    true if it's ok
-     */
-    public function output(){
-        global $gJConfig;
-        $this->_httpHeaders['Content-Type']='text/css;charset='.$gJConfig->charset;
-        $this->_httpHeaders['Content-length']=strlen($this->content);
-        $this->sendHttpHeaders();
-        echo $this->content;
-        return true;
-    }
-
-    public function outputErrors(){
-        global $gJConfig;
-        header("HTTP/1.0 500 Internal Server Error");
-        header('Content-Type: text/css;charset='.$gJConfig->charset);
-        echo "/*\n";
-        if($this->hasErrors()){
-            foreach( $GLOBALS['gJCoord']->errorMessages  as $e){
-                echo '['.$e[0].' '.$e[1].'] '.$e[2]." \t".$e[3]." \t".$e[4]."\n";
-            }
-        }else{
-            echo "[unknow error]\n";
-        }
-        echo "\n*/";
-    }
+class jResponseCss extends jResponse{
+	protected $_type = 'css';
+	public $content = '';
+	public function output(){
+		global $gJConfig;
+		$this->_httpHeaders['Content-Type']='text/css;charset='.$gJConfig->charset;
+		$this->_httpHeaders['Content-length']=strlen($this->content);
+		$this->sendHttpHeaders();
+		echo $this->content;
+		return true;
+	}
+	public function outputErrors(){
+		global $gJConfig;
+		header("HTTP/1.0 500 Internal Server Error");
+		header('Content-Type: text/css;charset='.$gJConfig->charset);
+		echo "/*\n";
+		if($this->hasErrors()){
+			foreach( $GLOBALS['gJCoord']->errorMessages  as $e){
+				echo '['.$e[0].' '.$e[1].'] '.$e[2]." \t".$e[3]." \t".$e[4]."\n";
+			}
+		}else{
+			echo "[unknow error]\n";
+		}
+		echo "\n*/";
+	}
 }
-?>

@@ -4,7 +4,7 @@
  *
  * @package WikiRenderer
  * @subpackage rules
- * @author Laurent Jouanneau <jouanneau@netcourrier.com>
+ * @author Laurent Jouanneau
  * @copyright 2003-2006 Laurent Jouanneau
  * @link http://wikirenderer.berlios.de
  *
@@ -30,7 +30,9 @@ class classicwr_to_xhtml  extends WikiRendererConfig  {
    public $inlinetags= array( 'cwrxhtml_strong','cwrxhtml_em','cwrxhtml_code','cwrxhtml_q',
     'cwrxhtml_cite','cwrxhtml_acronym','cwrxhtml_link', 'cwrxhtml_image', 'cwrxhtml_anchor');
 
-   public $textLineContainer = 'WikiHtmlTextLine';
+   public $defaultTextLineContainer = 'WikiHtmlTextLine';
+
+   public $availabledTextLineContainers = array('WikiHtmlTextLine');
 
    /**
    * liste des balises de type bloc reconnus par WikiRenderer.
@@ -203,7 +205,7 @@ class cwrxhtml_list extends WikiRendererBloc {
             $str.=($t{$i-1}== '#'?"</li></ol>\n":"</li></ul>\n");
          }
          $str.="</li>\n<li>";
-         $this->_previousTag=substr($this->_previousTag,0,-$d); // pour être sur...
+         $this->_previousTag=substr($this->_previousTag,0,-$d); // pour étre sur...
 
       }elseif( $d < 0 ){ // un niveau de plus
          $c=substr($this->_detectMatch[1],-1,1);

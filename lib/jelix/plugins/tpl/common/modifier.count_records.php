@@ -1,4 +1,5 @@
 <?php
+/* comments & extra-whitespaces have been removed by jBuildTools*/
 /**
  * Plugin to display count of a DbResultSet Object (how many records)
  * @package    jelix
@@ -8,17 +9,7 @@
  * @link http://jelix.org/
  * @licence    GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
  */
-
-/**
- * modifier plugin :  display count of a DbResultSet Object (how many records)
- *
- * <pre>{$myarray|count_records}</pre>
- * @param object DbResultSet
- * @return integer
- */
 function jtpl_modifier_common_count_records($DbResultSet)
 {
-    return $DbResultSet->rowCount();
+	return $DbResultSet->rowCount();
 }
-
-?>

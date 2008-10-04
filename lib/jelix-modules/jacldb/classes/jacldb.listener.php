@@ -14,7 +14,7 @@
  * @subpackage  jacldb
  * @since 1.0.1
  */
-class jacldbListener extends jEventListener {
+class jacldbListener extends jEventListener{
 
    /**
     * Called when a user is created : set up default rights on this user

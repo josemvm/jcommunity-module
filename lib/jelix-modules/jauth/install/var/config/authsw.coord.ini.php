@@ -1,4 +1,5 @@
-;<?php die(''); ?>
+;<?php /* comments & extra-whitespaces have been removed by jBuildTools*/
+die(''); ?>
 ;for security reasons , don't remove or modify the first line
 
 

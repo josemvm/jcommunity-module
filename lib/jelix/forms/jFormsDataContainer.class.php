@@ -1,58 +1,56 @@
 <?php
+/* comments & extra-whitespaces have been removed by jBuildTools*/
 /**
 * @package     jelix
 * @subpackage  forms
 * @author      Laurent Jouanneau
 * @contributor
-* @copyright   2006-2007 Laurent Jouanneau
+* @copyright   2006-2008 Laurent Jouanneau
 * @link        http://www.jelix.org
 * @licence     http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public Licence, see LICENCE file
 */
-
-/**
- * this object is a container for form datas
- * @package     jelix
- * @subpackage  forms
- */
-class jFormsDataContainer {
-    /**
-     * @var array
-     */
-    public $datas = array();
-    /**
-     * the instance id of the form
-     * @var string 
-     */
-    public $formId;
-    /**
-     * the selector of the xml file of the form
-     * @var jSelectorForm
-     */
-    public $formSelector;
-
-    /**
-     * list of errors detected in datas
-     * @var array
-     */
-    public $errors = array();
-
-    /**
-     *
-     * @param jSelectorForm $formSelector
-     * @param string $formId
-     */
-    function __construct($formSelector,$formId){
-        $this->formId = $formId;
-        $this->formSelector =$formSelector;
-    }
-
-    function unsetData($name){
-        unset($this->datas[$name]);
-    }
-
-    function clear(){
-        $this->datas = array();
-        $this->errors = array();
-    }
+class jFormsDataContainer{
+	public $data = array();
+	public $privateData = array();
+	public $formId;
+	public $formSelector;
+	public $errors = array();
+	public $updatetime = 0;
+	protected $readOnly = array();
+	protected $deactivated = array();
+	function __construct($formSelector,$formId){
+		$this->formId = $formId;
+		$this->formSelector =$formSelector;
+	}
+	function unsetData($name){
+		unset($this->data[$name]);
+	}
+	function clear(){
+		$this->data = array();
+		$this->errors = array();
+	}
+	public function deactivate($name, $deactivation=true){
+		if($deactivation){
+			$this->deactivated[$name]=true;
+		}
+		else{
+			if(isset($this->deactivated[$name]))
+				unset($this->deactivated[$name]);
+		}
+	}
+	public function setReadOnly($name, $readonly=true){
+		if($readonly){
+			$this->readOnly[$name]=true;
+		}
+		else{
+			if(isset($this->readOnly[$name]))
+				unset($this->readOnly[$name]);
+		}
+	}
+	public function isActivated($name){
+		return !isset($this->deactivated[$name]);
+	}
+	public function isReadOnly($name){
+		return isset($this->readOnly[$name]);
+	}
 }
-?>

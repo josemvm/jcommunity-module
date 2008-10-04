@@ -3,9 +3,12 @@
 
 startModule = "jelix"
 startAction = "default:index"
-locale = "fr_FR"
+locale = "en_US"
 charset = "UTF-8"
-timeZone = "Europe/Paris"
+
+; see http://www.php.net/manual/en/timezones.php for supported values
+; if empty, jelix will try to get the default timezone
+timeZone =
 
 checkTrustedModules = off
 
@@ -22,7 +25,10 @@ use_error_handler = on
 
 enableOldActionSelector =
 
-[plugins]
+[coordplugins]
+
+[tplplugins]
+defaultJformsBuilder = html
 
 [responses]
 html = jResponseHtml
@@ -30,6 +36,7 @@ redirect = jResponseRedirect
 redirectUrl = jResponseRedirectUrl
 binary = jResponseBinary
 text = jResponseText
+cmdline = jResponseCmdline
 jsonrpc = jResponseJsonrpc
 json = jResponseJson
 xmlrpc = jResponseXmlrpc
@@ -45,6 +52,8 @@ atom1.0 = jResponseAtom10
 css= jResponseCss
 ltx2pdf= jResponseLatexToPdf
 tcpdf = jResponseTcpdf
+soap = jResponseSoap
+htmlfragment = jResponseHtmlFragment
 
 [_coreResponses]
 html = jResponseHtml
@@ -52,6 +61,7 @@ redirect = jResponseRedirect
 redirectUrl = jResponseRedirectUrl
 binary = jResponseBinary
 text = jResponseText
+cmdline = jResponseCmdline
 jsonrpc = jResponseJsonrpc
 json = jResponseJson
 xmlrpc = jResponseXmlrpc
@@ -67,6 +77,8 @@ atom1.0 = jResponseAtom10
 css= jResponseCss
 ltx2pdf= jResponseLatexToPdf
 tcpdf = jResponseTcpdf
+soap = jResponseSoap
+htmlfragment = jResponseHtmlFragment
 
 [error_handling]
 messageLogFormat = "%date%\t[%code%]\t%msg%\t%file%\t%line%\n"
@@ -108,7 +120,7 @@ multiview = off
 ; which contains "/foo/index.php"
 ; This name can be SCRIPT_NAME, ORIG_SCRIPT_NAME, PHP_SELF or REDIRECT_SCRIPT_URL
 ; it is detected automatically by jelix but it can fail sometime, so you could have to setup it
-scriptNameServerVariable = 
+scriptNameServerVariable =
 
 
 ; If you have a rewrite rules which move the pathinfo into a queryparameter
@@ -121,10 +133,10 @@ pathInfoInQueryParameter =
 
 ; basePath corresponds to the path to the base directory of your application.
 ; so if the url to access to your application is http://foo.com/aaa/bbb/www/index.php, you should
-; set basePath = "/aaa/bbb/www/". 
+; set basePath = "/aaa/bbb/www/".
 ; if it is http://foo.com/index.php, set basePath="/"
 ; Jelix can guess the basePath, so you can keep basePath empty. But in the case where there are some
-; entry points which are not in the same directory (ex: you have two entry point : http://foo.com/aaa/index.php 
+; entry points which are not in the same directory (ex: you have two entry point : http://foo.com/aaa/index.php
 ; and http://foo.com/aaa/bbb/other.php ), you MUST set the basePath (ex here, the higher entry point is index.php so
 ; : basePath="/aaa/" )
 basePath = ""
@@ -133,6 +145,7 @@ basePath = ""
 ; because the jelix-www directory is outside the yourapp/www/ directory, you should create a link to
 ; jelix-www, or copy its content in yourapp/www/ (with a name like 'jelix' for example)
 ; so you should indicate the relative path of this link/directory to the basePath, or an absolute path.
+; if you change it, change also all pathes in [htmleditors]
 jelixWWWPath = "jelix/"
 
 defaultEntrypoint= index
@@ -143,27 +156,41 @@ entrypointExtension= .php
 notfoundAct =
 ;notfoundAct = "jelix~error:notfound"
 
-; liste des actions requerant https (syntaxe expliquée dessous), pour le moteur d'url simple
+; list of actions which require https protocol for the simple url engine
+; syntax of the list is the same as explained in the simple_urlengine_entrypoints
 simple_urlengine_https =
 
 significantFile = "urls.xml"
 
+; filled automatically by jelix
+urlScript=
+urlScriptPath=
+urlScriptName=
+urlScriptId=
+urlScriptIdenc=
+
 [simple_urlengine_entrypoints]
-; paramètres pour le moteur d'url simple : liste des points d'entrées avec les actions
-; qui y sont rattachées
+; parameters for the simple url engine. This is the list of entry points
+; with list of actions attached to each entry points
 
-
-; nom_script_sans_suffix = "liste de selecteur d'action séparé par un espace"
-; selecteurs :
-;   m~a@r    -> pour action "a" du module "m" répondant au type de requete "r"
-;   m~*@r    -> pour toute action du module "m" répondant au type de requete "r"
-;   @r       -> toute action de tout module répondant au type de requete "r"
+; script_name_without_suffix = "list of action selectors separated by a space"
+; selector syntax :
+;   m~a@r    -> for the action "a" of the module "m" and for the request of type "r"
+;   m~*@r    -> for all actions of the module "m" and for the request of type "r"
+;   @r       -> for all actions for the request of type "r"
 
 index = "@classic"
 xmlrpc = "@xmlrpc"
 jsonrpc = "@jsonrpc"
 rdf = "@rdf"
 
+[basic_significant_urlengine_entrypoints]
+; for each entry point, it indicates if the entry point name
+; should be include in the url or not
+index = on
+xmlrpc = on
+jsonrpc = on
+rdf = on
 
 [logfiles]
 default=messages.log
@@ -199,16 +226,28 @@ smtpTimeout = 10
 driver = db
 enableAclDbEventListener = off
 
+[acl2]
+driver = db
+enableAcl2DbEventListener = off
+
+[pref]
+driver = db
+
 [sessions]
 ; to disable sessions, set the following parameter to 0
 start = 1
 shared_session = off
 ; You can change the session name by setting the following parameter (only accepts alpha-numeric chars) :
 ; name = "mySessionName"
+
+name=
+
 ;
 ; Use alternative storage engines for sessions
-;
-; usage :
+; empty value means the default storage engine of PHP
+storage=
+
+; some additionnal options can be set, depending of the type of storage engine
 ;
 ; storage = "files"
 ; files_path = "app:var/sessions/"
@@ -218,3 +257,11 @@ shared_session = off
 ; storage = "dao"
 ; dao_selector = "jelix~jsession"
 ; dao_db_profile = ""
+
+
+[htmleditors]
+default.engine.name = wymeditor
+default.engine.file[] = jelix/jquery/jquery.js
+default.engine.file[] = jelix/wymeditor/jquery.wymeditor.js
+default.config = jelix/wymeditor/config/default.js
+default.skin.default  = jelix/wymeditor/skins/default/screen.css

@@ -1,4 +1,5 @@
 <?php
+/* comments & extra-whitespaces have been removed by jBuildTools*/
 /**
 * @package     jelix
 * @subpackage  utils
@@ -9,82 +10,22 @@
 * @link        http://www.jelix.org
 * @licence     GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
 */
-
-/**
- *
- */
-require_once (LIB_PATH.'json/JSON.php');
-/**
- * object which encode and decode a jsonrpc request and response
- * @package    jelix
- * @subpackage utils
- * @link http://json-rpc.org/index.xhtml
- */
-class jJsonRpc {
-
-    private function __construct(){}
-
-    /**
-     * decode a request of json xmlrpc
-     * @param string $content
-     * @return mixed
-     */
-    public static function decodeRequest($content){
-        // {"method":.. , "params":.. , "id":.. }
-        $json = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
-        $obj = $json->decode($content);
-        /*
-        $obj->method
-        $obj->params
-        $obj->id*/
-        return $obj;
-    }
-
-    /**
-     * create a request content for a jsonrpc call
-     * @param string $methodname method of the jsonrcp web service
-     * @param array $params parameters for the methods
-     * @return string jsonrcp request content
-     */
-    public static function encodeRequest($methodname, $params, $id=1){
-
-        $json = new Services_JSON();
-        return '{"method":"'.$methodname.'","params":'.$json->encode($params).',"id":'.$json->encode($id).'}';
-
-    }
-
-    /**
-     * decode a jsonrpc response
-     * @param string $content
-     * @return mixed decoded content
-     */
-    public static function decodeResponse($content){
-        // {result:.. , error:.. , id:.. }
-        $json = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
-        return $json->decode($content);
-
-    }
-
-    /**
-     * encode a jsonrpc response
-     * @param array $params  returned value
-     * @return string encoded response
-     */
-    public static function encodeResponse($params, $id=1){
-        $json = new Services_JSON();
-        return '{"result":'.$json->encode($params).',"error":null,"id":'.$json->encode($id).'}';
-    }
-
-    /**
-     * encode a jsonrpc error response
-     * @param int $code code error
-     * @param string $message error message
-     * @return string encoded response
-     */
-    public static function encodeFaultResponse($code, $message, $id=1){
-        $json = new Services_JSON();
-        return '{"result":null,"error":{"code": '.$json->encode($code).', "string":'.$json->encode($message).' },"id":'.$json->encode($id).'}';
-    }
+class jJsonRpc{
+	private function __construct(){}
+	public static function decodeRequest($content){
+		$obj = json_decode($content,true);
+		return $obj;
+	}
+	public static function encodeRequest($methodname, $params, $id=1){
+		return '{"method":"'.$methodname.'","params":'.json_encode($params).',"id":'.json_encode($id).'}';
+	}
+	public static function decodeResponse($content){
+		return json_decode($content,true);
+	}
+	public static function encodeResponse($params, $id=1){
+		return '{"result":'.json_encode($params).',"error":null,"id":'.json_encode($id).'}';
+	}
+	public static function encodeFaultResponse($code, $message, $id=1){
+		return '{"result":null,"error":{"code": '.json_encode($code).', "string":'.json_encode($message).' },"id":'.json_encode($id).'}';
+	}
 }
-
-?>

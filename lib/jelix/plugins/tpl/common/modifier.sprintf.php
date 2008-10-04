@@ -1,4 +1,5 @@
 <?php
+/* comments & extra-whitespaces have been removed by jBuildTools*/
 /**
  * Plugin from smarty project and adapted for jtpl
  * @package    jelix
@@ -9,19 +10,7 @@
  * @link http://jelix.org/
  * @licence    GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
  */
-
-/**
- * modifier plugin : format strings via sprintf
- * 
- * <pre>{$mytext|sprintf:'my format %s'}</pre>
- * @param string
- * @param string
- * @return string
- * @see sprintf
- */
 function jtpl_modifier_common_sprintf($string, $format)
 {
-    return sprintf($format, $string);
+	return sprintf($format, $string);
 }
-
-?>

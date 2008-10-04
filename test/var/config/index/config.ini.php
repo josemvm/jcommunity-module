@@ -4,7 +4,7 @@
 startModule = "test"
 startAction = "default:index"
 
-[plugins]
+[coordplugins]
 auth = auth.coord.ini.php
 
 [responses]

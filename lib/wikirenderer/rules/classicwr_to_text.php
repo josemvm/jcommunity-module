@@ -4,7 +4,7 @@
  *
  * @package WikiRenderer
  * @subpackage rules
- * @author Laurent Jouanneau <jouanneau@netcourrier.com>
+ * @author Laurent Jouanneau 
  * @copyright 2003-2006 Laurent Jouanneau
  * @link http://wikirenderer.berlios.de
  *
@@ -30,7 +30,9 @@ class classicwr_to_text   extends WikiRendererConfig {
    public $inlinetags= array( 'cwrtext_strong','cwrtext_em','cwrtext_code','cwrtext_q',
     'cwrtext_cite','cwrtext_acronym','cwrtext_link', 'cwrtext_image', 'cwrtext_anchor');
 
-   public $textLineContainer = 'WikiTextLine';
+   public $defaultTextLineContainer = 'WikiTextLine';
+
+   public $availabledTextLineContainers = array('WikiTextLine');
 
    /**
    * liste des balises de type bloc reconnus par WikiRenderer.

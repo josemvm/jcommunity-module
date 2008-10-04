@@ -134,3 +134,19 @@ div.exception p { font-size:0.9em; }
    -moz-border-radius:0px 0px 15px 15px;
 }
 
+
+
+
+
+table.forum { border:1px solid grey; border-collapse:collapse; margin:1em auto; }
+table.forum th { background-color: #002830; color:#fff; }
+table.forum td { border:1px solid grey; vertical-align:top;padding:5px;}
+table.forum td.lastpost { font-size:0.8em;}
+
+table.forum td h2 { color:#AF283A; font-size:1.1em !important;
+border-bottom:0 none transparent !important;}
+table.forum td h2 a{ color:#AF283A !important; }
+table.forum td h2 a:hover{ color:#fff !important; }
+table.forumform td { vertical-align:top;}
+table.forumform th { text-align:right; vertical-align:top;}
+

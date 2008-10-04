@@ -4,7 +4,7 @@
  *
  * @package WikiRenderer
  * @subpackage wr3_to_text
- * @author Laurent Jouanneau <jouanneau@netcourrier.com>
+ * @author Laurent Jouanneau
  * @copyright 2003-2006 Laurent Jouanneau
  * @link http://wikirenderer.berlios.de
  *
@@ -31,7 +31,9 @@ class wr3_to_text   extends WikiRendererConfig {
     'wr3text_cite','wr3text_acronym','wr3text_link', 'wr3text_image', 'wr3text_anchor',
     'wr3text_footnote');
 
-   public $textLineContainer = 'WikiTextLine';
+   public $defaultTextLineContainer = 'WikiTextLine';
+
+   public $availabledTextLineContainers = array('WikiTextLine');
 
    /**
    * liste des balises de type bloc reconnus par WikiRenderer.

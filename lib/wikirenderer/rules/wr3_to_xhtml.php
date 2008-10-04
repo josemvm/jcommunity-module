@@ -4,7 +4,7 @@
  *
  * @package WikiRenderer
  * @subpackage rules
- * @author Laurent Jouanneau <jouanneau@netcourrier.com>
+ * @author Laurent Jouanneau
  * @copyright 2003-2006 Laurent Jouanneau
  * @link http://wikirenderer.berlios.de
  *
@@ -31,7 +31,9 @@ class wr3_to_xhtml  extends WikiRendererConfig  {
     'wr3xhtml_cite','wr3xhtml_acronym','wr3xhtml_link', 'wr3xhtml_image',
     'wr3xhtml_anchor', 'wr3xhtml_footnote');
 
-   public $textLineContainer = 'WikiHtmlTextLine';
+   public $defaultTextLineContainer = 'WikiHtmlTextLine';
+
+   public $availabledTextLineContainers = array('WikiHtmlTextLine');
 
    /**
    * liste des balises de type bloc reconnus par WikiRenderer.
@@ -44,7 +46,7 @@ class wr3_to_xhtml  extends WikiRendererConfig  {
 
 
    // la syntaxe wr3 contient la possibilité de mettre des notes de bas de page
-   // celles-ci seront stockées ici, avant leur incorporation à la fin du texte.
+   // celles-ci seront stockées ici, avant leur incorporation é la fin du texte.
    public $footnotes = array();
    public $footnotesId='';
    public $footnotesTemplate = '<div class="footnotes"><h4>Notes</h4>%s</div>';
@@ -54,7 +56,7 @@ class wr3_to_xhtml  extends WikiRendererConfig  {
     */
    public function onStart($texte){
         $this->footnotesId = rand(0,30000);
-        $this->footnotes = array(); // on remet à zero les footnotes
+        $this->footnotes = array(); // on remet é zero les footnotes
         return $texte;
     }
 
@@ -244,7 +246,7 @@ class wr3xhtml_list extends WikiRendererBloc {
             $str.=($t{$i-1}== '#'?"</li></ol>\n":"</li></ul>\n");
          }
          $str.="</li>\n<li>";
-         $this->_previousTag=substr($this->_previousTag,0,-$d); // pour être sur...
+         $this->_previousTag=substr($this->_previousTag,0,-$d); // pour étre sur...
 
       }elseif( $d < 0 ){ // un niveau de plus
          $c=substr($this->_detectMatch[1],-1,1);

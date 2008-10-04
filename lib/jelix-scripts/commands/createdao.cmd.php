@@ -3,7 +3,10 @@
 * @package     jelix-scripts
 * @author      Jouanneau Laurent
 * @contributor Nicolas Jeudy (patch ticket #99)
+* @contributor Gwendal Jouannic (patch ticket #615)
+* @contributor Loic Mathaud
 * @copyright   2005-2007 Jouanneau laurent
+* @copyright   2007 Nicolas Jeudy, 2008 Gwendal Jouannic, 2008 Loic Mathaud
 * @link        http://www.jelix.org
 * @licence     GNU General Public Licence see LICENCE file or http://www.gnu.org/licenses/gpl.html
 */
@@ -17,7 +20,7 @@ class createdaoCommand extends JelixScriptCommand {
     public  $syntaxhelp = "[-profil name] [-empty] MODULE DAO TABLE";
     public  $help=array(
         'fr'=>"
-    Créer un nouveau fichier de dao
+    Crée un nouveau fichier de dao
 
     -profil (facultatif) : indique le profil à utiliser pour se connecter à
                            la base et récupérer les informations de la table
@@ -27,20 +30,20 @@ class createdaoCommand extends JelixScriptCommand {
     MODULE: nom du module concerné.
     DAO   : nom du dao à créer.
     TABLE : nom de la table principale sur laquelle s'appuie le dao
-            (cette commande ne permet pas de générer un dao  s'appuyant sur
-             de multiple table)",
+            (cette commande ne permet pas de générer un dao s'appuyant sur
+             de multiples tables)",
         'en'=>"
     Create a new dao file.
 
     -profil (optional) : indicate the name of the profil to use for the
                         database connection.
-    -empty (optional) : juste create an empty dao file (it doesn't connect to
-                        the database
+    -empty (optional) : just create an empty dao file (it doesn't connect to
+                        the database)
 
     MODULE : module name where to create the dao
     DAO    : dao name
-    TABLE  : name of the main table on which the dao is mapped. You cannot indicates
-             multiple table, sorry..",
+    TABLE  : name of the main table on which the dao is mapped. You cannot indicate
+             multiple tables",
     );
 
 
@@ -73,12 +76,14 @@ class createdaoCommand extends JelixScriptCommand {
 
             switch($prop->type){
 
+               case 'clob': 
                case 'text':
                case 'mediumtext':
                case 'longtext':
                case 'tinytext':
                   $type='text';
                   break;
+               case 'varchar2':
                case 'varchar':
                case 'char':
                case 'enum':
@@ -86,6 +91,7 @@ class createdaoCommand extends JelixScriptCommand {
                case 'set':
                   $type='string';
                   break;
+               case 'number':
                case 'tinyint':
                case 'int':
                case 'integer':
@@ -147,6 +153,9 @@ class createdaoCommand extends JelixScriptCommand {
                }
                if ($prop->length) {
                     $properties.=' maxlength="'.$prop->length.'"';
+               }
+               if ($prop->sequence) {
+                    $properties.=' sequence="'.$prop->sequence.'"';
                }
                $properties.='/>';
             }

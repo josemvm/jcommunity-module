@@ -12,7 +12,7 @@
 /**
  *
  */
-require(JELIX_LIB_ACL_PATH.'jAcl.class.php');
+require(JELIX_LIB_PATH.'acl/jAcl.class.php');
 
 /**
 * @package    jelix
@@ -72,4 +72,4 @@ class jAclCoordPlugin implements jICoordPlugin {
     public function afterProcess (){}
 
 }
-?>
+

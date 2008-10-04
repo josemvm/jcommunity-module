@@ -19,8 +19,11 @@ modulesPath = lib:jelix-modules/,app:modules/
 theme = default
 
 
-[plugins]
+[coordplugins]
 ;nom = nom_fichier_ini
+
+[tplplugins]
+defaultJformsBuilder = html
 
 [responses]
 html=myHtmlResponse
@@ -67,10 +70,10 @@ multiview = off
 
 ; basePath corresponds to the path to the base directory of your application.
 ; so if the url to access to your application is http://foo.com/aaa/bbb/www/index.php, you should
-; set basePath = "/aaa/bbb/www/". 
+; set basePath = "/aaa/bbb/www/".
 ; if it is http://foo.com/index.php, set basePath="/"
 ; Jelix can guess the basePath, so you can keep basePath empty. But in the case where there are some
-; entry points which are not in the same directory (ex: you have two entry point : http://foo.com/aaa/index.php 
+; entry points which are not in the same directory (ex: you have two entry point : http://foo.com/aaa/index.php
 ; and http://foo.com/aaa/bbb/other.php ), you MUST set the basePath (ex here, the higher entry point is index.php so
 ; : basePath="/aaa/" )
 basePath = ""
@@ -84,20 +87,19 @@ entrypointExtension= .php
 notfoundAct =
 ;notfoundAct = "jelix~error:notfound"
 
-; liste des actions requerant https (syntaxe expliquée dessous), pour le moteur d'url simple
+; list of actions which require https protocol for the simple url engine
+; syntax of the list is the same as explained in the simple_urlengine_entrypoints
 simple_urlengine_https =
 
-
 [simple_urlengine_entrypoints]
-; paramètres pour le moteur d'url simple : liste des points d'entrées avec les actions
-; qui y sont rattachées
+; parameters for the simple url engine. This is the list of entry points
+; with list of actions attached to each entry points
 
-
-; nom_script_sans_suffix = "liste de selecteur d'action séparé par un espace"
-; selecteurs :
-;   m~a@r    -> pour action "a" du module "m" répondant au type de requete "r"
-;   m~*@r    -> pour toute action du module "m" répondant au type de requete "r"
-;   @r       -> toute action de tout module répondant au type de requete "r"
+; script_name_without_suffix = "list of action selectors separated by a space"
+; selector syntax :
+;   m~a@r    -> for the action "a" of the module "m" and for the request of type "r"
+;   m~*@r    -> for all actions of the module "m" and for the request of type "r"
+;   @r       -> for all actions for the request of type "r"
 
 index = "@classic"
 xmlrpc = "@xmlrpc"
@@ -105,9 +107,16 @@ jsonrpc = "@jsonrpc"
 rdf = "@rdf"
 
 
+[basic_significant_urlengine_entrypoints]
+; for each entry point, it indicates if the entry point name
+; should be include in the url or not
+index = on
+xmlrpc = on
+jsonrpc = on
+rdf = on
+
 [logfiles]
 default=messages.log
-
 
 [mailer]
 webmasterEmail = root@localhost
