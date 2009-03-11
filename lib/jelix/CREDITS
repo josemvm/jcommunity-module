@@ -36,6 +36,14 @@ Julien Issler
  - fixes about table_prefix in jDb (#702, #703)
  - jForms: radiobutton with value 0 should not get selected by default (#691)
  - jTcpdf: added default font for header and footer (#693)
+ - jDao: autoremove of empty groups in jDaoConditions (#724)
+ - jForms: new addControlBefore() method (#728)
+ - jForms: server side check for <input type="url"> doesn't work (#743)
+ - jForms: date and datetime controls + jQuery UI datepicker (#196)
+ - jForms: javascript check of secret control's confirmation does not work (#751)
+ - jForms: some controls are selected by default if their values are "0" (#757)
+ - jCoordinator: exception loop when response's constructor fails (#749)
+ - jAuth: update usersession when needed (#461)
 
 Bastien Jaillot (aka bastnic)
  - bug fix in jDaoGenerator (#282)
@@ -82,7 +90,7 @@ Dominique Papin (aka bibo)
  - improved addCssLink usability for IE (#348)
  - added support of 'else' keyword for block plugin in jtpl (#349)
  - added support of <reset> in jforms (#258)
- - fixed some bugs (#362,#585)
+ - fixed some bugs (#362,#585,#718,#713)
  - jforms dao datasource : enhancements (#581,#582)
  - added ifctrl block plugin (#601)
  - added addContent method to jResponseHtmlFragment (#610)
@@ -99,6 +107,7 @@ Christophe Thiriot (aka Doubleface)
  - Added enhanced service handling (dependency injection) in jClasses (#523, #602)
  - implementation of "live" exit in command line (#406)
  - automatic timezone setting (#600)
+ - bug in jFilter tests (#842)
 
 Contributors
 ------------
@@ -122,9 +131,17 @@ Dandelionmood
 Antoine Detante (aka antoinefr)
  - support of persistant authentification in jAuth and auth plugin (#229)
 
+dsdenes
+ - fix little thing in crud template (#844)
+ - added a native modifier in jtpl (#845)
+
 F. Fernandez (aka e-media)
  - little improvement in jLog.(#344)
  - little improvement in formcontrols plugin (#353)
+
+FoxMaSk
+  - bug fix in jFile::removeDir (#733)
+  - little improvement in jtpl_function_html_diff(#720)
 
 Mickaël Fradin (aka mike)
  - improvements in the jtpl plugin: formcontrols (#223)
@@ -175,11 +192,18 @@ Thibault Piront (aka nuks)
  - counter* plugins for jtpl (#375)
  - fixed bug in jAcl2 pgsql install file (#631)
 
+Pulsation
+  - possibility to disable zone caching (#717)
+
 Rahal
  - improvement on locale selectors : possibility to overload locales (#358)
 
+Tahina Ramaroson
+ - ldap driver for jAuth (#787)
+
 Philippe Schelte (aka dubphil)
  - plugin tpl cycle (#149)
+ - error in checkTrustedModules function (#715)
 
 Warren Seine (aka SooW)
  - <script /> tags don't end with a newline (#536)
@@ -188,7 +212,12 @@ Thomas
  - fixed bugs in jDao (#576, #643)
  - jDaoFactoryBase::countBy : allowing to do count on distinct fields (#580)
  - JDaoConditions::addItemGroup : add clause group by (#579)
+ - jDbPDOConnection : fixed bug in query method with 3 arguments (#839)
 
+Baptiste Toinot (aka Surfoo)
+ - double / in path for locale selector
+ - fixed little bugs in jForms (#789, #790)
+ 
 Christian Tritten
  - improvements on pagelinks plugin (#340)
 
@@ -218,4 +247,4 @@ Copix Team
     (version 2.3dev20050901), under copyright 2001-2005 Copix Team
     (http://www.copix.org)
 
-(updated svn-879)
+(updated svn-1213)

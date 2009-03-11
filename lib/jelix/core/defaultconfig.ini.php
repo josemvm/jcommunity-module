@@ -5,22 +5,28 @@ startModule = "jelix"
 startAction = "default:index"
 locale = "en_US"
 charset = "UTF-8"
+theme = default
 
 ; see http://www.php.net/manual/en/timezones.php for supported values
 ; if empty, jelix will try to get the default timezone
 timeZone =
 
+pluginsPath = app:plugins/
+modulesPath = lib:jelix-modules/,app:modules/
+
+; says if jelix should check trustedModules
 checkTrustedModules = off
 
-; list of modules : module,module,module
+; list of modules which can be accessed from the web
+;    module,module,module
 trustedModules =
 
-pluginsPath = lib:jelix-plugins/,app:plugins/
-modulesPath = lib:jelix-modules/,app:modules/
+; list of modules which are not used by the application
+; or not installed.
+unusedModules = 
 
 dbProfils = dbprofils.ini.php
 
-theme = default
 use_error_handler = on
 
 enableOldActionSelector =
@@ -54,6 +60,7 @@ ltx2pdf= jResponseLatexToPdf
 tcpdf = jResponseTcpdf
 soap = jResponseSoap
 htmlfragment = jResponseHtmlFragment
+htmlauth = jResponseHtml
 
 [_coreResponses]
 html = jResponseHtml
@@ -79,6 +86,7 @@ ltx2pdf= jResponseLatexToPdf
 tcpdf = jResponseTcpdf
 soap = jResponseSoap
 htmlfragment = jResponseHtmlFragment
+htmlauth = jResponseHtml
 
 [error_handling]
 messageLogFormat = "%date%\t[%code%]\t%msg%\t%file%\t%line%\n"
@@ -213,6 +221,8 @@ sendmailPath = "/usr/sbin/sendmail"
 smtpHost = "localhost"
 ; default SMTP server port
 smtpPort = 25
+; secured connection or not. possible values: "", "ssl", "tls"
+smtpSecure = 
 ; SMTP HELO of the message (Default is hostname)
 smtpHelo =
 ; SMTP authentication
@@ -223,15 +233,14 @@ smtpPassword =
 smtpTimeout = 10
 
 [acl]
-driver = db
-enableAclDbEventListener = off
+; exemple of driver: "db".
+driver =
 
 [acl2]
-driver = db
-enableAcl2DbEventListener = off
+; exemple of driver: "db"
+driver =
 
-[pref]
-driver = db
+
 
 [sessions]
 ; to disable sessions, set the following parameter to 0
@@ -258,6 +267,19 @@ storage=
 ; dao_selector = "jelix~jsession"
 ; dao_db_profile = ""
 
+; list of selectors of classes to load before the session_start
+loadClasses=
+
+[forms]
+; define input type for datetime widgets : "textboxes" or "menulists"
+controls.datetime.input = "menulists"
+; define the way month labels are displayed widgets: "numbers", "names" or "shortnames"
+controls.datetime.months.labels = "names"
+; define the default config for datepickers in jforms
+datepicker = default
+
+[datepickers]
+default = jelix/js/jforms/datepickers/default/init.js
 
 [htmleditors]
 default.engine.name = wymeditor
@@ -265,3 +287,11 @@ default.engine.file[] = jelix/jquery/jquery.js
 default.engine.file[] = jelix/wymeditor/jquery.wymeditor.js
 default.config = jelix/wymeditor/config/default.js
 default.skin.default  = jelix/wymeditor/skins/default/screen.css
+
+[zones]
+; disable zone caching
+disableCache = off
+
+[classbindings]
+; bindings for class and interfaces : selector_of_class/iface = selector_of_implementation
+

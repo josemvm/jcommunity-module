@@ -127,7 +127,7 @@ class jDaoMethod {
         }
 
         if(strlen($params['groupby'])){
-            if($this->type == 'select'){
+            if($this->type == 'select' || $this->type == 'selectfirst'){
                 $this->_groupBy = preg_split("/[\s,]+/", $params['groupby']);
                 $props = $this->_def->getProperties();
                 foreach($this->_groupBy as $p){
@@ -378,4 +378,3 @@ class jDaoMethod {
         $this->_limit= compact('offset', 'count', 'offsetparam','countparam');
     }
 }
-?>

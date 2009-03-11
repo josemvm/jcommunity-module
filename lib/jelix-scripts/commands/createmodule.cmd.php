@@ -44,13 +44,25 @@ class createmoduleCommand extends JelixScriptCommand {
 
     public function run(){
         jxs_init_jelix_env();
+
+        // note: since module name are used for name of generated name,
+        // only this characters are allowed
+        if(preg_match('/([^a-zA-Z_0-9])/', $this->_parameters['module'])) {
+            throw new Exception("the name '".$this->_parameters['module']."' is not valid for a module");
+        }
+        
         $path= $this->getModulePath($this->_parameters['module'], false);
 
         if(file_exists($path)){
-            die("Error: module '".$this->_parameters['module']."' already exists");
+            throw new Exception("module '".$this->_parameters['module']."' already exists");
         }
         $this->createDir($path);
-        $this->createFile($path.'module.xml','module.xml.tpl',array('name'=>$this->_parameters['module']));
+        
+        $param = array();
+        $param['name']=$this->_parameters['module'];
+        $param['default_id'] = $this->_parameters['module'].JELIXS_INFO_DEFAULT_IDSUFFIX;
+
+        $this->createFile($path.'module.xml','module.xml.tpl',$param);
 
         if(!$this->getOption('-nosubdir')){
             $this->createDir($path.'classes/');
@@ -84,6 +96,8 @@ class createmoduleCommand extends JelixScriptCommand {
                         );
         $isdefault = $this->getOption('-defaultmodule');
         foreach($inifiles as $k=> $filename) {
+            if(!file_exists($filename))
+                continue;
             try {
                 $ini = new jIniFileModifier($filename);
                 if ($isdefault && $k == 0) {
@@ -93,7 +107,9 @@ class createmoduleCommand extends JelixScriptCommand {
                 else if ($ini->getValue('startModule') == '')
                     $ini->setValue('startModule', $this->_parameters['module']);
                 $ini->save();
-            }catch(Exception $e){}
+            }catch(Exception $e){
+                echo "Error during the modification of an ini file: ".$e->getMessage()."\n";
+            }
         }
     }
 }

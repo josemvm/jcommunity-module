@@ -5,7 +5,7 @@
 * @author      Laurent Jouanneau
 * @contributor Julien Issler
 * @copyright   2005-2006 Laurent Jouanneau
-* @copyright   2007 Julien Issler
+* @copyright   2007-2009 Julien Issler
 *
 * This class was get originally from the Copix project (CopixDbConnection, Copix 2.3dev20050901, http://www.copix.org)
 * However only few lines of code are still copyrighted 2001-2005 CopixTeam (LGPL licence).
@@ -22,11 +22,20 @@
  */
 abstract class jDbConnection {
 
+    const FETCH_OBJ = 5;
+    const FETCH_CLASS = 8;
+    const FETCH_INTO = 9;
+    const ATTR_AUTOCOMMIT = 0;
+    const ATTR_ERRMODE = 3;
+    const ATTR_CURSOR = 10;
+    const CURSOR_FWDONLY = 0;
+    const CURSOR_SCROLL = 1;
+
     /**
-    * profil properties used by the connector
+    * profile properties used by the connector
     * @var array
     */
-    public $profil;
+    public $profile;
 
     /**
      * The database type name (mysql, pgsql ...)
@@ -56,12 +65,12 @@ abstract class jDbConnection {
     protected $_connection = null;
 
     /**
-    * do a connection to the database, using properties of the given profil
-    * @param array $profil  profil properties
+    * do a connection to the database, using properties of the given profile
+    * @param array $profile  profile properties
     */
-    function __construct($profil){
-        $this->profil = & $profil;
-        $this->dbms = $profil['driver'];
+    function __construct($profile){
+        $this->profile = & $profile;
+        $this->dbms = $profile['driver'];
         $this->_connection = $this->_connect();
     }
 
@@ -73,12 +82,18 @@ abstract class jDbConnection {
 
     /**
     * Launch a SQL Query which returns rows (typically, a SELECT statement)
-    * @param   string   $queryString   the SQL query
+    * @param string   $queryString   the SQL query
+    * @param integer  $fetchmode   FETCH_OBJ, FETCH_CLASS or FETCH_INTO
+    * @param string|object   $param   class name if FETCH_CLASS, an object if FETCH_INTO. else null.
+    * @param array  $ctoargs  arguments for the constructor if FETCH_CLASS
     * @return  jDbResultSet|boolean  False if the query has failed.
     */
-    public function query ($queryString){
+    public function query ($queryString, $fetchmode = self::FETCH_OBJ, $arg1 = null, $ctoargs = null){
         $this->lastQuery = $queryString;
         $result = $this->_doQuery ($queryString);
+        if ($fetchmode != self::FETCH_OBJ) {
+            $result->setFetchMode($fetchmode, $arg1, $ctoargs);
+        }
         return $result;
     }
 
@@ -120,6 +135,24 @@ abstract class jDbConnection {
     }
 
     /**
+     * enclose the field name
+     * @param string $fieldName the field name
+     * @return string the enclosed field name
+     * @since 1.1.1
+     */
+    public function encloseName($fieldName){
+        return $fieldName;
+    }
+    
+    /**
+     * @deprecated since 1.1.2
+     * @see encloseName
+     */
+    public function encloseFieldName($fieldName) {
+        return $this->encloseName($fieldName);
+    }
+
+    /**
       * Prefix the given table with the prefix specified in the connection's profile
       * If there's no prefix for the connection's profile, return the table's name unchanged.
       *
@@ -129,9 +162,9 @@ abstract class jDbConnection {
       * @since 1.0
       */
     public function prefixTable($table_name){
-        if(!isset($this->profil['table_prefix']))
+        if(!isset($this->profile['table_prefix']))
             return $table_name;
-        return $this->profil['table_prefix'].$table_name;
+        return $this->profile['table_prefix'].$table_name;
     }
 
     /**
@@ -142,7 +175,7 @@ abstract class jDbConnection {
       * @since 1.0
       */
     public function hasTablePrefix(){
-        return (isset($this->profil['table_prefix']) && $this->profil['table_prefix'] != '');
+        return (isset($this->profile['table_prefix']) && $this->profile['table_prefix'] != '');
     }
 
     /**
@@ -155,7 +188,7 @@ abstract class jDbConnection {
     }
 
     /**
-     * begin a transaction. Call it after doQuery, doLimitQuery, doExec,
+     * begin a transaction. Call it before query, limitQuery, exec
      * And then commit() or rollback()
      */
     abstract public function beginTransaction ();
@@ -264,4 +297,3 @@ abstract class jDbConnection {
         return addslashes($text);
     }
 }
-?>

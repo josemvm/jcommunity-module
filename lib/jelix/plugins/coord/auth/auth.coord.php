@@ -87,12 +87,6 @@ class AuthCoordPlugin implements jICoordPlugin {
             $notLogged = true;
             $_SESSION[$this->config['session_name']] = new jAuthDummyUser();
         }else{
-            // This test is here only for a soft migrating from jelix 1.0b3 to 1.0
-            // it should be removed in futur version
-            if($_SESSION[$this->config['session_name']] instanceof jDummyAuthUser) {
-                $_SESSION[$this->config['session_name']] = new jAuthDummyUser();
-            }
-
             $notLogged = ! jAuth::isConnected();
         }
         if(!$notLogged && $this->config['timeout']){
@@ -118,6 +112,9 @@ class AuthCoordPlugin implements jICoordPlugin {
                     throw new jException($this->config['error_message']);
                 }else{
                     if(!$badip){
+                        $auth_url_return = $GLOBALS['gJCoord']->request->getParam('auth_url_return');
+                        if($auth_url_return === null)
+                            $GLOBALS['gJCoord']->request->params['auth_url_return'] = jUrl::getCurrentUrl();
                         $selector= new jSelectorAct($this->config['on_error_action']);
                     }
                 }

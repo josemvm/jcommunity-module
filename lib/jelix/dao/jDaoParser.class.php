@@ -15,7 +15,7 @@
 */
 
 /**
- * extract datas from a dao xml content
+ * extract data from a dao xml content
  * @package  jelix
  * @subpackage dao
  * @see jDaoCompiler
@@ -214,4 +214,3 @@ class jDaoParser {
     public function hasEvent($event){ return in_array($event,$this->_eventList);}
 }
 
-?>

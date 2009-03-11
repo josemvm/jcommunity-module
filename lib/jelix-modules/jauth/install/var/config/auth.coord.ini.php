@@ -1,10 +1,9 @@
-;<?php /* comments & extra-whitespaces have been removed by jBuildTools*/
-die(''); ?>
+;<?php die(''); ?>
 ;for security reasons , don't remove or modify the first line
 
 ;============= Main parameters
 
-; driver name : "Db", "Class" or "LDS" (respect the case of characters)
+; driver name : "ldap", "Db", "Class" or "LDS" (respect the case of characters)
 driver = Db
 
 ;============ Parameters for the plugin
@@ -78,11 +77,18 @@ persistant_duration = 1
 ; name of the dao to get user data
 dao = ""
 
-; profil to use for jDb 
-profil = ""
+; profile to use for jDb 
+profile = ""
 
 ; name of the php function to crypt the password in the database
 password_crypt_function = md5
+
+; name of the form for the jauthdb_admin module
+form = ""
+
+; path of the directory where to store files uploaded by the form (jauthdb_admin module)
+; should be related to the var directory of the application
+uploadsDirectory= ""
 
 ;------- parameters for the "Class" driver
 [Class]
@@ -95,3 +101,25 @@ password_crypt_function = md5
 ;------- parameters for the "LDS" driver
 [LDS]
 
+;------- parameters for the "ldap" driver
+[ldap]
+; default "localhost"
+hostname=
+; default 389
+port=
+
+; DOMAIN\user or user@DOMAIN to connect with LDAP (user who has at least search right)
+ldapUser=
+; password used to connect with LDAP
+ldapPassword=
+
+; LDAP search params 
+; search base, example for Active Directory: "ou=ADAM users,o=Microsoft,c=US"
+searchBaseDN=
+; search filter, example for Active Directory: "(objectClass=user)"
+searchFilter=
+; attributes to retrieve for the search, example for Active Directory: "cn,distinguishedName,name"
+searchAttributes=
+
+; name of the php function to crypt the password in the database
+password_crypt_function = md5

@@ -66,34 +66,13 @@ abstract class jRequest {
      */
     public $urlPathInfo;
 
-
-    /**
-     * @var string
-     * @deprecated see $urlScriptPath
-     */
-    public $url_script_path;
-
-    /**
-     * @var string
-     * @deprecated see $urlScriptName
-     */
-    public $url_script_name;
-
-    /**
-     * @var string
-     * @deprecated see $urlPathInfo
-     */
-    public $url_path_info;
-
-
-
     function __construct(){  }
 
     /**
      * initialize the request : analyse of http request etc..
      */
     public function init(){
-        $this->_initUrlDatas();
+        $this->_initUrlData();
         $this->_initParams();
     }
 
@@ -105,26 +84,12 @@ abstract class jRequest {
     /**
      * init the url* properties
      */
-    protected function _initUrlDatas(){
+    protected function _initUrlData(){
         global $gJConfig;
 
-        if (isset($_SERVER[$gJConfig->urlengine['scriptNameServerVariable']]))
-            $this->urlScript = $_SERVER[$gJConfig->urlengine['scriptNameServerVariable']];
-        else
-            $this->urlScript = $_SERVER['SCRIPT_NAME'];
-
-        $lastslash = strrpos ($this->urlScript, '/');
-        $this->url_script_path = $this->urlScriptPath = substr ($this->urlScript, 0, $lastslash ).'/';
-
-        if($gJConfig->urlengine['basePath'] == ''){ // for beginners or simple site, we "guess" the base path
-            $gJConfig->urlengine['basePath'] = $this->urlScriptPath;
-            if($gJConfig->urlengine['jelixWWWPath']{0} != '/')
-                $gJConfig->urlengine['jelixWWWPath'] = $this->urlScriptPath.$gJConfig->urlengine['jelixWWWPath'];
-        }else if(strpos($this->urlScriptPath,$gJConfig->urlengine['basePath']) !== 0){
-            throw new Exception('Jelix Error: basePath ('.$gJConfig->urlengine['basePath'].') in config file doesn\'t correspond to current base path. You should setup it to '.$this->urlScriptPath);
-        }
-
-        $this->url_script_name = $this->urlScriptName = substr ($this->urlScript, $lastslash+1);
+        $this->urlScript = $gJConfig->urlengine['urlScript'];
+        $this->urlScriptPath = $gJConfig->urlengine['urlScriptPath'];
+        $this->urlScriptName = $gJConfig->urlengine['urlScriptName'];
 
         $piiqp = $gJConfig->urlengine['pathInfoInQueryParameter'];
         if ($piiqp) {
@@ -145,12 +110,12 @@ abstract class jRequest {
             $pathinfo = '';
         }
 
-        if ($gJConfig->isWindows && $pathinfo && strpos ($pathinfo, $this->urlScript) !== false){
+        if ($gJConfig->isWindows && $pathinfo && strpos($pathinfo, $this->urlScript) !== false){
             //under IIS, we may get  /subdir/index.php/mypath/myaction as PATH_INFO, so we fix it
             $pathinfo = substr ($pathinfo, strlen ($this->urlScript));
         }
 
-        $this->url_path_info = $this->urlPathInfo = $pathinfo;
+        $this->urlPathInfo = $pathinfo;
     }
 
     /**
@@ -174,20 +139,10 @@ abstract class jRequest {
     }
 
     /**
-     * return a list of class name of allowed response corresponding to the request
-     * @return array the list, or false which means everything
-     * @see jRequest::getResponse()
-     */
-    public function allowedResponses(){ return false;}
-
-    /**
      * @param string $respclass the name of a response class
      */
     public function isAllowedResponse($respclass){
-        if($ar=$this->allowedResponses()){
-            return in_array($respclass, $ar);
-        }else
-            return true;
+        return true;
     }
 
     /**
@@ -207,29 +162,26 @@ abstract class jRequest {
                 throw new jException('jelix~errors.ad.response.type.unknow',array($gJCoord->action->resource,$type,$gJCoord->action->getPath()));
             }
             $respclass = $gJConfig->_coreResponses[$type];
+            $path = $gJConfig->_coreResponses[$type.'.path'];
         }else{
             if(!isset($gJConfig->responses[$type])){
                 throw new jException('jelix~errors.ad.response.type.unknow',array($gJCoord->action->resource,$type,$gJCoord->action->getPath()));
             }
             $respclass = $gJConfig->responses[$type];
-        }
-        if(file_exists($path=JELIX_LIB_RESPONSE_PATH.$respclass.'.class.php')){
-            require_once ($path);
-        }elseif(file_exists($path=JELIX_APP_PATH.'responses/'.$respclass.'.class.php')){
-            require_once ($path);
-        }else{
-            throw new jException('jelix~errors.ad.response.not.loaded',array($gJCoord->action->resource,$type,$gJCoord->action->getPath()));
+            $path = $gJConfig->responses[$type.'.path'];
         }
 
         if(!$this->isAllowedResponse($respclass)){
             throw new jException('jelix~errors.ad.response.type.notallowed',array($gJCoord->action->resource,$type,$gJCoord->action->getPath()));
         }
 
+        if(!class_exists($respclass,false))
+            require($path);
+
         $response = new $respclass();
-        $gJCoord->response= $response;
+        $gJCoord->response = $response;
 
         return $response;
     }
 }
 
-?>

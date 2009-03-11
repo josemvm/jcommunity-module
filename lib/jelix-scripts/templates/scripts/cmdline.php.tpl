@@ -1,15 +1,14 @@
 <?php
 /**
-* @package  %%appname%%
-* @subpackage scripts
-* @author
-* @contributor
-* @copyright
+* @package   %%appname%%
+* @subpackage 
+* @author    %%default_creator_name%%
+* @copyright %%default_copyright%%
+* @link      %%default_website%%
+* @license   %%default_license_url%% %%default_license%%
 */
 
-require_once ('%%rp_jelix%%init.php');
-
-require_once ('%%rp_app%%application.init.php');
+require_once ('%%rp_app%%application-cli.init.php');
 
 require_once (JELIX_LIB_CORE_PATH.'jCmdlineCoordinator.class.php');
 

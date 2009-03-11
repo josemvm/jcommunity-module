@@ -13,15 +13,15 @@
 class createdaocrudCommand extends JelixScriptCommand {
 
     public  $name = 'createdaocrud';
-    public  $allowed_options=array('-profil'=>true);
+    public  $allowed_options=array('-profile'=>true);
     public  $allowed_parameters=array('module'=>true, 'table'=>true, 'ctrlname'=>false);
 
-    public  $syntaxhelp = "[-profil name] MODULE TABLE [CTRLNAME]";
+    public  $syntaxhelp = "[-profile name] MODULE TABLE [CTRLNAME]";
     public  $help=array(
         'fr'=>"
     Crée un nouveau contrôleur de type jControllerDaoCrud, reposant sur un jdao et un jform.
 
-    -profil (facultatif) : indique le profil à utiliser pour se connecter à
+    -profile (facultatif) : indique le profil à utiliser pour se connecter à
                            la base et récupérer les informations de la table
     MODULE : le nom du module où stocker le contrôleur
     TABLE : le nom de la table SQL
@@ -30,7 +30,7 @@ class createdaocrudCommand extends JelixScriptCommand {
         'en'=>"
     Create a new controller jControllerDaoCrud
 
-    -profil (optional) : indicate the name of the profil to use for the
+    -profile (optional) : indicate the name of the profile to use for the
                         database connection.
 
     MODULE: name of the module where to create the crud
@@ -48,26 +48,30 @@ class createdaocrudCommand extends JelixScriptCommand {
         $ctrlname = $this->getParam('ctrlname', $table);
 
         if(file_exists($path.'controllers/'.$ctrlname.'.classic.php')){
-            die("Error: controller '".$ctrlname."' already exists");
+            throw new Exception("controller '".$ctrlname."' already exists");
         }
 
         $agcommand = jxs_load_command('createdao');
         $options = array();
-        $profil = '';
-        if ($this->getOption('-profil')) {
-            $profil = $this->getOption('-profil');
-            $options = array('-profil'=>$profil);
+        $profile = '';
+        if ($this->getOption('-profile')) {
+            $profile = $this->getOption('-profile');
+            $options = array('-profile'=>$profile);
         }
-        $agcommand->init($options,array('module'=>$this->_parameters['module'], 'name'=>$ctrlname,'table'=>$table));
+        $agcommand->init($options,array('module'=>$this->_parameters['module'], 'name'=>$table,'table'=>$table));
         $agcommand->run();
 
         $agcommand = jxs_load_command('createform');
-        $agcommand->init(array(),array('module'=>$this->_parameters['module'], 'form'=>$ctrlname,'dao'=>$ctrlname));
+        $agcommand->init(array(),array('module'=>$this->_parameters['module'], 'form'=>$table,'dao'=>$table));
         $agcommand->run();
 
         $this->createDir($path.'controllers/');
-        $this->createFile($path.'controllers/'.$ctrlname.'.classic.php','controller.daocrud.tpl',array('name'=>$ctrlname, 
-                'module'=>$this->_parameters['module'], 'table'=>$table, 'profil'=>$profil));
+        $params = array('name'=>$ctrlname, 
+                'module'=>$this->_parameters['module'],
+                'table'=>$table,
+                'profile'=>$profile);
+        
+        $this->createFile($path.'controllers/'.$ctrlname.'.classic.php','controller.daocrud.tpl',$params);
     }
 }
 

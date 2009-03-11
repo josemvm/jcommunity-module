@@ -64,7 +64,7 @@ ACTION:
         jxs_init_jelix_env();
         $action = $this->getParam('action');
         if(!in_array($action,array('list','add','remove','subject_create','subject_delete','subject_list'))){
-            die("unknown subcommand\n");
+            throw new Exception("unknown subcommand");
         }
 
         $meth= 'cmd_'.$action;
@@ -80,7 +80,7 @@ ACTION:
                 FROM jacl2_rights r, jacl2_subject s
                 WHERE r.id_aclgrp = 0 AND r.id_aclsbj=s.id_aclsbj
                 ORDER BY subject, id_aclres ";
-        $cnx = jDb::getConnection(jAclDb::getProfil());
+        $cnx = jDb::getConnection(jAcl2Db::getProfile());
         $rs = $cnx->query($sql);
         $sbj =-1;
         foreach($rs as $rec){
@@ -95,7 +95,7 @@ ACTION:
                 FROM jacl2_rights r, jacl2_group g, jacl2_subject s
                 WHERE r.id_aclgrp = g.id_aclgrp AND r.id_aclsbj=s.id_aclsbj
                 ORDER BY grp, subject, id_aclres ";
-        $cnx = jDb::getConnection(jAclDb::getProfil());
+        $cnx = jDb::getConnection(jAcl2Db::getProfile());
         $rs = $cnx->query($sql);
         $grp=-1;
         $sbj =-1;
@@ -117,9 +117,9 @@ ACTION:
     protected function cmd_add(){
         $params = $this->getParam('...');
         if(!is_array($params) || count($params) <2 || count($params) >3)
-            die("wrong parameter count\n");
+            throw new Exception("wrong parameter count");
 
-        $cnx = jDb::getConnection(jAclDb::getProfil());
+        $cnx = jDb::getConnection(jAcl2Db::getProfile());
 
         $group = $this->_getGrpId($params[0]);
 
@@ -135,13 +135,13 @@ ACTION:
                 AND id_aclres=".$resource;
         $rs = $cnx->query($sql);
         if($rs->fetch()){
-            die("Error: right already sets\n");
+            throw new Exception("right already sets");
         }
 
         $sql="SELECT * FROM jacl2_subject WHERE id_aclsbj=".$subject;
         $rs = $cnx->query($sql);
         if(!($sbj = $rs->fetch())){
-            die("Error: subject is unknown\n");
+            throw new Exception("subject is unknown");
         }
 
         $sql="INSERT into jacl2_rights (id_aclgrp, id_aclsbj, id_aclres) VALUES (";
@@ -156,9 +156,9 @@ ACTION:
     protected function cmd_remove(){
         $params = $this->getParam('...');
         if(!is_array($params) || count($params) <2 || count($params) >3)
-            die("wrong parameter count\n");
+            throw new Exception("wrong parameter count");
 
-         $cnx = jDb::getConnection(jAclDb::getProfil());
+         $cnx = jDb::getConnection(jAcl2Db::getProfile());
 
         $group = $this->_getGrpId($params[0]);
         $subject=$cnx->quote($params[1]);
@@ -175,10 +175,10 @@ ACTION:
 
         $rs = $cnx->query($sql);
         if(!$rs->fetch()){
-            die("Error: this right is not set\n");
+            throw new Exception("Error: this right is not set");
         }
 
-        $sql="DELETE FROM jacl_rights
+        $sql="DELETE FROM jacl2_rights
              WHERE id_aclgrp=".$group."
                 AND id_aclsbj=".$subject;
         if($resource)
@@ -191,7 +191,7 @@ ACTION:
     protected function cmd_subject_list(){
 
         $sql="SELECT id_aclsbj, label_key FROM jacl2_subject ORDER BY id_aclsbj";
-        $cnx = jDb::getConnection(jAclDb::getProfil());
+        $cnx = jDb::getConnection(jAcl2Db::getProfile());
         $rs = $cnx->query($sql);
         echo "id\t\t\tlabel key\n--------------------------------------------------------\n";
         foreach($rs as $rec){
@@ -202,14 +202,14 @@ ACTION:
     protected function cmd_subject_create(){
         $params = $this->getParam('...');
         if(!is_array($params) || count($params) != 2)
-            die("wrong parameter count\n");
+            throw new Exception("wrong parameter count");
 
-        $cnx = jDb::getConnection(jAclDb::getProfil());
+        $cnx = jDb::getConnection(jAcl2Db::getProfile());
  
         $sql="SELECT id_aclsbj FROM jacl2_subject WHERE id_aclsbj=".$cnx->quote($params[0]);
         $rs = $cnx->query($sql);
         if($rs->fetch()){
-            die("Error: this subject already exists\n");
+            throw new Exception("This subject already exists");
         }
 
 
@@ -224,14 +224,14 @@ ACTION:
     protected function cmd_subject_delete(){
         $params = $this->getParam('...');
         if(!is_array($params) || count($params) != 1)
-            die("wrong parameter count\n");
+            throw new Exception("wrong parameter count");
 
-        $cnx = jDb::getConnection(jAclDb::getProfil());
+        $cnx = jDb::getConnection(jAcl2Db::getProfile());
 
         $sql="SELECT id_aclsbj FROM jacl2_subject WHERE id_aclsbj=".$cnx->quote($params[0]);
         $rs = $cnx->query($sql);
         if(!$rs->fetch()){
-            die("Error: this subject does not exist\n");
+            throw new Exception("This subject does not exist");
         }
 
         $sql="DELETE FROM jacl2_rights WHERE id_aclsbj=";
@@ -250,7 +250,7 @@ ACTION:
             $c = ' grouptype <2 AND ';
         else $c='';
 
-        $cnx = jDb::getConnection(jAclDb::getProfil());
+        $cnx = jDb::getConnection(jAcl2Db::getProfile());
         if(is_numeric($param)){
             if($param == '0')
                 return 0;
@@ -264,7 +264,7 @@ ACTION:
         if($rec = $rs->fetch()){
             return $rec->id_aclgrp;
         }else{
-            die("Error: this group doesn't exist or is private\n");
+            throw new Exception("this group doesn't exist or is private");
         }
     }
 

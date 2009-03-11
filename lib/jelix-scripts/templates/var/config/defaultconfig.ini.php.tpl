@@ -2,22 +2,28 @@
 ;for security reasons , don't remove or modify the first line
 ;this file doesn't list all possible properties. See lib/jelix/core/defaultconfig.ini.php for that
 
-locale = "en_EN"
+locale = "%%default_locale%%"
 charset = "UTF-8"
 
 ; see http://www.php.net/manual/en/timezones.php for supported values
-timeZone = "Europe/Paris"
-
-checkTrustedModules = off
-
-; list of modules : module,module,module
-trustedModules =
-
-pluginsPath = lib:jelix-plugins/,app:plugins/
-modulesPath = lib:jelix-modules/,app:modules/
+timeZone = "%%default_timezone%%"
 
 theme = default
 
+pluginsPath = app:plugins/
+
+modulesPath = lib:jelix-modules/,app:modules/
+
+; says if jelix should check trustedModules
+checkTrustedModules = off
+
+; list of modules which can be accessed from the web
+;    module,module,module
+trustedModules =
+
+; list of modules which are not used by the application
+; or not installed.
+unusedModules = jacldb
 
 [coordplugins]
 ;nom = nom_fichier_ini
@@ -51,8 +57,8 @@ checkCacheFiletime  = on
 force  = off
 
 [urlengine]
-; name of url engine :  "simple" or "significant"
-engine        = simple
+; name of url engine :  "simple", "basic_significant" or "significant"
+engine        = basic_significant
 
 ; this is the url path to the jelix-www content (you can found this content in lib/jelix-www/)
 ; because the jelix-www directory is outside the yourapp/www/ directory, you should create a link to
@@ -78,7 +84,6 @@ multiview = off
 ; : basePath="/aaa/" )
 basePath = ""
 
-
 defaultEntrypoint= index
 
 entrypointExtension= .php
@@ -102,9 +107,6 @@ simple_urlengine_https =
 ;   @r       -> for all actions for the request of type "r"
 
 index = "@classic"
-xmlrpc = "@xmlrpc"
-jsonrpc = "@jsonrpc"
-rdf = "@rdf"
 
 
 [basic_significant_urlengine_entrypoints]
@@ -136,6 +138,8 @@ sendmailPath = "/usr/sbin/sendmail"
 smtpHost = "localhost"
 ; default SMTP server port
 smtpPort = 25
+; secured connection or not. possible values: "", "ssl", "tls"
+smtpSecure = 
 ; SMTP HELO of the message (Default is hostname)
 smtpHelo =
 ; SMTP authentication
@@ -146,9 +150,10 @@ smtpPassword =
 smtpTimeout = 10
 
 
-[acl]
-driver = db
 
+[acl2]
+; example of driver: "db"
+driver =
 
 [sessions]
 ; to disable sessions, set the following parameter to 0
@@ -167,3 +172,15 @@ start = 1
 ; storage = "dao"
 ; dao_selector = "jelix~jsession"
 ; dao_db_profile = ""
+
+
+[forms]
+; define input type for datetime widgets : "textboxes" or "menulists"
+controls.datetime.input = "menulists"
+; define the way month labels are displayed widgets: "numbers", "names" or "shortnames"
+controls.datetime.months.labels = "names"
+; define the default config for datepickers in jforms
+datepicker = default
+
+[datepickers]
+default = jelix/js/jforms/datepickers/default/init.js

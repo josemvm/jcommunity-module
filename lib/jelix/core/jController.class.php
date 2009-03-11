@@ -31,7 +31,7 @@ interface jIRestController{
 abstract class jController{
 
     /**
-     * parameters for plugins
+     * parameters for plugins of the coordinator
      *
      * this array should contains all parameters needed by installed plugins for
      * each action, see the documentation of each plugins to know this parameters.
@@ -59,6 +59,7 @@ abstract class jController{
     * jZone::get alias
     * @param string $name zone selector
     * @param array $params associative array, parameters
+    * @deprecated
     */
     protected function processZone($name, $params=array ()){
         return jZone::get ($name, $params);
@@ -136,9 +137,8 @@ abstract class jController{
      * @param boolean $useOriginal true:don't use the response object redefined by the application
      * @return jResponse the response object
      */
-    protected function getResponse($name, $useOriginal=false){
+    protected function getResponse($name='', $useOriginal=false){
         return $this->request->getResponse($name, $useOriginal);
     }
 
 }
-?>

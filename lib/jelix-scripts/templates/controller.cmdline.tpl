@@ -1,11 +1,11 @@
 <?php
 /**
-* @package
+* @package   %%appname%%
 * @subpackage %%module%%
-* @author
-* @copyright
-* @link
-* @licence  http://www.gnu.org/licenses/gpl.html GNU General Public Licence, see LICENCE file
+* @author    %%default_creator_name%%
+* @copyright %%default_copyright%%
+* @link      %%default_website%%
+* @license   %%default_license_url%% %%default_license%%
 */
 
 class %%name%%Ctrl extends jControllerCmdLine {

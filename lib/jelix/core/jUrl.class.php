@@ -4,161 +4,27 @@
 * @subpackage  core_url
 * @author      Laurent Jouanneau
 * @contributor Thibault PIRONT < nuKs >
+* @contributor Loic Mathaud
 * @copyright   2005-2008 Laurent Jouanneau
 * @copyright   2007 Thibault PIRONT
+* @copyright   2006 Loic Mathaud
 * Some parts of this file are took from an experimental branch of the Copix project (CopixUrl.class.php, Copix 2.3dev20050901, http://www.copix.org),
 * Some lines of code are still copyrighted 2001-2005 CopixTeam (LGPL licence).
 * Initial authors of this parts are Gerald Croes and Laurent Jouanneau,
-* and this parts were adapted/improved for Jelix by Laurent Jouanneau
-* @link        http://www.jelix.org
+* and this parts were adapted for Jelix by Laurent Jouanneau
+* @link        http://jelix.org
 * @licence     GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
 */
 
-/**
- * interface for url engines
- * @package  jelix
- * @subpackage core_url
- * @author      Laurent Jouanneau
- * @copyright   2005 CopixTeam, 2005-2006 Laurent Jouanneau
- */
-interface jIUrlEngine {
-    /**
-        * Parse some url components
-        * @param string $scriptNamePath    /path/index.php
-        * @param string $pathinfo          the path info part of the url (part between script name and query)
-        * @param array  $params            url parameters (query part e.g. $_REQUEST)
-        * @return jUrlAction
-        */
-    public function parse($scriptNamePath, $pathinfo, $params );
-
-    /**
-    * Create a jurl object with the given action datas
-    * @param jUrlAction $url  information about the action
-    * @return jUrl the url correspondant to the action
-    */
-    public function create($urlact);
-
-}
-/**
- * base class for jUrl and jUrlAction
- * @package  jelix
- * @subpackage core_url
- * @author      Laurent Jouanneau
- * @copyright   2005-2006 Laurent Jouanneau
- */
-abstract class jUrlBase {
-
-    /**
-     * parameters
-     */
-    public $params=array();
-
-    /**
-    * add or change the value of a parameter
-    * @param    string    $name    parameter name
-    * @param    string    $value   parameter value
-    */
-    public function setParam ($name, $value){
-        $this->params[$name] = $value;
-    }
-
-    /**
-    * delete a parameter
-    * @param    string    $name    parameter name
-    */
-    public function delParam ($name){
-        if (array_key_exists($name, $this->params))
-            unset ($this->params[$name]);
-    }
-
-    /**
-    * get a parameter value
-    * @param string  $name    parameter name
-    * @param string  $defaultValue   the default value returned if the parameter doesn't exists
-    * @return string the value
-    */
-    public function getParam ($name, $defaultValue=null){
-        return array_key_exists($name, $this->params)? $this->params[$name] :$defaultValue;
-    }
-
-    /**
-    * Clear parameters
-    */
-    public function clearParam (){
-        $this->params = array ();
-    }
-
-
-    /**
-     * get the url string corresponding to the url/action
-     * @param boolean $forxml  true: some characters will be escaped
-     * @return string
-     */
-    abstract public function toString($forxml = false);
-
-
-    /**
-     * magic method for echo and others...
-     */
-    public function __toString(){
-        return $this->toString();
-    }
-
-
-}
 
 /**
- * A container to store url datas for an action
- * @package  jelix
- * @subpackage core_url
- * @author      Laurent Jouanneau
- * @copyright   2005-2006 Laurent Jouanneau
- */
-class jUrlAction extends jUrlBase {
-
-    /**
-     * the request type
-     * @var string
-     */
-    public $requestType='';
-
-    /**
-     * constructor...
-     */
-    function __construct ($params=array(),$request=''){
-        $this->params=$params;
-        $this->requestType=$request;
-        if($this->requestType == ''){
-            $this->requestType = $GLOBALS['gJCoord']->request->type;
-        }
-    }
-
-    /**
-     * get the url string corresponding to the action
-     * @param boolean $forxml  true: some characters will be escaped
-     * @return string
-     */
-    public function toString($forxml = false){
-        return $this->toUrl()->toString($forxml);
-    }
-
-    /**
-     * get the jUrl object corresponding to the action
-     * @return jUrl
-     */
-    public function toUrl() {
-        return jUrl::getEngine()->create($this);
-    }
-}
-
-
-/**
- * Object that contains url datas, and which provides static method helpers
+ * Object that contains url data, and which provides static method helpers
  * @package  jelix
  * @subpackage core_url
  * @author      Laurent Jouanneau (for the original code from Copix and enhancement for jelix)
  * @author      Gerald Croes (for the original code from Copix)
- * @copyright   2005 CopixTeam, 2005-2006 Laurent Jouanneau
+ * @contributor Loic Mathaud
+ * @contributor Thibault PIRONT < nuKs >
  */
 class jUrl extends jUrlBase {
 
@@ -171,7 +37,7 @@ class jUrl extends jUrlBase {
     const JURL=2;
     const JURLACTION=3;
     /**#@-*/
-    
+
     /**
     * script name including its path
     * @var string
@@ -314,6 +180,17 @@ class jUrl extends jUrlBase {
     }
 
     /**
+     * Parse a url from the request
+     * @param jRequest $request
+     * @param array  $params            url parameters ($_REQUEST, or $_GET)
+     * @return jUrlAction
+     * @since 1.1
+     */
+    static function parseFromRequest($request, $params ){
+         return jUrl::getEngine()->parseFromRequest($request, $params);
+    }
+
+    /**
      * escape and simplier a string to be a part of an url path
      * remove or replace not allowed characters etc..
      * @param string $str the string to escape
@@ -353,14 +230,12 @@ class jUrl extends jUrlBase {
     /**
      * return the current url engine
      * @return jIUrlEngine
-     * @internal call with true parameter, to force to re-instancy the engine. usefull for test suite
+     * @internal call with true parameter, to force to re-instancy the engine. useful for test suite
      */
     static function getEngine($reset=false){
         static $engine = null;
 
-        if($reset) $engine=null; // for unit tests
-
-        if($engine === null){
+        if($engine === null || $reset){
             global $gJConfig;
             $name = $gJConfig->urlengine['engine'];
             if( !isset($gJConfig->_pluginsPathList_urls[$name])
@@ -369,12 +244,9 @@ class jUrl extends jUrlBase {
             }
             require_once($gJConfig->_pluginsPathList_urls[$name].$name.'.urls.php');
 
-            $cl=$name.'UrlEngine';
+            $cl = $name.'UrlEngine';
             $engine = new $cl();
         }
         return $engine;
     }
-
 }
-
-?>

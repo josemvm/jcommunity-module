@@ -4,10 +4,18 @@
     datatype="http://www.w3.org/2001/XMLSchema-datatypes"
     >
 
+
+   <include href="item_infos.rng" />
+
    <start>
       <element name="plugin">
-         <empty /> <!-- not defined for the moment -->
+         <ref name="info" />
+         <optional>
+            <ref name="notes" />
+         </optional>
+         <ref name="dependencies" />
       </element>
    </start>
+
 
 </grammar>

@@ -14,15 +14,15 @@
 class createdaoCommand extends JelixScriptCommand {
 
     public  $name = 'createdao';
-    public  $allowed_options=array('-profil'=>true, '-empty'=>false);
+    public  $allowed_options=array('-profile'=>true, '-empty'=>false);
     public  $allowed_parameters=array('module'=>true,'name'=>true, 'table'=>false);
 
-    public  $syntaxhelp = "[-profil name] [-empty] MODULE DAO TABLE";
+    public  $syntaxhelp = "[-profile name] [-empty] MODULE DAO [TABLE]";
     public  $help=array(
         'fr'=>"
     Crée un nouveau fichier de dao
 
-    -profil (facultatif) : indique le profil à utiliser pour se connecter à
+    -profile (facultatif) : indique le profil à utiliser pour se connecter à
                            la base et récupérer les informations de la table
     -empty (facultatif) : ne se connecte pas à la base et génère un fichier
                           dao vide
@@ -31,11 +31,12 @@ class createdaoCommand extends JelixScriptCommand {
     DAO   : nom du dao à créer.
     TABLE : nom de la table principale sur laquelle s'appuie le dao
             (cette commande ne permet pas de générer un dao s'appuyant sur
-             de multiples tables)",
+             de multiples tables)
+    Si la table n'est pas indiquée, le nom de la DAO devra être le nom de la table.",
         'en'=>"
     Create a new dao file.
 
-    -profil (optional) : indicate the name of the profil to use for the
+    -profile (optional) : indicate the name of the profile to use for the
                         database connection.
     -empty (optional) : just create an empty dao file (it doesn't connect to
                         the database)
@@ -43,7 +44,8 @@ class createdaoCommand extends JelixScriptCommand {
     MODULE : module name where to create the dao
     DAO    : dao name
     TABLE  : name of the main table on which the dao is mapped. You cannot indicate
-             multiple tables",
+             multiple tables
+    If the TABLE is not provided, the DAO name will be used as table name.",
     );
 
 
@@ -58,23 +60,25 @@ class createdaoCommand extends JelixScriptCommand {
 
        $filename.=strtolower($this->_parameters['name']).'.dao.xml';
 
-       $profil= $this->getOption('-profil');
+       $profile = $this->getOption('-profile');
 
        $param = array('name'=>($this->_parameters['name']),
-              'table'=>($this->_parameters['table']));
+              'table'=>$this->getParam('table'));
+        if($param['table'] == null)
+            $param['table'] = $param['name'];
 
        if($this->getOption('-empty')){
           $this->createFile($filename,'dao_empty.xml.tpl',$param);
        }else{
 
-         $tools = jDb::getTools($profil);
-         $fields = $tools->getFieldList($this->_parameters['table']);
+         $tools = jDb::getTools($profile);
+         $fields = $tools->getFieldList($param['table']);
 
          $properties='';
          $primarykeys='';
          foreach($fields as $fieldname=>$prop){
 
-            switch($prop->type){
+            switch(strtolower($prop->type)){
 
                case 'clob': 
                case 'text':
@@ -93,6 +97,7 @@ class createdaoCommand extends JelixScriptCommand {
                   break;
                case 'number':
                case 'tinyint':
+               case 'numeric':
                case 'int':
                case 'integer':
                case 'smallint':
@@ -137,7 +142,7 @@ class createdaoCommand extends JelixScriptCommand {
             }
 
             if($type!=''){
-               $properties.="\n    <property name=\"$fieldname\" fieldname=\"$fieldname\"";
+               $properties.="\n        <property name=\"$fieldname\" fieldname=\"$fieldname\"";
                $properties.=' datatype="'.$type.'"';
                if($prop->primary){
                   if($primarykeys != '')

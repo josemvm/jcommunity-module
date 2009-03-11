@@ -84,7 +84,7 @@ ACTION:
         jxs_init_jelix_env();
         $action = $this->getParam('action');
         if(!in_array($action,array('group_list','group_add','group_delete','list','add','delete'))){
-            die("unknown subcommand\n");
+            throw new Exception("unknown subcommand");
         }
 
         $meth= 'cmd_'.$action;
@@ -95,7 +95,7 @@ ACTION:
 
     protected function cmd_group_list(){
         $sql="SELECT id_aclvalgrp, label_key, type_aclvalgrp FROM jacl_right_values_group ORDER BY id_aclvalgrp";
-        $cnx = jDb::getConnection(jAclDb::getProfil());
+        $cnx = jDb::getConnection(jAclDb::getProfile());
         $rs = $cnx->query($sql);
         echo "id\tlabel key\t\t\ttype\n--------------------------------------------------------\n";
         foreach($rs as $rec){
@@ -110,9 +110,9 @@ ACTION:
     protected function cmd_group_add(){
         $params = $this->getParam('...');
         if(!is_array($params) || count($params) != 3)
-            die("wrong parameter count\n");
+            throw new Exception("wrong parameter count");
 
-        $cnx = jDb::getConnection(jAclDb::getProfil());
+        $cnx = jDb::getConnection(jAclDb::getProfile());
 
         $sql="INSERT into jacl_right_values_group (id_aclvalgrp, label_key, type_aclvalgrp) VALUES (";
         $sql.=intval($params[0]).',';
@@ -126,19 +126,19 @@ ACTION:
     protected function cmd_group_delete(){
         $params = $this->getParam('...');
         if(!is_array($params) || count($params) != 1)
-            die("wrong parameter count\n");
+            throw new Exception("wrong parameter count");
 
-        $cnx = jDb::getConnection(jAclDb::getProfil());
+        $cnx = jDb::getConnection(jAclDb::getProfile());
 
         $rs = $cnx->query('SELECT count(id_aclsbj) as n FROM jacl_subject WHERE id_aclvalgrp='.intval($params[0]));
         if(!$rs)
-            die("Error: not possible count\n");
+            throw new Exception("not possible count");
 
         $rec = $rs->fetch();
         if(!$rec)
-            die("error: no count\n");
+            throw new Exception("error: no count");
         if($rec->n > 0){
-            die("Impossible to remove this group : subjects use it.\nUpdate or delete this subjects first.\n");
+            throw new Exception("Impossible to remove this group : subjects use it.\nUpdate or delete this subjects first.");
         }
 
         $sql="DELETE FROM jacl_right_values WHERE id_aclvalgrp=";
@@ -167,7 +167,7 @@ ACTION:
 
         }
 
-        $cnx = jDb::getConnection(jAclDb::getProfil());
+        $cnx = jDb::getConnection(jAclDb::getProfile());
         $rs = $cnx->query($sql);
 
         if($bygroup){
@@ -194,19 +194,19 @@ ACTION:
     protected function cmd_add(){
         $params = $this->getParam('...');
         if(!is_array($params) || count($params) != 3)
-            die("wrong parameter count\n");
+            throw new Exception("wrong parameter count");
 
-        $cnx = jDb::getConnection(jAclDb::getProfil());
+        $cnx = jDb::getConnection(jAclDb::getProfile());
 
         $rs = $cnx->query('SELECT count(id_aclvalgrp) as n FROM jacl_right_values_group WHERE id_aclvalgrp='.intval($params[2]));
         if(!$rs)
-            die("Error: not possible count\n");
+            throw new Exception("not possible count");
 
         $rec = $rs->fetch();
         if(!$rec)
-            die("Error: no count\n");
+            throw new Exception("no count");
         if($rec->n == 0){
-            die("Error: Unknown values group id.\n");
+            throw new Exception("Unknown values group id.");
         }
 
 
@@ -223,19 +223,19 @@ ACTION:
     protected function cmd_delete(){
         $params = $this->getParam('...');
         if(!is_array($params) || count($params) != 2)
-            die("wrong parameter count\n");
+            throw new Exception("wrong parameter count");
 
-        $cnx = jDb::getConnection(jAclDb::getProfil());
+        $cnx = jDb::getConnection(jAclDb::getProfile());
 
         $rs = $cnx->query('SELECT count(*) as n FROM jacl_right_values WHERE id_aclvalgrp='.intval($params[1]).' AND value='.$cnx->quote($params[0]));
         if(!$rs)
-            die("Error: not possible count\n");
+            throw new Exception("not possible count");
 
         $rec = $rs->fetch();
         if(!$rec)
-            die("Error: no count\n");
+            throw new Exception("no count");
         if($rec->n == 0){
-            die("Error: Unknown value or group id.\n");
+            throw new Exception("Unknown value or group id");
         }
 
         $sql ='SELECT count(*) as n 
@@ -247,13 +247,13 @@ ACTION:
 
         $rs = $cnx->query($sql);
         if(!$rs)
-            die("Error: not possible count\n");
+            throw new Exception("not possible count");
 
         $rec = $rs->fetch();
         if(!$rec)
-            die("Error: no count\n");
+            throw new Exception("no count");
         if($rec->n > 0){
-            die("Error: This value is used in rights setting. Please remove rights which used this value before deleting the value\n");
+            throw new Exception("This value is used in rights setting. Please remove rights which used this value before deleting the value");
         }
 
 
