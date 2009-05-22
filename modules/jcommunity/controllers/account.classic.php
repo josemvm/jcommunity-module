@@ -18,6 +18,13 @@ class accountCtrl extends jController {
       'show'=>array('auth.required'=>false)
     );
 
+    protected function getDaoName() {
+        $plugin = $gJCoord->getPlugin('auth');
+        if($plugin === null)
+            throw new jException('jelix~auth.error.plugin.missing');
+        return $config['dao'];
+    }
+
     /**
     * show informations about a user
     */
@@ -26,7 +33,7 @@ class accountCtrl extends jController {
         $tpl = new jTpl();
         $tpl->assign('username',$this->param('user'));
 
-        $users = jDao::get('jcommunity~user');
+        $users = jDao::get($this->getDaoName());
 
         $user = $users->getByLogin($this->param('user'));
         if(!$user || $user->status < JCOMMUNITY_STATUS_VALID) {
@@ -111,7 +118,7 @@ class accountCtrl extends jController {
         }
 
         $form->check();
-        $accountFact = jDao::get('user');
+        $accountFact = jDao::get($this->getDaoName());
         if($accountFact->verifyNickname($user, $form->getData('nickname'))){
             $form->setErrorOn('nickname', jLocale::get('account.error.dup.nickname'));
         }
@@ -121,7 +128,7 @@ class accountCtrl extends jController {
             $rep->action = 'jcommunity~account:edit';
         } else {
             jEvent::notify('jcommunity_save_account', array('form'=>$form));
-            $form->saveToDao('user');
+            $form->saveToDao($this->getDaoName());
         }
 
         return $rep;
