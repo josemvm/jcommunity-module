@@ -17,9 +17,12 @@ modulesPath = lib:jelix-modules/,app:modules/,app:../modules/
 
 theme = default
 
+; list of modules which are not used by the application
+; or not installed.
+unusedModules = jacldb, jauth, jacl2db
 
 [plugins]
-;nom = nom_fichier_ini
+auth = auth.coord.ini.php
 
 [responses]
 html = testResponse

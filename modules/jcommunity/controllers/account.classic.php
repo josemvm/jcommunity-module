@@ -19,10 +19,11 @@ class accountCtrl extends jController {
     );
 
     protected function getDaoName() {
+        global $gJCoord;
         $plugin = $gJCoord->getPlugin('auth');
         if($plugin === null)
             throw new jException('jelix~auth.error.plugin.missing');
-        return $config['dao'];
+        return $plugin->config['Db']['dao'];
     }
 
     /**
