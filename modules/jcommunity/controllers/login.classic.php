@@ -44,7 +44,7 @@ class loginCtrl extends jController {
 
         if (!jAuth::login($form->getData('auth_login'), $form->getData('auth_password'), $form->getData('auth_remember_me'))){
             sleep (intval($conf['on_error_sleep']));
-            $form->setErrorOn('login',jLocale::get('jcommunity~login.error'));
+            $form->setErrorOn('auth_login',jLocale::get('jcommunity~login.error'));
             $url_return = jUrl::get($conf['after_logout']);
         } else {
             jForms::destroy('jcommunity~login');
