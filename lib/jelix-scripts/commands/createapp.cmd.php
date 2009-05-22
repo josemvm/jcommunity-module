@@ -77,29 +77,31 @@ class createappCommand extends JelixScriptCommand {
             $wwwpath = JELIX_APP_WWW_PATH;
         }
 
-       $this->createDir(JELIX_APP_REAL_TEMP_PATH);
-       $this->createDir(JELIX_APP_CLI_TEMP_PATH);
-       $this->createDir(JELIX_APP_TEMP_PATH);
-       $this->createDir($wwwpath);
-       $this->createDir(JELIX_APP_VAR_PATH);
-       $this->createDir(JELIX_APP_LOG_PATH);
-       $this->createDir(JELIX_APP_CONFIG_PATH);
-       $this->createDir(JELIX_APP_CONFIG_PATH.'index/');
-       $this->createDir(JELIX_APP_VAR_PATH.'overloads/');
-       $this->createDir(JELIX_APP_VAR_PATH.'themes/');
-       $this->createDir(JELIX_APP_VAR_PATH.'themes/default/');
-       $this->createDir(JELIX_APP_VAR_PATH.'uploads/');
-       $this->createDir(JELIX_APP_VAR_PATH.'sessions/');
-       $this->createDir(JELIX_APP_PATH.'modules');
-       $this->createDir(JELIX_APP_PATH.'plugins');
-       $this->createDir(JELIX_APP_PATH.'plugins/coord/');
-       $this->createDir(JELIX_APP_PATH.'plugins/tpl/');
-       $this->createDir(JELIX_APP_PATH.'plugins/tpl/common');
-       $this->createDir(JELIX_APP_PATH.'plugins/tpl/html');
-       $this->createDir(JELIX_APP_PATH.'plugins/tpl/text');
-       $this->createDir(JELIX_APP_PATH.'plugins/db/');
-       $this->createDir(JELIX_APP_PATH.'plugins/auth/');
-       $this->createDir(JELIX_APP_PATH.'responses');
+        $this->createDir(JELIX_APP_REAL_TEMP_PATH);
+        $this->createDir(JELIX_APP_CLI_TEMP_PATH);
+        $this->createDir(JELIX_APP_TEMP_PATH);
+        $this->createDir($wwwpath);
+        $this->createDir(JELIX_APP_VAR_PATH);
+        $this->createDir(JELIX_APP_LOG_PATH);
+        $this->createDir(JELIX_APP_CONFIG_PATH);
+        $this->createDir(JELIX_APP_CONFIG_PATH.'index/');
+        $this->createDir(JELIX_APP_VAR_PATH.'overloads/');
+        $this->createDir(JELIX_APP_VAR_PATH.'themes/');
+        $this->createDir(JELIX_APP_VAR_PATH.'themes/default/');
+        $this->createDir(JELIX_APP_VAR_PATH.'uploads/');
+        $this->createDir(JELIX_APP_VAR_PATH.'sessions/');
+        $this->createDir(JELIX_APP_VAR_PATH.'mails/');
+        $this->createDir(JELIX_APP_PATH.'modules');
+        $this->createDir(JELIX_APP_PATH.'plugins');
+        $this->createDir(JELIX_APP_PATH.'plugins/coord/');
+        $this->createDir(JELIX_APP_PATH.'plugins/tpl/');
+        $this->createDir(JELIX_APP_PATH.'plugins/tpl/common');
+        $this->createDir(JELIX_APP_PATH.'plugins/tpl/html');
+        $this->createDir(JELIX_APP_PATH.'plugins/tpl/text');
+        $this->createDir(JELIX_APP_PATH.'plugins/db/');
+        $this->createDir(JELIX_APP_PATH.'plugins/auth/');
+        $this->createDir(JELIX_APP_PATH.'responses');
+        $this->createDir(JELIX_APP_PATH.'scripts');
 
         $param = array();
         $param['default_id'] = $GLOBALS['APPNAME'].JELIXS_INFO_DEFAULT_IDSUFFIX;
@@ -130,6 +132,7 @@ class createappCommand extends JelixScriptCommand {
         $this->createFile(JELIX_APP_PATH.'project.xml','project.xml.tpl',$param);
         $this->createFile(JELIX_APP_CONFIG_PATH.'defaultconfig.ini.php','var/config/defaultconfig.ini.php.tpl',$param);
         $this->createFile(JELIX_APP_CONFIG_PATH.'dbprofils.ini.php','var/config/dbprofils.ini.php.tpl',$param);
+        $this->createFile(JELIX_APP_CONFIG_PATH.'cache.ini.php','var/config/cache.ini.php.tpl',$param);
         $this->createFile(JELIX_APP_CONFIG_PATH.'index/config.ini.php','var/config/index/config.ini.php.tpl',$param);
         $this->createFile(JELIX_APP_PATH.'responses/myHtmlResponse.class.php','myHtmlResponse.class.php.tpl',$param);
         $this->createFile(JELIX_APP_PATH.'application.init.php','application.init.php.tpl',$param);
@@ -137,7 +140,7 @@ class createappCommand extends JelixScriptCommand {
         $param['rp_temp_app'] = $param['rp_temp'];
         $param['rp_temp']= jxs_getRelativePath(JELIX_APP_PATH, JELIX_APP_TEMP_PATH, true);
         $param['rp_temp_cli']= jxs_getRelativePath(JELIX_APP_PATH, JELIX_APP_CLI_TEMP_PATH, true);
-        $this->createFile(JELIX_APP_PATH.'jelix-scripts.init.php','application.init.php.tpl',$param);
+        $this->createFile(JELIX_APP_PATH.'jelix-scripts.init.php','jelix-scripts.init.php.tpl',$param);
     
         $param['rp_temp']= jxs_getRelativePath(JELIX_APP_PATH, JELIX_APP_CLI_TEMP_PATH, true);
         $this->createFile(JELIX_APP_PATH.'application-cli.init.php','application.init.php.tpl',$param);

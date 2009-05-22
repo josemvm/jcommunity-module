@@ -27,6 +27,8 @@ unusedModules =
 
 dbProfils = dbprofils.ini.php
 
+cacheProfiles = cache.ini.php
+
 use_error_handler = on
 
 enableOldActionSelector =
@@ -214,6 +216,10 @@ mailerType = mail
 ; by SERVER_NAME is used or 'localhost.localdomain'.
 hostname =
 sendmailPath = "/usr/sbin/sendmail"
+
+; if mailer = file, fill the following parameters
+; this should be the directory in the var/ directory, where to store mail as files
+filesDir = "mails/"
 
 ; if mailer = smtp , fill the following parameters
 

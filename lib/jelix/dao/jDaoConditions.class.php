@@ -3,16 +3,16 @@
 * @package    jelix
 * @subpackage dao
 * @author     Croes Gérald, Laurent Jouanneau
-* @contributor Laurent Jouanneau, Julien Issler
-* @copyright  2001-2005 CopixTeam, 2005-2006 Laurent Jouanneau
+* @contributor Laurent Jouanneau, Julien Issler, Yannick Le Guédart
+* @copyright  2001-2005 CopixTeam, 2005-2009 Laurent Jouanneau
 * @copyright  2008 Thomas
-* @copyright  2008 Julien Issler
+* @copyright  2008 Julien Issler, 2009 Yannick Le Guédart
 * This classes was get originally from the Copix project (CopixDAOSearchConditions, Copix 2.3dev20050901, http://www.copix.org)
 * Some lines of code are copyrighted 2001-2005 CopixTeam (LGPL licence).
 * Initial authors of this Copix classes are Gerald Croes and Laurent Jouanneau,
 * and this classes was adapted for Jelix by Laurent Jouanneau
 *
-* @link        http://www.jelix.org
+* @link     http://jelix.org
 * @licence  http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public Licence, see LICENCE file
 */
 
@@ -152,9 +152,18 @@ class jDaoConditions {
     * @param boolean $foo      parameter for internal use : don't use it or set to false
     */
     function addCondition ($field_id, $operator, $value, $foo = false){
-        $this->_currentCondition->conditions[] = array (
-           'field_id'=>$field_id,
-           'value'=>$value,
-           'operator'=>$operator, 'isExpr'=>$foo);
+        $operator = trim(strtoupper($operator));
+        if(preg_match ('/^[^\w\d\s;\(\)]+$/', $operator) ||
+           in_array($operator, array('LIKE', 'ILIKE', 'IN', 'NOT IN', 'IS', 'IS NOT', 'IS NULL',
+                    'IS NOT NULL', 'MATCH', 'REGEXP', 'NOT REGEXP', 'RLIKE', 'SOUNDS LIKE'))) {
+
+            $this->_currentCondition->conditions[] = array (
+               'field_id'=>$field_id,
+               'value'=>$value,
+               'operator'=>$operator, 'isExpr'=>$foo);
+        }
+        else
+            throw new jException('jelix~dao.error.bad.operator', $operator);
+        
     }
 }

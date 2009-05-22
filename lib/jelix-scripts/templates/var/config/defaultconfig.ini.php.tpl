@@ -10,7 +10,7 @@ timeZone = "%%default_timezone%%"
 
 theme = default
 
-pluginsPath = app:plugins/
+pluginsPath = app:plugins/,lib:jelix-plugins/
 
 modulesPath = lib:jelix-modules/,app:modules/
 
@@ -131,6 +131,10 @@ mailerType = mail
 ; by SERVER_NAME is used or 'localhost.localdomain'.
 hostname =
 sendmailPath = "/usr/sbin/sendmail"
+
+; if mailer = file, fill the following parameters
+; this should be the directory in the var/ directory, where to store mail as files
+filesDir = "mails/"
 
 ; if mailer = smtp , fill the following parameters
 

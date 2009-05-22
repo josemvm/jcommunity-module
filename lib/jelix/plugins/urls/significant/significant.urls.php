@@ -159,97 +159,106 @@ class significantUrlEngine implements jIUrlEngine {
     protected function _parse($scriptNamePath, $pathinfo, $params){
         global $gJConfig;
 
-        /*if(substr($pathinfo,-1) == '/' && $pathinfo != '/'){
-                $pathinfo = substr($pathinfo,0,-1);
-        }*/
-
         $urlact = null;
         $isDefault = false;
         $url = new jUrl($scriptNamePath, $params, $pathinfo);
 
         foreach($this->dataParseUrl as $k=>$infoparsing){
-            // le premier paramètre indique si le point d'entré actuelle est un point d'entré par défaut ou non
+            // the first element indicates if the entry point is a default entry point or not
             if($k==0){
                 $isDefault=$infoparsing;
                 continue;
             }
 
-            if(count($infoparsing) < 5){
-                // on a un tableau du style
-                // array( 0=> 'module', 1=>'action', 2=>'selecteur handler', 3=>array('actions','secondaires'))
-                $s = new jSelectorUrlHandler($infoparsing[2]);
+            if(count($infoparsing) < 6){
+                // we have an array like this:
+                // array( 0=> 'module', 1=>'action', 2=>'regexp', 3=>'selecteur handler', 4=>array(secondaries','actions'))
+                $reg = $infoparsing[2];
+                $url2 = clone $url;
+                if ($reg != '') {
+                    if (preg_match($reg, $pathinfo, $m))
+                        $url2->pathInfo = $m[1];
+                    else
+                        continue;
+                }
+                $s = new jSelectorUrlHandler($infoparsing[3]);
                 $c =$s->className.'UrlsHandler';
                 $handler =new $c();
 
-                $url->params['module']=$infoparsing[0];
+                $url2->params['module']=$infoparsing[0];
 
                 // si une action est présente dans l'url actuelle
                 // et qu'elle fait partie des actions secondaires, alors on la laisse
                 // sinon on prend celle indiquée dans la conf
-                if ($infoparsing[3] && isset($params['action'])) {
+                if ($infoparsing[4] && isset($params['action'])) {
                     if(strpos($params['action'], ':') === false) {
                         $params['action'] = 'default:'.$params['action'];
                     }
-                    if(in_array($params['action'], $infoparsing[3]))
-                        $url->params['action']=$params['action']; // action peut avoir été écrasé par une itération précédente
+                    if(in_array($params['action'], $infoparsing[4]))
+                        // action peut avoir été écrasé par une itération précédente
+                        $url2->params['action']=$params['action'];
                     else
-                        $url->params['action']=$infoparsing[1];
+                        $url2->params['action']=$infoparsing[1];
                 }else{
-                    $url->params['action']=$infoparsing[1];
+                    $url2->params['action']=$infoparsing[1];
                 }
                 // appel au handler
-                if($urlact = $handler->parse($url)){
+                if($urlact = $handler->parse($url2)){
                     break;
                 }
-            }else{
-                /* on a un tableau du style
+            }
+            elseif (preg_match ($infoparsing[2], $pathinfo, $matches)) {
+                /* we have this array
                 array( 0=>'module', 1=>'action', 2=>'regexp_pathinfo',
-                3=>array('annee','mois'), // tableau des valeurs dynamiques, classées par ordre croissant
-                4=>array(true, false), // tableau des valeurs escapes
-                5=>array('bla'=>'cequejeveux' ) // tableau des valeurs statiques
-                6=>false ou array('act','act'...) // autres actions secondaires autorisées
+                3=>array('year','month'), // list of dynamic value included in the url,
+                                      // alphabetical ascendant order
+                4=>array(true, false),    // list of boolean which indicates for each
+                                      // dynamic value, if it is an escaped value or not
+                5=>array('bla'=>'whatIWant' ), // list of static values
+                6=>false or array('secondaries','actions')
                 */
-                if(preg_match ($infoparsing[2], $pathinfo, $matches)){
-                    if($infoparsing[0] !='')
-                        $params['module']=$infoparsing[0];
+                if (isset($params['module']) && $params['module'] !== $infoparsing[0])
+                    continue;
 
-                    // si une action est présente dans l'url actuelle
-                    // et qu'elle fait partie des actions secondaires, alors on la laisse
-                    // sinon on prend celle indiquée dans la conf
+                if ($infoparsing[0] !='')
+                    $params['module'] = $infoparsing[0];
 
-                    if($infoparsing[6] && isset($params['action']) ) {
-                        if(strpos($params['action'], ':') === false) {
-                            $params['action'] = 'default:'.$params['action'];
-                        }
-                        if(!in_array($params['action'], $infoparsing[6]) && $infoparsing[1] !='') {
-                            $params['action']=$infoparsing[1];
-                        }
+                // si une action est présente dans l'url actuelle
+                // et qu'elle fait partie des actions secondaires, alors on la laisse
+                // sinon on prend celle indiquée dans la conf
 
-                    } else {
-                        if($infoparsing[1] !='')
-                            $params['action']=$infoparsing[1];
+                if($infoparsing[6] && isset($params['action']) ) {
+                    if(strpos($params['action'], ':') === false) {
+                        $params['action'] = 'default:'.$params['action'];
+                    }
+                    if(!in_array($params['action'], $infoparsing[6]) && $infoparsing[1] !='') {
+                        $params['action']=$infoparsing[1];
                     }
 
-                    // on fusionne les parametres statiques
-                    if ($infoparsing[5]) {
-                        $params = array_merge ($params, $infoparsing[5]);
-                    }
+                } else {
+                    if($infoparsing[1] !='')
+                        $params['action']=$infoparsing[1];
+                }
 
-                    if(count($matches)){
-                        array_shift($matches);
-                        foreach($infoparsing[3] as $k=>$name){
-                            if(isset($matches[$k])){
-                                if($infoparsing[4][$k]){
-                                    $params[$name] = jUrl::unescape($matches[$k]);
-                                }else{
-                                    $params[$name] = $matches[$k];
-                                }
+                // on fusionne les parametres statiques
+                if ($infoparsing[5]) {
+                    $params = array_merge ($params, $infoparsing[5]);
+                }
+
+                if(count($matches)){
+                    array_shift($matches);
+                    foreach($infoparsing[3] as $k=>$name){
+                        if(isset($matches[$k])){
+                            if($infoparsing[4][$k]){
+                                $params[$name] = jUrl::unescape($matches[$k]);
+                            }else{
+                                $params[$name] = $matches[$k];
                             }
                         }
                     }
-                    $urlact = new jUrlAction($params);
-                    break;
                 }
+                $urlact = new jUrlAction($params);
+                break;
             }
         }
         if(!$urlact) {
@@ -310,7 +319,8 @@ class significantUrlEngine implements jIUrlEngine {
             $id = $module.'~*@'.$urlact->requestType;
             if (isset ($this->dataCreateUrl [$id])){
                 $urlinfo = $this->dataCreateUrl[$id];
-                $url->delParam('module');
+                if ($urlinfo[0] != 3 || $urlinfo[3] === true)
+                    $url->delParam('module');
             }else{
                 $id = '@'.$urlact->requestType;
                 if (isset ($this->dataCreateUrl [$id])){
@@ -322,18 +332,17 @@ class significantUrlEngine implements jIUrlEngine {
         }
         /*
         urlinfo =
-            array(0,'entrypoint', https true/false,'selecteur handler')
-            ou
-            array(1,'entrypoint', https true/false, 
-                    array('annee','mois','jour','id','titre'), // liste des paramètres de l'url à prendre en compte
-                    array(true, false..), // valeur des escapes
-                    "/news/%1/%2/%3/%4-%5", // forme de l'url
-                    false, //indique si  c'est une action surchargeante
-                    )
-            ou
-            array(2,'entrypoint', https true/false,); pour les clés du type "@request"
-            array(3,'entrypoint', https true/false); pour les clés du type "module~@request"
-            array(4, array(1,..), array(1,..)...);
+          or array(0,'entrypoint', https true/false, 'handler selector', 'basepathinfo')
+          or array(1,'entrypoint', https true/false,
+                  array('year','month',), // list of dynamic values included in the url
+                  array(true, false..), // list of boolean which indicates for each
+                                        // dynamic value, if it is an escaped value or not
+                  "/news/%1/%2/", // the url 
+                  array('bla'=>'whatIWant' ) // list of static values
+                  )
+          or array(2,'entrypoint', https true/false), // for the patterns "@request"
+          or array(3,'entrypoint', https true/false), // for the patterns "module~@request"
+          or array(4, array(1,...), array(1,...)...)
         */
         if($urlinfo[0]==4){
             $l = count($urlinfo);
@@ -379,6 +388,9 @@ class significantUrlEngine implements jIUrlEngine {
             $c =$s->resource.'UrlsHandler';
             $handler =new $c();
             $handler->create($urlact, $url);
+            if ($urlinfo[4] !='') {
+                $url->pathInfo = $urlinfo[4].$url->pathInfo;
+            }
         }elseif($urlinfo[0]==1){
             $pi = $urlinfo[5];
             foreach ($urlinfo[3] as $k=>$param){
@@ -397,7 +409,9 @@ class significantUrlEngine implements jIUrlEngine {
                 $url->delParam($name);
             }
         }elseif($urlinfo[0]==3){
-            $url->delParam('module');
+            if ($urlinfo[3]) {
+                $url->delParam('module');
+            }
         }
 
         return $url;
