@@ -1,3 +1,4 @@
+<div class="jcommunity-box jcommunity-account">
 <h1>{$user->login|eschtml}'s profile</h1>
 
 <table>
@@ -17,3 +18,4 @@
     <li><a href="{jurl 'jcommunity~account:destroy', array('user'=>$user->login)}">Delete your profile</a></li>
 </ul>
 {/if}
+</div>

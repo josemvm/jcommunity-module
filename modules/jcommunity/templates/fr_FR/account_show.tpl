@@ -1,3 +1,4 @@
+<div class="jcommunity-box jcommunity-account">
 <h1>Profil de {$user->login|eschtml}</h1>
 
 <table>
@@ -13,7 +14,8 @@
 
 {if $himself}
 <ul>
-    <li><a href="{jurl 'jcommunity~account:prepareedit', array('user'=>$user->login)}">Editer votre profile</a></li>
-    <li><a href="{jurl 'jcommunity~account:destroy', array('user'=>$user->login)}">Effacer votre profile</a></li>
+    <li><a href="{jurl 'jcommunity~account:prepareedit', array('user'=>$user->login)}">Editer votre profil</a></li>
+    <li><a href="{jurl 'jcommunity~account:destroy', array('user'=>$user->login)}">Effacer votre profil</a></li>
 </ul>
 {/if}
+</div>
