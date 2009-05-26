@@ -39,9 +39,15 @@ class registrationCtrl extends jController {
 
         global $gJConfig;
         $rep= $this->getResponse("redirect");
-        $rep->action="registration:index";
+        $rep->action = "registration:index";
 
-        $form = jForms::fill('registration');
+        $form = jForms::get('registration');
+        if(!$form)
+            return $rep;
+        
+        jEvent::notify('jcommunity_registration_init_form', array('form'=>$form) );
+
+        $form->initFromRequest();
         if(!$form->check()){
             return $rep;
         }
@@ -61,7 +67,12 @@ class registrationCtrl extends jController {
         $user->status = JCOMMUNITY_STATUS_NEW;
         $user->request_date = date('Y-m-d H:i:s');
         $user->keyactivate = $key;
+
+        jEvent::notify('jcommunity_registration_prepare_save', array('form'=>$form, 'user'=>$user));
+
         jAuth::saveNewUser($user);
+
+        jEvent::notify('jcommunity_registration_after_save', array('form'=>$form, 'user'=>$user));
 
         $mail = new jMailer();
         $mail->From = $gJConfig->mailer['webmasterEmail'];
@@ -147,10 +158,12 @@ class registrationCtrl extends jController {
         }
 
         $user->status = JCOMMUNITY_STATUS_VALID;
+        jEvent::notify('jcommunity_registration_confirm', array('user'=>$user));
         jAuth::updateUser($user);
         jAuth::changePassword($login, $form->getData('conf_password'));
         jAuth::login($login, $form->getData('conf_password'));
         jForms::destroy('confirmation');
+        
         $rep->action="registration:confirmok";
         return $rep;
     }
