@@ -47,7 +47,7 @@ class accountCtrl extends jController {
         $tpl->assign('additionnalContent','');
         $tpl->assign('otherInfos',array()); // 'label'=>'value'
         $tpl->assign('otherPrivateActions',array()); // 'link'=>'label'
-        jEvent::notify('jcommunity_account_show', array('login'=>$login, 'user'=>$user,'tpl'=>$tpl));
+        jEvent::notify('jcommunity_account_show', array('login'=>$user->login, 'user'=>$user,'tpl'=>$tpl));
         $rep->body->assign('MAIN',$tpl->fetch('account_show'));
         return $rep;
     }

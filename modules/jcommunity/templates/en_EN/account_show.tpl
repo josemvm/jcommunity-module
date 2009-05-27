@@ -3,7 +3,8 @@
 
 <table>
 <tr>
-    <td>Nickname</td> <td>{$user->nickname|eschtml}</td>
+    <td>Login</td> <td>{$user->login|eschtml}</td>
+    <td>Displayed name</td> <td>{$user->nickname|eschtml}</td>
 </tr>
 {ifuserconnected}
 <tr>
