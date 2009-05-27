@@ -143,6 +143,7 @@ class accountCtrl extends jController {
                 $form_dao->insert($form_daorec);
             else
                 $form_dao->update($form_daorec);
+            jForms::destroy('account', $user);
         }
 
         return $rep;
