@@ -87,22 +87,22 @@ class authphorumListener extends jEventListener{
          case -2: //deleted.  this case shouldn't be call here
             $phuser['real_name'] = '';
             $phuser['email'] = '';
-            $phuser['active'] = $user->PHORUM_USER_INACTIVE;
+            $phuser['active'] = PHORUM_USER_INACTIVE;
             break;
          case -1: //deactivated
-            $phuser['active'] = $user->PHORUM_USER_INACTIVE;
+            $phuser['active'] = PHORUM_USER_INACTIVE;
             break;
          case 1: //valid
             $phuser['real_name'] = $user->nickname;
             $phuser['email'] = $user->email;
-            $phuser['active'] = $user->PHORUM_USER_ACTIVE;
+            $phuser['active'] = PHORUM_USER_ACTIVE;
             break;
          case 0: //new user, not verified
          case 2: //valid, email changed
          case 3: //valid, password changed
             $phuser['real_name'] = $user->nickname;
             $phuser['email'] = $user->email;
-            $phuser['active'] = $user->PHORUM_USER_PENDING_EMAIL;
+            $phuser['active'] = PHORUM_USER_PENDING_EMAIL;
             break;         
       }
 
