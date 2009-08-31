@@ -110,7 +110,7 @@ class authphorumListener extends jEventListener{
    }
    
    function onAuthCanRemoveUser($event) {
-      // data : $login
+      $event->add(array('canremove'=>true));
    }
    
    function onAuthRemoveUser($event) {
