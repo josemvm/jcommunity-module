@@ -114,8 +114,7 @@ class authphorumListener extends jEventListener{
    }
    
    function onAuthRemoveUser($event) {
-      $login = $event->getParam('login');
-      $user = jDao::get($this->getDaoName())->getByLogin($login);
+      $user = $event->getParam('user');
       phorum_api_user_delete($user->id);
    }
 
