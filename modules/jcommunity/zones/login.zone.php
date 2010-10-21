@@ -32,7 +32,7 @@ class loginZone extends jZone {
                     $this->_tpl->assign('url_return',$req->getParam('auth_url_return'));
                 }
                 else if($this->param('as_main_content')) {
-                    if ($_SERVER['HTTP_REFERER']) {
+                    if (isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER']) {
                         $this->_tpl->assign('url_return',$_SERVER['HTTP_REFERER']);
                     }
                     else {
