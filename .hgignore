@@ -1,0 +1,9 @@
+
+~$
+(^|/)\.DS_Store$
+(^|/)Thumbs.db$
+installer\.ini\.php$
+^temp/test/
+\.komodoproject$
+dbprofils\.ini\.php$
+defaultconfig\.ini\.php$
