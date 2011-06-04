@@ -1,64 +1,69 @@
 ;<?php die(''); ?>
 ;for security reasons , don't remove or modify the first line
 
-locale = "fr_FR"
-charset = "UTF-8"
+locale=fr_FR
+charset=UTF-8
 
 ; see http://www.php.net/manual/en/timezones.php for supported values
-timeZone = "Europe/Paris"
+timeZone="Europe/Paris"
 
-checkTrustedModules = on
+pluginsPath=
+modulesPath="lib:jelix-modules/,app:modules/,app:../modules/"
 
-; list of modules : module,module,module
-trustedModules = test,jcommunity,jmessenger
+theme=default
 
-pluginsPath =
-modulesPath = lib:jelix-modules/,app:modules/,app:../modules/
 
-theme = default
+[modules]
+jelix.access=2
+jacl2db.access=0
+jacldb.access=0
+jauth.access=0
+jauthdb.access=1
+junittests.access=0
+jWSDL.access=0
+test.access=2
+jcommunity.access=2
+jcommunity_phorum.access=1
+jmessenger.access=2
 
-; list of modules which are not used by the application
-; or not installed.
-unusedModules = jacldb, jauth, jacl2db, junittests, jWSDL
-
-[plugins]
-auth = auth.coord.ini.php
+[coordplugins]
+auth=auth.coord.ini.php
 
 [responses]
-html = testResponse
+html=testResponse
 
 [error_handling]
-messageLogFormat = "%date%\t[%code%]\t%msg%\t%file%\t%line%\n"
-logFile = error.log
-email = root@localhost
-emailHeaders = "Content-Type: text/plain; charset=UTF-8\nFrom: webmaster@yoursite.com\nX-Mailer: Jelix\nX-Priority: 1 (Highest)\n"
+messageLogFormat="%date%\t[%code%]\t%msg%\t%file%\t%line%\n"
+logFile=error.log
+email="root@localhost"
+emailHeaders="Content-Type: text/plain; charset=UTF-8\nFrom: webmaster@yoursite.com\nX-Mailer: Jelix\nX-Priority: 1 (Highest)\n"
 quietMessage="Une erreur technique est survenue. Désolé pour ce désagrément."
 
 ; mots clés que vous pouvez utiliser : ECHO, ECHOQUIET, EXIT, LOGFILE, SYSLOG, MAIL, TRACE
-default      = ECHO EXIT
-error        = ECHO EXIT
-warning      = ECHO
-notice       = ECHO
-strict       = ECHO
+default="ECHO EXIT"
+error="ECHO EXIT"
+warning=ECHO
+notice=ECHO
+strict=ECHO
 ; pour les exceptions, il y a implicitement un EXIT
-exception    = ECHO
+exception=ECHO
 
 
 
 [compilation]
-checkCacheFiletime  = on
-force  = off
+checkCacheFiletime=on
+force=off
 
 [urlengine]
 ; name of url engine :  "simple" or "significant"
-engine        = simple
+engine=simple
 
 ; enable the parsing of the url. Set it to off if the url is already parsed by another program
 ; (like mod_rewrite in apache), if the rewrite of the url corresponds to a simple url, and if
 ; you use the significant engine. If you use the simple url engine, you can set to off.
-enableParser = on
+enableParser=on
 
-multiview = off
+multiview=off
 
 ; basePath corresponds to the path to the base directory of your application.
 ; so if the url to access to your application is http://foo.com/aaa/bbb/www/index.php, you should
@@ -68,33 +73,29 @@ multiview = off
 ; entry points which are not in the same directory (ex: you have two entry point : http://foo.com/aaa/index.php
 ; and http://foo.com/aaa/bbb/other.php ), you MUST set the basePath (ex here, the higher entry point is index.php so
 ; : basePath="/aaa/" )
-basePath = ""
+basePath=
 
 
-defaultEntrypoint= index
+defaultEntrypoint=index
 
-entrypointExtension= .php
+entrypointExtension=.php
 
 ; leave empty to have jelix error messages
-notfoundAct =
+notfoundAct=
 ;notfoundAct = "jelix~error:notfound"
 
 ; liste des actions requerant https (syntaxe expliquée dessous), pour le moteur d'url simple
-simple_urlengine_https =
+simple_urlengine_https=
 
 
 [simple_urlengine_entrypoints]
-index = "@classic"
+index="@classic"
 
 [logfiles]
 default=messages.log
 
 
 [mailer]
-webmasterEmail = root@localhost
-webmasterName =
-mailerType = file
-
-
-[acl]
-driver = db
+webmasterEmail="root@localhost"
+webmasterName=
+mailerType=file

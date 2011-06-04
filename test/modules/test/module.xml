@@ -1,3 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns="http://jelix.org/ns/module/1.0">
+
+<info id="test@yourwebsite.undefined" name="test">
+<version/>
+</info>
+
+<dependencies>
+<jelix minversion="1.2.3pre.1814" maxversion="1.2.*"/>
+</dependencies>
 </module>

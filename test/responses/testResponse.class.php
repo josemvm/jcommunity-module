@@ -1,8 +1,8 @@
 <?php
 
 /**
-* @package     
-* @subpackage  
+* @package
+* @subpackage
 * @author      Jouanneau Laurent
 * @contributor
 * @copyright   2007 Jouanneau laurent
@@ -17,7 +17,7 @@ class testResponse extends jResponseHtml {
    public $bodyTpl = 'test~main';
 
    // modifications communes aux actions utilisant cette reponses
-   protected function _commonProcess(){
+   protected function doAfterActions(){
        $this->title .= ($this->title !=''?' - ':'').' Test jCommunity';
 
        $this->body->assignIfNone('MAIN','<p>Empty page</p>');
@@ -27,4 +27,3 @@ class testResponse extends jResponseHtml {
        $this->addCSSLink($GLOBALS['gJConfig']->urlengine['basePath'].'design/screen.css');
    }
 }
-?>

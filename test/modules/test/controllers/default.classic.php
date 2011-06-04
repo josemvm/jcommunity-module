@@ -1,7 +1,7 @@
 <?php
 /**
 * @package
-* @subpackage 
+* @subpackage
 * @author
 * @copyright
 * @link
@@ -18,4 +18,4 @@ class defaultCtrl extends jController {
         return $rep;
     }
 }
-?>
+

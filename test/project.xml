@@ -6,10 +6,10 @@
         <description lang="en-EN">Application to test jCommunity</description>
         <licence URL="http://www.gnu.org/licenses/gpl.html">GPL</licence>
         <copyright>2005-2011 Laurent Jouanneau and other contributors</copyright>
-        <creator name="Laurent Jouanneau" email="laurent@jelix.org" active="true" />
+        <creator name="Laurent Jouanneau" email="laurent@jelix.org" active="true"/>
     </info>
     <dependencies>
-       <jelix minversion="1.1" maxversion="1.1.*" />
+       <jelix minversion="1.1" maxversion="1.2.*"/>
     </dependencies>
     <directories>
         <config>var/config</config>
@@ -19,6 +19,6 @@
         <temp>../temp/test</temp>
     </directories>
     <entrypoints>
-        <entry file="index.php" config="index/config.ini.php" />
+        <entry file="index.php" config="index/config.ini.php"/>
     </entrypoints>
 </project>
