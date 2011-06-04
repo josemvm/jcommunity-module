@@ -2,10 +2,10 @@
 
 /**
 * @package     jelix-scripts
-* @author      Jouanneau Laurent
+* @author      Laurent Jouanneau
 * @contributor Loic Mathaud
 * @contributor Bastien Jaillot
-* @copyright   2005-2007 Jouanneau laurent, 2008 Bastien Jaillot
+* @copyright   2005-2007 Laurent Jouanneau, 2008 Bastien Jaillot
 * @link        http://www.jelix.org
 * @licence     GNU General Public Licence see LICENCE file or http://www.gnu.org/licenses/gpl.html
 */
@@ -42,9 +42,9 @@ class createctrlCommand extends JelixScriptCommand {
     );
 
     public function run(){
-       $path= $this->getModulePath($this->_parameters['module']);
+       $path = $this->getModulePath($this->_parameters['module']);
 
-       $agfilename= $path.'controllers/';
+       $agfilename = $path.'controllers/';
        $this->createDir($agfilename);
        
        if ($this->getOption('-cmdline')) { 
@@ -62,13 +62,13 @@ class createctrlCommand extends JelixScriptCommand {
                      'module'=>$this->_parameters['module']);
 
        if ($this->getOption('-cmdline')) {
-            $tplname = 'controller.cmdline.tpl';
+            $tplname = 'module/controller.cmdline.tpl';
        } else {
             if ($this->getOption('-addinstallzone')) {
-                $tplname = 'controller.newapp.tpl';
+                $tplname = 'module/controller.newapp.tpl';
             }
             else {
-                $tplname = 'controller.tpl';
+                $tplname = 'module/controller.tpl';
             }
        }
        $this->createFile($agfilename,$tplname,$param);

@@ -2,7 +2,7 @@
 /**
 * @package    jelix
 * @subpackage coord_plugin
-* @author     Croes Gérald
+* @author     Gérald Croes
 * @contributor  Laurent Jouanneau, Frédéric Guillot, Antoine Detante, Julien Issler
 * @copyright  2001-2005 CopixTeam, 2005-2007 Laurent Jouanneau, 2007 Frédéric Guillot, 2007 Antoine Detante
 * @copyright  2007 Julien Issler
@@ -21,14 +21,6 @@
  */
 require(JELIX_LIB_PATH.'auth/jAuth.class.php');
 require(JELIX_LIB_PATH.'auth/jAuthDummyUser.class.php');
-
-/**
- * deprecated class. It is here only for a soft migrating from jelix 1.0b3 to 1.0
- * when a jDummyAuthUser object is stored in a session
- * @deprecated
- */
-class jDummyAuthUser extends jAuthUser {
-}
 
 /**
 * @package    jelix
@@ -55,16 +47,24 @@ class AuthCoordPlugin implements jICoordPlugin {
         $badip = false;
         $selector = null;
         // Check if auth cookie exist and user isn't logged on
-        if (isset($this->config['persistant_enable']) && $this->config['persistant_enable'] && !jAuth::isConnected()){
-            if(isset($this->config['persistant_cookie_name']) && isset($this->config['persistant_crypt_key'])){
-                $cookieName=$this->config['persistant_cookie_name'];
-                if(isset($_COOKIE[$cookieName]['login']) && isset($_COOKIE[$cookieName]['passwd']) && strlen($_COOKIE[$cookieName]['passwd'])>0){
-                    $login = $_COOKIE[$cookieName]['login'];
-                    $encryptedPassword=$_COOKIE[$cookieName]['passwd'];
-                    jAuth::login($login,jCrypt::decrypt($encryptedPassword,$this->config['persistant_crypt_key']));
+        if (isset($this->config['persistant_enable']) && $this->config['persistant_enable'] && !jAuth::isConnected()) {
+            if (isset($this->config['persistant_cookie_name']) && isset($this->config['persistant_crypt_key'])) {
+                $cookieName = $this->config['persistant_cookie_name'];
+                if (isset($_COOKIE[$cookieName]['auth']) && strlen($_COOKIE[$cookieName]['auth'])>0) {
+                    $decrypted = jCrypt::decrypt($_COOKIE[$cookieName]['auth'],$this->config['persistant_crypt_key']);
+                    $decrypted = @unserialize($decrypted);
+                    if ($decrypted && is_array($decrypted)) {
+                        list($login, $password) = $decrypted;
+                        jAuth::login($login,$password);
+                    }
+                }
+                if (isset($_COOKIE[$cookieName]['login'])) {
+                    // destroy deprecated cookies
+                    setcookie($cookieName.'[login]', '', time() - 3600, $this->config['persistant_cookie_path']);
+                    setcookie($cookieName.'[passwd]', '', time() - 3600, $this->config['persistant_cookie_path']);
                 }
             }
-            else{
+            else {
                 throw new jException('jelix~auth.error.persistant.incorrectconfig','persistant_cookie_name, persistant_crypt_key');
             }
         }
@@ -154,3 +154,11 @@ class AuthCoordPlugin implements jICoordPlugin {
     }
 }
 
+
+/**
+ * function to use to crypt password. use the password_salt value in the config
+ * file of the plugin.
+ */
+function sha1WithSalt($salt, $password) {
+    return sha1($salt.':'.$password);
+}

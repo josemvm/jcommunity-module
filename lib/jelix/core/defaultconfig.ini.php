@@ -14,24 +14,31 @@ timeZone =
 pluginsPath = app:plugins/
 modulesPath = lib:jelix-modules/,app:modules/
 
-; says if jelix should check trustedModules
-checkTrustedModules = off
-
-; list of modules which can be accessed from the web
-;    module,module,module
-trustedModules =
-
-; list of modules which are not used by the application
-; or not installed.
-unusedModules = 
-
 dbProfils = dbprofils.ini.php
 
 cacheProfiles = cache.ini.php
 
-use_error_handler = on
+; default domain name to use with jfullurl for example.
+; Let it empty to use $_SERVER['SERVER_NAME'] value instead.
+domainName =
 
-enableOldActionSelector =
+
+; ---  don't set the following options to on, except if you know what you do
+
+; disable all installers and the installer.ini.php
+; useful only if you manage the installation of modules by hands (not recommanded)
+disableInstallers = off
+; if set to on, all modules have an access=2, and access values in [modules] are not readed (not recommanded)
+enableAllModules = off
+
+[modules]
+; modulename.access = x   where x : 0= unused/forbidden, 1 = private access, 2 = public access
+
+jelix.access = 2
+
+; jacldb is deprecated. keep it uninstall if possible
+jacldb.access = 0
+
 
 [coordplugins]
 
@@ -63,6 +70,7 @@ tcpdf = jResponseTcpdf
 soap = jResponseSoap
 htmlfragment = jResponseHtmlFragment
 htmlauth = jResponseHtml
+sitemap = jResponseSitemap
 
 [_coreResponses]
 html = jResponseHtml
@@ -89,9 +97,24 @@ tcpdf = jResponseTcpdf
 soap = jResponseSoap
 htmlfragment = jResponseHtmlFragment
 htmlauth = jResponseHtml
+sitemap = jResponseSitemap
+
+[jResponseHtml]
+;concatenate and minify CSS and/or JS files :
+minifyCSS = off
+minifyJS = off
+; check all filemtime() of source files to check if minify's cache should be generated again. Should be set to "off" on production servers :
+minifyCheckCacheFiletime = on
+; list of filenames (no path) which shouldn't be minified :
+minifyExcludeCSS = ""
+minifyExcludeJS = "jquery.wymeditor.js"
+; add a unique ID to CSS and/or JS files URLs ( this gives for exemple /file.js?1267704635 ). This ID is actually the filemtime of each served file :
+jsUniqueUrlId = off
+cssUniqueUrlId = off
+
 
 [error_handling]
-messageLogFormat = "%date%\t[%code%]\t%msg%\t%file%\t%line%\n"
+messageLogFormat = "%date%\t%url%\n\t[%code%]\t%msg%\t%file%\t%line%\n"
 logFile = error.log
 email = root@localhost
 emailHeaders = "Content-Type: text/plain; charset=UTF-8\nFrom: webmaster@yoursite.com\nX-Mailer: Jelix\nX-Priority: 1 (Highest)\n"
@@ -99,14 +122,16 @@ quietMessage="A technical error has occured. Sorry for this trouble."
 
 showInFirebug = off
 
-; mots clés que vous pouvez utiliser : ECHO, ECHOQUIET, EXIT, LOGFILE, SYSLOG, MAIL, TRACE
-default      = ECHO EXIT
-error        = ECHO EXIT
-warning      = ECHO
+; keywords you can use: ECHO, ECHOQUIET, EXIT, LOGFILE, SYSLOG, MAIL, TRACE
+default      = ECHO TRACE EXIT
+error        = ECHO TRACE EXIT
+warning      = ECHO TRACE
 notice       = ECHO
 strict       = ECHO
-; pour les exceptions, il y a implicitement un EXIT
-exception    = ECHO
+deprecated   = ECHO
+; for exceptions, there is always an implicit EXIT by default
+exception    = ECHO TRACE
+
 
 [compilation]
 checkCacheFiletime  = on
@@ -156,7 +181,9 @@ basePath = ""
 ; jelix-www, or copy its content in yourapp/www/ (with a name like 'jelix' for example)
 ; so you should indicate the relative path of this link/directory to the basePath, or an absolute path.
 ; if you change it, change also all pathes in [htmleditors]
+; at runtime, it contains the absolute path (basePath+the value) if you give a relative path
 jelixWWWPath = "jelix/"
+jqueryPath="jelix/jquery/"
 
 defaultEntrypoint= index
 
@@ -186,6 +213,7 @@ urlScriptIdenc=
 ; script_name_without_suffix = "list of action selectors separated by a space"
 ; selector syntax :
 ;   m~a@r    -> for the action "a" of the module "m" and for the request of type "r"
+;   m~c:*@r  -> for all actions of the controller "c" of the module "m" and for the request of type "r"
 ;   m~*@r    -> for all actions of the module "m" and for the request of type "r"
 ;   @r       -> for all actions for the request of type "r"
 
@@ -209,7 +237,8 @@ default=messages.log
 webmasterEmail = root@localhost
 webmasterName =
 
-; How to send mail : "mail" (mail()), "sendmail" (call sendmail), or "smtp" (send directly to a smtp)
+; How to send mail : "mail" (mail()), "sendmail" (call sendmail), "smtp" (send directly to a smtp)
+;                   or "file" (store the mail into a file, in filesDir directory)
 mailerType = mail
 ; Sets the hostname to use in Message-Id and Received headers
 ; and as default HELO string. If empty, the value returned
@@ -228,7 +257,7 @@ smtpHost = "localhost"
 ; default SMTP server port
 smtpPort = 25
 ; secured connection or not. possible values: "", "ssl", "tls"
-smtpSecure = 
+smtpSecure =
 ; SMTP HELO of the message (Default is hostname)
 smtpHelo =
 ; SMTP authentication
@@ -251,10 +280,14 @@ driver =
 [sessions]
 ; to disable sessions, set the following parameter to 0
 start = 1
-shared_session = off
-; You can change the session name by setting the following parameter (only accepts alpha-numeric chars) :
-; name = "mySessionName"
 
+; If several applications are installed in the same documentRoot but with
+; a different basePath, shared_session indicates if these application
+; share the same php session
+shared_session = off
+
+; indicate a session name for each applications installed with the same
+; domain and basePath, if their respective sessions shouldn't be shared
 name=
 
 ;
@@ -291,8 +324,38 @@ default = jelix/js/jforms/datepickers/default/init.js
 default.engine.name = wymeditor
 default.engine.file[] = jelix/jquery/jquery.js
 default.engine.file[] = jelix/wymeditor/jquery.wymeditor.js
-default.config = jelix/wymeditor/config/default.js
-default.skin.default  = jelix/wymeditor/skins/default/screen.css
+default.config = jelix/js/jforms/htmleditors/wymeditor_default.js
+
+wymbasic.engine.name = wymeditor
+wymbasic.engine.file[] = jelix/jquery/jquery.js
+wymbasic.engine.file[] = jelix/wymeditor/jquery.wymeditor.js
+wymbasic.config = jelix/js/jforms/htmleditors/wymeditor_basic.js
+
+ckdefault.engine.name = ckeditor
+ckdefault.engine.file[] = jelix/ckeditor/ckeditor.js
+ckdefault.config = jelix/js/jforms/htmleditors/ckeditor_default.js
+
+ckfull.engine.name = ckeditor
+ckfull.engine.file[] = jelix/ckeditor/ckeditor.js
+ckfull.config = jelix/js/jforms/htmleditors/ckeditor_full.js
+
+ckbasic.engine.name = ckeditor
+ckbasic.engine.file[] = jelix/ckeditor/ckeditor.js
+ckbasic.config = jelix/js/jforms/htmleditors/ckeditor_basic.js
+
+
+[wikieditors]
+default.engine.name = wr3
+default.wiki.rules = wr3_to_xhtml
+; path to the engine file
+default.engine.file = jelix/markitup/jquery.markitup.js
+; define the path to the "internationalized" file to translate the label of each button
+default.config.path = jelix/markitup/sets/wr3/
+; define the path to the image of buttons of the toolbar
+default.image.path = jelix/markitup/sets/wr3/images/
+default.skin = jelix/markitup/skins/simple/style.css
+
+
 
 [zones]
 ; disable zone caching
@@ -301,3 +364,15 @@ disableCache = off
 [classbindings]
 ; bindings for class and interfaces : selector_of_class/iface = selector_of_implementation
 
+[imagemodifier]
+; set this parameters if images and their cache are on an other website (but on the same server)
+; the url from which we can display images (basepath excluded). default = current host
+; if you set this parameter, you MUST set src_path
+src_url=
+; the path on the file system, to the directory where images are stored (the www directory of the other application. default = JELIX_APP_WWW_PATH
+src_path=
+; the url from which we can display images cache. default = current host + basepath + 'cache/images/'
+; if you set this parameter, you MUST set cache_path
+cache_url=
+; the path on the file system, to the directory where images cache are stored. default = JELIX_APP_WWW_PATH
+cache_path=

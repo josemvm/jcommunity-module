@@ -4,7 +4,8 @@
 * @subpackage utils
 * @author      Bastien Jaillot
 * @contributor Dominique Papin, Lepeltier kévin (the author of the original plugin)
-* @copyright   2007-2008 Lepeltier kévin, 2008 Dominique Papin, 2008 Bastien Jaillot
+* @contributor geekbay, Brunto, Laurent Jouanneau
+* @copyright   2007-2008 Lepeltier kévin, 2008 Dominique Papin, 2008 Bastien Jaillot, 2009 geekbay, 2010 Brunto, 2011 Laurent Jouanneau
 * @link       http://www.jelix.org
 * @licence    GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
 */
@@ -23,7 +24,7 @@ class jImageModifier {
      */
     static protected $transformParams = array('width', 'height', 'maxwidth', 'maxheight', 'zoom', 'alignh',
                                            'alignv', 'ext', 'quality', 'shadow', 'scolor', 'sopacity', 'sblur',
-                                           'soffset', 'sangle', 'background');
+                                           'soffset', 'sangle', 'background', 'omo');
 
     /**
      * params associated with html equivalent attributes
@@ -33,7 +34,7 @@ class jImageModifier {
     static protected $attributeParams = array('alt', 'class', 'id', 'style', 'longdesc', 'name', 'ismap', 'usemap',
                                            'title', 'dir', 'lang', 'onclick', 'ondblclick', 'onmousedown',
                                            'onmouseup', 'onmouseover', 'onmousemove', 'onmouseout', 'onkeypress',
-                                           'onkeydown', 'onkeyup') ;
+                                           'onkeydown', 'onkeyup', 'width', 'height');
 
 
     /**
@@ -75,18 +76,32 @@ class jImageModifier {
      * png   -> image/png
      * other -> image/png
      *
-     * @param string $src url of source image (myapp/www/):string.[gif|jpeg|jpg|jpe|xpm|xbm|wbmp|png]
+     * @param string $src the path to the source image, relative to the www directory
+     *                    or relative to the path indicated into the configuration.
+     *                    The filename should have one of these extensions:
+     *                    gif,jpeg,jpg,jpe,xpm,xbm,wbmp,png
      * @param array $params parameters specifying image
      * @param array $send_cache_path include cache path in result
+     * @param array $config the paths configuration. should contain same parameters
+     *                      as you find in the imagemodifier section of the configuration.
+     *                      give these array if you want to override the configuration.
      * @return array of attributes
      **/
-    static function get($src, $params = array(), $sendCachePath = true) {
+    static function get($src, $params = array(), $sendCachePath = true, $config = null) {
+        global $gJConfig;
+
+        $basePath = $gJConfig->urlengine['basePath'];
+        if(strpos($src,$basePath) === 0) {
+            // in the case where the path is constructed with $j_basepath or $j_themepath
+            // in a template
+            $src = substr($src,strlen($basePath));
+        }
 
         // extension
         if(empty($params['ext'])) {
             $path_parts = pathinfo($src);
             if ( isset($path_parts['extension']))
-            $ext = strtolower($path_parts['extension']);
+                $ext = strtolower($path_parts['extension']);
         } else {
             $ext = strtolower($params['ext']);
         }
@@ -103,7 +118,8 @@ class jImageModifier {
         foreach($params as $key => $value) {
             if( in_array($key, jImageModifier::$transformParams)) {
                 $chaine .= $key.$value;
-            } else {
+            }
+            if( in_array($key, jImageModifier::$attributeParams)) {
                 // attribute params are just transmitted back
                 $att[$key] = $value;
             }
@@ -111,71 +127,103 @@ class jImageModifier {
         // generate cache key based on image src and transform params
         $cacheName = md5($chaine).'.'.$ext;
 
-        // paths
-        $cachePath = JELIX_APP_WWW_PATH.'cache/images/'.$cacheName;
-        $srcPath = JELIX_APP_WWW_PATH.$src;
-
-        // uris
+        // paths & uri
         global $gJConfig;
-        $www = 'http'.(empty($_SERVER['HTTPS'])?'':'s').'://'.$_SERVER['HTTP_HOST'];
-        $www .= $gJConfig->urlengine['basePath'];
-        $cacheUri = $www.'cache/images/'.$cacheName;
-        $srcUri = ((strpos($src,'http://')!==FALSE)?'':$www).$src;
+        list($srcPath, $srcUri, $cachePath, $cacheUri) = self::computeUrlFilePath($config);
 
         // apply transforms if necessary (serve directly or from cache otherwise)
         $pendingTransforms = ($chaine !== $src);
-        if( $pendingTransforms && is_file($srcPath) && !is_file($cachePath) ) {
-                self::transformAndCache($src, $cacheName, $params);
+        if( $pendingTransforms && is_file($srcPath.$src) && !is_file($cachePath.$cacheName) ) {
+            self::transformAndCache($srcPath.$src, $cachePath, $cacheName, $params);
         }
 
-
         // Attributes
-        if( !is_file($cachePath) ) {
+        if( !is_file($cachePath.$cacheName) ) {
             // image does not undergo any transformation
-            $att['src'] = $srcUri;
+            $att['src'] = $srcUri.$src;
             $att['style'] = empty($att['style'])?'':$att['style'];
             if( !empty($params['width']) )             $att['style'] .= 'width:'.$params['width'].'px;';
             else if( !empty($params['maxwidth']) )     $att['style'] .= 'width:'.$params['maxwidth'].'px;';
             if( !empty($params['height']) )            $att['style'] .= 'height:'.$params['height'].'px;';
             else if( !empty($params['maxheight']) )    $att['style'] .= 'height:'.$params['maxheight'].'px;';
         } else {
-            $att['src'] = $cacheUri;
+            $att['src'] = $cacheUri.$cacheName;
         }
 
         if ($sendCachePath)
-            $att['cache_path'] = $cachePath;
+            $att['cache_path'] = $cachePath.$cacheName;
 
         return $att;
     }
 
+    /**
+     * compute path from the configuration or from
+     * the given array. These paths will be used to read images and to save them
+     * into a cache directory.
+     * @return array. keys are
+     *          src_url, src_path, cache_path, cache_url
+     */
+    static public function computeUrlFilePath($config=null) {
+        // paths & uri
+        global $gJConfig;
+        $basePath = $gJConfig->urlengine['basePath'];
+
+        if (!$config)
+            $config = & $gJConfig->imagemodifier;
+
+        // compute URL and file path of the source image
+        if ($config['src_url'] && $config['src_path']) {
+            $srcUri = $config['src_url'];
+            if ($srcUri[0] != '/' && strpos($srcUri, 'http:') !== 0)
+                $srcUri = $basePath.$srcUri;
+            $srcPath = str_replace(array('www:','app:'),
+                                     array(JELIX_APP_WWW_PATH, JELIX_APP_PATH),
+                                     $config['src_path']);
+        }
+        else {
+            $srcUri = $GLOBALS['gJCoord']->request->getProtocol().$_SERVER['HTTP_HOST'].$basePath;
+            $srcPath = JELIX_APP_WWW_PATH;
+        }
+
+        if ($config['cache_path'] && $config['cache_url']) {
+            $cacheUri = $config['cache_url'];
+            if ($cacheUri[0] != '/' && strpos($cacheUri, 'http:') !== 0)
+                $cacheUri = $basePath.$cacheUri;
+            $cachePath = str_replace(array('www:','app:'),
+                                     array(JELIX_APP_WWW_PATH, JELIX_APP_PATH),
+                                     $config['cache_path']);
+        }
+        else {
+            $cachePath = JELIX_APP_WWW_PATH.'cache/images/';
+            $cacheUri = $GLOBALS['gJCoord']->request->getProtocol().$_SERVER['HTTP_HOST'].$basePath.'cache/images/';
+        }
+        return array($srcPath, $srcUri, $cachePath, $cacheUri);
+    }
+
+    static protected $mimes = array('gif'=>'image/gif', 'png'=>'image/png',
+                       'jpeg'=>'image/jpeg', 'jpg'=>'image/jpeg', 'jpe'=>'image/jpeg',
+                       'xpm'=>'image/x-xpixmap', 'xbm'=>'image/x-xbitmap', 'wbmp'=>'image/vnd.wap.wbmp');
 
     /**
      * transform source image file (given parameters) and cache result
      * @param string $src the url of image (myapp/www/):string.[gif|jpeg|jpg|jpe|xpm|xbm|wbmp|png]
-     * @param string image's hashname
+     * @param string $cacheName image's hashname for the cache
      * @param array $params parameters specifying transformations
      **/
-    static protected function transformAndCache($src, $cacheName, $params) {
+    static protected function transformAndCache($srcFs, $cachePath, $cacheName, $params) {
 
-        $mimes = array('gif'=>'image/gif', 'png'=>'image/png',
-                       'jpeg'=>'image/jpeg', 'jpg'=>'image/jpeg', 'jpe'=>'image/jpeg',
-                       'xpm'=>'image/x-xpixmap', 'xbm'=>'image/x-xbitmap', 'wbmp'=>'image/vnd.wap.wbmp');
-
-        global $gJConfig;
-        $srcUri = 'http'.(empty($_SERVER['HTTPS'])?'':'s').'://'.$_SERVER['HTTP_HOST'].$gJConfig->urlengine['basePath'].$src;
-
-        $path_parts = pathinfo($srcUri);
-        $mimeType = $mimes[strtolower($path_parts['extension'])];
+        $path_parts = pathinfo($srcFs);
+        $mimeType = self::$mimes[strtolower($path_parts['extension'])];
         $quality = (!empty($params['quality']))?  $params['quality'] : 100;
 
         // Creating an image
         switch ( $mimeType ) {
-            case 'image/gif'             : $image = imagecreatefromgif($srcUri); break;
-            case 'image/jpeg'            : $image = imagecreatefromjpeg($srcUri); break;
-            case 'image/png'             : $image = imagecreatefrompng($srcUri); break;
-            case 'image/vnd.wap.wbmp'    : $image = imagecreatefromwbmp($srcUri); break;
-            case 'image/image/x-xbitmap' : $image = imagecreatefromxbm($srcUri); break;
-            case 'image/x-xpixmap'       : $image = imagecreatefromxpm($srcUri); break;
+            case 'image/gif'             : $image = imagecreatefromgif($srcFs); break;
+            case 'image/jpeg'            : $image = imagecreatefromjpeg($srcFs); break;
+            case 'image/png'             : $image = imagecreatefrompng($srcFs); break;
+            case 'image/vnd.wap.wbmp'    : $image = imagecreatefromwbmp($srcFs); break;
+            case 'image/image/x-xbitmap' : $image = imagecreatefromxbm($srcFs); break;
+            case 'image/x-xpixmap'       : $image = imagecreatefromxpm($srcFs); break;
             default                      : return ;
         }
 
@@ -273,10 +321,7 @@ class jImageModifier {
             $image = $fond;
         }
 
-
-        $cachePath = JELIX_APP_WWW_PATH.'cache/images/';
         jFile::createDir($cachePath);
-
 
         // Register
         switch ( $mimeType ) {

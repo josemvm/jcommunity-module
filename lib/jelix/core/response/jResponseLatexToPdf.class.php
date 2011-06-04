@@ -2,9 +2,9 @@
 /**
 * @package     jelix
 * @subpackage  core_response
-* @author      Aubanel MONNIER
-* @contributor Laurent Jouanneau (better integration into jelix), Thomas
-* @copyright   2007 Aubanel MONNIER, 2009 Thomas
+* @author      Aubanel Monnier
+* @contributor Laurent Jouanneau, Thomas, Johannb
+* @copyright   2007 Aubanel Monnier, 2009 Thomas, 2009 Laurent Jouanneau
 * @link        http://aubanel.info
 * @licence     GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
 */
@@ -146,7 +146,7 @@ class jResponseLatexToPdf extends jResponse {
             $output=array();
             $retVal=1;	
             exec($this->pdflatexPath.' --interaction batchmode --output-directory '.$this->cachePath.' '.$texFile, $output, $retval);
-			if($retVal==0){
+			if($retVal!=0){
 				$outputStr=implode('<br />',$output);
 				throw new jException('jelix~errors.ltx2pdf.exec',array($this->pdflatexPath, $outputStr));
 			}
@@ -186,9 +186,11 @@ class jResponseLatexToPdf extends jResponse {
         if($this->hasErrors()){
             foreach( $GLOBALS['gJCoord']->errorMessages  as $e){
                 echo '['.$e[0].' '.$e[1].'] '.$e[2]." \t".$e[3]." \t".$e[4]."\n";
+                if ($e[5])
+                  echo $e[5]."\n\n";
             }
         }else{
-            echo "[unknow error]\n";
+            echo "[unknown error]\n";
         }
     }
 }

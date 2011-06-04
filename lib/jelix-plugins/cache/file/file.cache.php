@@ -3,7 +3,7 @@
 * @package    jelix
 * @subpackage plugins_cache_file
 * @author      Zend Technologies
-* @contributor Tahina Ramaroson, Sylvain de Vathaire
+* @contributor Tahina Ramaroson, Sylvain de Vathaire, Bricet
 * @copyright  2005-2008 Zend Technologies USA Inc (http://www.zend.com), 2008 Neov
 * The implementation of this class is based on Zend Cache Backend File class
 * Few lines of code was adapted for Jelix
@@ -97,7 +97,7 @@ class fileCacheDriver implements jICacheDriver {
             $this->ttl = $params['ttl'];
         }
 
-        $this->_cache_dir = JELIX_APP_TEMP_PATH.'cache/';
+        $this->_cache_dir = JELIX_APP_TEMP_PATH.'cache/'.$this->profil_name.'/';
         if(isset($params['cache_dir']) && $params['cache_dir']!=''){
             if (is_dir($params['cache_dir']) && is_writable($params['cache_dir'])) {
                 $this->_cache_dir = rtrim(realpath($params['cache_dir']), '\\/') . DIRECTORY_SEPARATOR;
@@ -175,7 +175,7 @@ class fileCacheDriver implements jICacheDriver {
 
             switch($ttl) {
                 case 0:
-                    touch($filePath,0);
+                    touch($filePath, time() + 3650*24*3600);
                     break;
                 default:
                     if ($ttl <= 2592000) {

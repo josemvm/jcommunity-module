@@ -7,12 +7,14 @@
 * @contributor Loic Mathaud
 * @contributor Florian Hatat
 * @contributor Emmanuel Hesry
+* @contributor Hadrien Lanneau <hadrien@over-blog.com>
 * @copyright   2005-2008 Laurent Jouanneau
 * @copyright   2007 Loic Mathaud
 * @copyright   2007-2008 Florian Hatat
 * @copyright   2001-2005 CopixTeam, GeraldCroes, Laurent Jouanneau
 * @copyright   2008 Julien Issler
 * @copyright   2009 Emmanuel Hesry
+* @copyright   2010 Hadrien Lanneau
 *
 * This class was get originally from the Copix project (CopixDate.lib.php, Copix 2.3dev20050901, http://www.copix.org)
 * Only few lines of code are still copyrighted 2001-2005 CopixTeam (LGPL licence).
@@ -29,7 +31,8 @@ if(!function_exists('strptime')){ // existe depuis php 5.1
      * @ignore
      */
     function strptime ( $strdate, $format ){
-        // c'est pas une compatibilité 100% avec strptime de PHP 5.1 mais c'est suffisant pour nos besoins
+        // It's not a full compatibility with strptime of PHP5.1, but it is
+        // enough for our needs
         $plop = array( 'S'=>'tm_sec', 'M'=>'tm_min', 'H'=>'tm_hour',
             'd'=>'tm_mday', 'm'=>'tm_mon', 'Y'=>'tm_year');
 
@@ -92,15 +95,6 @@ class jDateTime {
     const RFC2822_FORMAT=61;
     const FULL_LANG_DATE=62;
 
-    /**#@+
-     * use DB_* consts instead
-     * @deprecated
-     */
-    const BD_DFORMAT=20;
-    const BD_DTFORMAT=21;
-    const BD_TFORMAT=22;
-    /**#@-*/
-
     /**
      *
      */
@@ -125,7 +119,7 @@ class jDateTime {
      * @return bool true if the date/time are valid.
      */
     private function _check() {
-        // Only check the date if it is defined (eg. day, month and year are 
+        // Only check the date if it is defined (eg. day, month and year are
         // strictly positive).
         if($this->day > 0 && $this->month > 0 && $this->year > 0
             && !checkdate($this->month, $this->day, $this->year))
@@ -139,6 +133,16 @@ class jDateTime {
             return false;
         }
         return true;
+    }
+
+     /**
+     * Check if jDateTime is "null" (all values egals to 0)
+     *
+     * @return boolean
+     * @author Hadrien Lanneau (hadrien at over-blog dot com)
+     **/
+    public function isNull() {
+        return ($this->year === 0 && $this->month === 0 && $this->day === 0 && $this->hour == 0 && $this->minute == 0 && $this->second == 0);
     }
 
     /**
@@ -169,15 +173,12 @@ class jDateTime {
                $str = date($lf, $t);
                break;
            case self::DB_DFORMAT:
-           case self::BD_DFORMAT:
                $str = sprintf('%04d-%02d-%02d', $this->year, $this->month, $this->day);
                break;
            case self::DB_DTFORMAT:
-           case self::BD_DTFORMAT:
                $str = sprintf('%04d-%02d-%02d %02d:%02d:%02d', $this->year, $this->month, $this->day, $this->hour, $this->minute, $this->second);
                break;
            case self::DB_TFORMAT:
-           case self::BD_TFORMAT:
                $str = sprintf('%02d:%02d:%02d', $this->hour, $this->minute, $this->second);
                break;
            case self::ISO8601_FORMAT:
@@ -192,11 +193,11 @@ class jDateTime {
                break;
            case self::FULL_LANG_DATE:
                $t = mktime ( $this->hour, $this->minute,$this->second , $this->month, $this->day, $this->year );
-               // traduction du mois	
+               // traduction du mois
                $month = jLocale::get('jelix~date_time.month.'.date('m',$t).'.label');
                // traduction du jour
                $day = jLocale::get('jelix~date_time.day.'.date('w',$t).'.label');
-               // récupération du formatage de la date	
+               // récupération du formatage de la date
                $lf = jLocale::get('jelix~format.date_full');
                // récupération du format ordinal du jour dans le mois surtout pour le format en anglais (1st, 2nd, 3rd et th pour les autres
                $ordinal = jLocale::get('jelix~date_time.day.'.$this->day.'.ordinal');
@@ -257,7 +258,6 @@ class jDateTime {
                }
                break;
            case self::DB_DFORMAT:
-           case self::BD_DFORMAT:
                if($res = strptime( $str, "%Y-%m-%d" )){
                    $ok=true;
                    $this->year = $res['tm_year'] + 1900;
@@ -266,7 +266,6 @@ class jDateTime {
                }
                break;
            case self::DB_DTFORMAT:
-           case self::BD_DTFORMAT:
                if($res = strptime( $str, "%Y-%m-%d %H:%M:%S" )){
                    $ok=true;
                    $this->year = $res['tm_year'] + 1900;
@@ -278,7 +277,6 @@ class jDateTime {
                }
                break;
            case self::DB_TFORMAT:
-           case self::BD_TFORMAT:
                if($res = strptime( $str, "%H:%M:%S" )){
                    $ok=true;
                    $this->hour = $res['tm_hour'];
@@ -287,17 +285,17 @@ class jDateTime {
                }
                break;
            case self::ISO8601_FORMAT:
-               if($ok=preg_match('/^(\d{4})(?:\-(\d{2})(?:\-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{2}))?)?(Z|[+\-]\d{2}:\d{2}))?)?)?$/', $str, $match)){
+               if($ok=preg_match('/^(\d{4})(?:\-(\d{2})(?:\-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{2,3}))?)?(Z|([+\-])(\d{2}):(\d{2})))?)?)?$/', $str, $match)){
                     $c = count($match)-1;
-                    $this->year = $match[1];
+                    $this->year = intval($match[1]);
                     if($c<2) break;
-                    $this->month = $match[2];
+                    $this->month = intval($match[2]);
                     if($c<3) break;
-                    $this->day = $match[3];
+                    $this->day = intval($match[3]);
                     if($c<4) break;
-                    $this->hour = $match[4];
-                    $this->minute = $match[5];
-                    if($match[6] != '') $this->second = $match[6];
+                    $this->hour = intval($match[4]);
+                    $this->minute = intval($match[5]);
+                    if($match[6] != '') $this->second = intval($match[6]);
                     if($match[8] != 'Z'){
                         $d = new jDuration(array('hour'=>$match[10],'minute'=>$match[11]));
                         if($match[9] == '+')
@@ -319,7 +317,7 @@ class jDateTime {
                break;
            case self::RFC822_FORMAT:
            case self::RFC2822_FORMAT:
-               // Note the "x" modifier, otherwise the pattern would look like 
+               // Note the "x" modifier, otherwise the pattern would look like
                // obfuscated code.
                $regexp = "/^
                      (?: (?P<nday> Mon | Tue | Wed | Thu | Fri | Sat | Sun) , )? \s+
@@ -345,7 +343,7 @@ class jDateTime {
                    $this->minute = intval($match['minute']);
                    $this->second = intval($match['second']);
 
-                   # Adjust according to the timezone, so that the stored time 
+                   # Adjust according to the timezone, so that the stored time
                    # corresponds to UTC.
                    $tz = new jDuration(array('hour'=>intval($match['tzhour']),
                        'minute'=>intval($match['tzminute'])));
@@ -419,7 +417,7 @@ class jDateTime {
     /**
      * to know the duration between two dates.
      * @param jDateTime $dt  the date on which a sub will be made with the date on the current object
-     * @param bool $absolute 
+     * @param bool $absolute
      * @return jDuration a jDuration object
      */
     public function durationTo($dt, $absolute=true){
@@ -462,11 +460,97 @@ class jDateTime {
     * set date to current datetime
     */
     public function now() {
-        $this->year = date('Y');
-        $this->month = date('m');
-        $this->day = date('d');
-        $this->hour = date('H');
-        $this->minute = date('i');
-        $this->second = date('s');
+        $this->year = intval(date('Y'));
+        $this->month = intval(date('m'));
+        $this->day = intval(date('d'));
+        $this->hour = intval(date('H'));
+        $this->minute = intval(date('i'));
+        $this->second = intval(date('s'));
+    }
+
+
+    /**
+    * Substract a date with another
+    * @param jDateTime $date
+    * @return jDateTime
+    * @author Hadrien Lanneau <hadrien@over-blog.com>
+    * @since 1.2
+    */
+    public function substract($date = null) {
+        if (!$date) {
+            $date = new jDateTime();
+            $date->now();
+        }
+
+        $newDate = new jDateTime();
+
+        $items = array(
+                'second',
+                'minute',
+                'hour',
+                'day',
+                'month',
+                'year'
+            );
+
+        foreach ($items as $k => $i) {
+            $newDate->{$i} = $date->{$i} - $this->{$i};
+            if ($newDate->{$i} < 0) {
+                switch ($i) {
+                    case 'second':
+                    case 'minute':
+                        $sub = 60;
+                        break;
+                    case 'hour':
+                        $sub = 24;
+                        break;
+                    case 'day':
+                        switch ($this->month) {
+                            // Month with 31 days
+                            case 1:
+                            case 3:
+                            case 5:
+                            case 7:
+                            case 8:
+                            case 10:
+                            case 12:
+                                $sub = 31;
+                                break;
+                            // Month with 30 days
+                            case 4:
+                            case 6:
+                            case 9:
+                            case 11:
+                                $sub = 30;
+                                break;
+                            // February
+                            case 2:
+                                if ($this->year % 4 == 0 and
+                                        !(
+                                                $this->year % 100 == 0 and
+                                                $this->year % 400 != 0
+                                        )) {
+                                    // Bissextile
+                                    $sub = 29;
+                                }
+                                else {
+                                   $sub = 28;
+                                }
+                                break;
+                        }
+                        break;
+                    case 'month':
+                        $sub = 12;
+                        break;
+                    default:
+                        $sub = 0;
+                }
+                $newDate->{$i} = abs($sub + $newDate->{$i});
+                if (isset($items[$k+1])) {
+                    $newDate->{$items[$k+1]}--;
+                }
+            }
+        }
+        return $newDate;
     }
 }

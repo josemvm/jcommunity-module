@@ -4,9 +4,9 @@
 * @package     jelix
 * @subpackage  core_selector
 * @author      Laurent Jouanneau
-* @contributor Thibault PIRONT < nuKs >
+* @contributor Thibault Piront (nuKs)
 * @copyright   2005-2009 Laurent Jouanneau
-* @copyright   2007 Thibault PIRONT
+* @copyright   2007 Thibault Piront
 * @link        http://www.jelix.org
 * @licence    GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
 */
@@ -37,6 +37,8 @@ class jSelectorActFast extends jSelectorModule {
             $this->controller = $r[0]=='' ? 'default':$r[0];
             $this->method = $r[1]==''?'index':$r[1];
         }
+        if (substr($this->method,0,2) == '__')
+            throw new jExceptionSelector('jelix~errors.selector.method.invalid', $this->toString());
         $this->resource = $this->controller.':'.$this->method;
         $this->request = $request;
         $this->_createPath();
@@ -45,7 +47,7 @@ class jSelectorActFast extends jSelectorModule {
     protected function _createPath(){
         global $gJConfig;
         if(!isset($gJConfig->_modulesPathList[$this->module])){
-            throw new jExceptionSelector('jelix~errors.selector.module.unknow', $this->toString());
+            throw new jExceptionSelector('jelix~errors.selector.module.unknown', $this->toString());
         }else{
             $this->_path = $gJConfig->_modulesPathList[$this->module].'controllers/'.$this->controller.'.'.$this->request.'.php';
         }

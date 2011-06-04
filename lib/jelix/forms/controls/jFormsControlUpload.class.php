@@ -3,8 +3,9 @@
 * @package     jelix
 * @subpackage  forms
 * @author      Laurent Jouanneau
-* @contributor 
+* @contributor Julien Issler
 * @copyright   2006-2008 Laurent Jouanneau
+* @copyright   2009 Julien Issler
 * @link        http://www.jelix.org
 * @licence     http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public Licence, see LICENCE file
 */
@@ -31,18 +32,24 @@ class jFormsControlUpload extends jFormsControl {
             if($this->required)
                 return $this->container->errors[$this->ref] = jForms::ERRDATA_REQUIRED;
         }else{
-            if($this->fileInfo['error'] != UPLOAD_ERR_OK || !is_uploaded_file($this->fileInfo['tmp_name']))
-                return $this->container->errors[$this->ref] = jForms::ERRDATA_INVALID;
+            if($this->fileInfo['error'] == UPLOAD_ERR_NO_TMP_DIR
+               || $this->fileInfo['error'] == UPLOAD_ERR_CANT_WRITE)
+                return $this->container->errors[$this->ref] = jForms::ERRDATA_FILE_UPLOAD_ERROR;
 
-            if($this->maxsize && $this->fileInfo['size'] > $this->maxsize)
+            if($this->fileInfo['error'] == UPLOAD_ERR_INI_SIZE
+               || $this->fileInfo['error'] == UPLOAD_ERR_FORM_SIZE
+               || ($this->maxsize && $this->fileInfo['size'] > $this->maxsize))
+                return $this->container->errors[$this->ref] = jForms::ERRDATA_INVALID_FILE_SIZE;
+
+            if($this->fileInfo['error'] == UPLOAD_ERR_PARTIAL
+               || !is_uploaded_file($this->fileInfo['tmp_name']))
                 return $this->container->errors[$this->ref] = jForms::ERRDATA_INVALID;
 
             if(count($this->mimetype)){
-                if($this->fileInfo['type']==''){
-                    $this->fileInfo['type'] = mime_content_type($this->fileInfo['tmp_name']);
-                }
+                $this->fileInfo['type'] = jFile::getMimeType($this->fileInfo['tmp_name']);
+
                 if(!in_array($this->fileInfo['type'], $this->mimetype))
-                    return $this->container->errors[$this->ref] = jForms::ERRDATA_INVALID;
+                    return $this->container->errors[$this->ref] = jForms::ERRDATA_INVALID_FILE_TYPE;
             }
         }
         return null;

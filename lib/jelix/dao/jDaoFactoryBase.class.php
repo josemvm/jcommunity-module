@@ -5,11 +5,21 @@
  * @author      Laurent Jouanneau
  * @contributor Loic Mathaud
  * @contributor Julien Issler
- * @contributor Thomas, Yoan Blanc
- * @copyright   2005-2009 Laurent Jouanneau
+ * @contributor Thomas
+ * @contributor Yoan Blanc
+ * @contributor Mickael Fradin
+ * @contributor Christophe Thiriot
+ * @contributor Yannick Le Guédart
+ * @contributor Steven Jehannet
+ * @copyright   2005-2010 Laurent Jouanneau
  * @copyright   2007 Loic Mathaud
  * @copyright   2007-2009 Julien Issler
- * @copyright   2008 Thomas, 2008 Yoan Blanc
+ * @copyright   2008 Thomas
+ * @copyright   2008 Yoan Blanc
+ * @copyright   2009 Mickael Fradin
+ * @copyright   2009 Christophe Thiriot
+ * @copyright   2010 Yannick Le Guédart
+ * @copyright   2010 Steven Jehannet
  * @link        http://www.jelix.org
  * @licence     http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public Licence, see LICENCE file
  */
@@ -150,7 +160,7 @@ abstract class jDaoFactoryBase  {
      */
     public function findAll(){
         $rs = $this->_conn->query ($this->_selectClause.$this->_fromClause.$this->_whereClause);
-        $rs->setFetchMode(8,$this->_DaoRecordClassName);
+        $this->finishInitResultSet($rs);
         return $rs;
     }
 
@@ -167,7 +177,7 @@ abstract class jDaoFactoryBase  {
 
     /**
      * return the record corresponding to the given key
-     * @param string  one or more primary key
+     * @param string $key one or more primary key
      * @return jDaoRecordBase
      */
     final public function get(){
@@ -175,7 +185,7 @@ abstract class jDaoFactoryBase  {
         if(count($args)==1 && is_array($args[0])){
             $args=$args[0];
         }
-        $keys = array_combine($this->getPrimaryKeyNames(),$args );
+        $keys = @array_combine($this->getPrimaryKeyNames(),$args );
 
         if($keys === false){
             throw new jException('jelix~dao.error.keys.missing');
@@ -185,14 +195,14 @@ abstract class jDaoFactoryBase  {
         $q .= $this->_getPkWhereClauseForSelect($keys);
 
         $rs = $this->_conn->query ($q);
-        $rs->setFetchMode(8,$this->_DaoRecordClassName);
+        $this->finishInitResultSet($rs);
         $record =  $rs->fetch ();
         return $record;
     }
 
     /**
      * delete a record corresponding to the given key
-     * @param string  one or more primary key
+     * @param string  $key one or more primary key
      * @return int the number of deleted record
      */
     final public function delete(){
@@ -204,7 +214,7 @@ abstract class jDaoFactoryBase  {
         if($keys === false){
             throw new jException('jelix~dao.error.keys.missing');
         }
-        $q = 'DELETE FROM '.$this->_tables[$this->_primaryTable]['realname'].' ';
+        $q = 'DELETE FROM '.$this->_conn->encloseName($this->_tables[$this->_primaryTable]['realname']).' ';
         $q.= $this->_getPkWhereClauseForNonSelect($keys);
 
         if ($this->_deleteBeforeEvent) {
@@ -253,7 +263,7 @@ abstract class jDaoFactoryBase  {
         }else{
             $rs = $this->_conn->query ($query);
         }
-        $rs->setFetchMode(8,$this->_DaoRecordClassName);
+        $this->finishInitResultSet($rs);
         return $rs;
     }
 
@@ -261,6 +271,7 @@ abstract class jDaoFactoryBase  {
      * return the number of records corresponding to the conditions stored into the
      * jDaoConditions object.
      * @author Loic Mathaud
+     * @contributor Steven Jehannet
      * @copyright 2007 Loic Mathaud
      * @since 1.0b2
      * @param jDaoConditions $searchcond
@@ -268,17 +279,24 @@ abstract class jDaoFactoryBase  {
      */
     final public function countBy($searchcond, $distinct=null) {
         $count = '*';
+        $sqlite = false;
         if ($distinct !== null) {
             $props = $this->getProperties();
             if (isset($props[$distinct]))
-                $count = 'DISTINCT '.$this->_tables[$props[$distinct]['table']]['realname'].'.'.$props[$distinct]['fieldName'];
+                $count = 'DISTINCT '.$this->_tables[$props[$distinct]['table']]['name'].'.'.$props[$distinct]['fieldName'];
+            $sqlite = ($this->_conn->dbms == 'sqlite');
         }
 
-        $query = 'SELECT COUNT('.$count.') as c '.$this->_fromClause.$this->_whereClause;
+        if (!$sqlite)
+            $query = 'SELECT COUNT('.$count.') as c '.$this->_fromClause.$this->_whereClause;
+        else // specific query for sqlite, which doesn't support COUNT+DISTINCT
+            $query = 'SELECT COUNT(*) as c FROM (SELECT '.$count.' '.$this->_fromClause.$this->_whereClause;
+
         if ($searchcond->hasConditions ()){
             $query .= ($this->_whereClause !='' ? ' AND ' : ' WHERE ');
             $query .= $this->_createConditionsClause($searchcond);
         }
+        if($sqlite) $query .= ')';
         $rs  = $this->_conn->query ($query);
         $res = $rs->fetch();
         return intval($res->c);
@@ -296,7 +314,7 @@ abstract class jDaoFactoryBase  {
             return;
         }
 
-        $query = 'DELETE FROM '.$this->_tables[$this->_primaryTable]['realname'].' WHERE ';
+        $query = 'DELETE FROM '.$this->_conn->encloseName($this->_tables[$this->_primaryTable]['realname']).' WHERE ';
         $query .= $this->_createConditionsClause($searchcond, false);
 
         if ($this->_deleteByBeforeEvent) {
@@ -384,12 +402,12 @@ abstract class jDaoFactoryBase  {
             $prop=$fields[$cond['field_id']];
 
             if($forSelect)
-                $prefixNoCondition = $this->_tables[$prop['table']]['name'].'.'.$prop['fieldName'];
+                $prefixNoCondition = $this->_conn->encloseName($this->_tables[$prop['table']]['name']).'.'.$this->_conn->encloseName($prop['fieldName']);
             else
                 $prefixNoCondition = $this->_conn->encloseName($prop['fieldName']);
 
             $op = strtoupper($cond['operator']);
-            $prefix = $prefixNoCondition.' '.$op.' '; // ' ' for LIKE..
+            $prefix = $prefixNoCondition.' '.$op.' '; // ' ' for LIKE
 
             if ($op == 'IN' || $op == 'NOT IN'){
                 if(is_array($cond['value'])){
@@ -403,37 +421,46 @@ abstract class jDaoFactoryBase  {
 
                 $r .= $prefix.'('.$values.')';
             }
-            else if (!is_array ($cond['value'])){
-                $value = $this->_prepareValue($cond['value'],$prop['unifiedType']);
-                if ($value === 'NULL'){
-                    if($op == '='){
-                        $r .= $prefixNoCondition.' IS NULL';
-                    }else{
-                        $r .= $prefixNoCondition.' IS NOT NULL';
-                    }
-                } else {
-                    $r .= $prefix.$value;
+            else {
+                if ($op == 'LIKE' || $op == 'NOT LIKE') {
+                    $type = 'varchar';
                 }
-            }else{
-                $r .= ' ( ';
-                $firstCV = true;
-                foreach ($cond['value'] as $conditionValue){
-                    if (!$firstCV){
-                        $r .= ' or ';
-                    }
-                    $value = $this->_prepareValue($conditionValue,$prop['unifiedType']);
-                    if ($value === 'NULL'){
-                        if($op == '='){
+                else {
+                    $type = $prop['unifiedType'];
+                }
+
+                if (!is_array($cond['value'])) {
+                    $value = $this->_prepareValue($cond['value'], $type);
+                    if ($cond['value'] === null) {
+                        if (in_array($op, array('=','LIKE','IS','IS NULL'))) {
                             $r .= $prefixNoCondition.' IS NULL';
-                        }else{
+                        } else {
                             $r .= $prefixNoCondition.' IS NOT NULL';
                         }
-                    }else{
+                    } else {
                         $r .= $prefix.$value;
                     }
-                    $firstCV = false;
+                } else {
+                    $r .= ' ( ';
+                    $firstCV = true;
+                    foreach ($cond['value'] as $conditionValue){
+                        if (!$firstCV) {
+                            $r .= ' or ';
+                        }
+                        $value = $this->_prepareValue($conditionValue, $type);
+                        if ($conditionValue === null) {
+                            if (in_array($op, array('=','LIKE','IS','IS NULL'))) {
+                                $r .= $prefixNoCondition.' IS NULL';
+                            } else {
+                                $r .= $prefixNoCondition.' IS NOT NULL';
+                            }
+                        } else {
+                            $r .= $prefix.$value;
+                        }
+                        $firstCV = false;
+                    }
+                    $r .= ' ) ';
                 }
-                $r .= ' ) ';
             }
         }
         //sub conditions
@@ -473,13 +500,48 @@ abstract class jDaoFactoryBase  {
                 else
                     return doubleval($value);
             case 'boolean':
-                if ($value === true|| strtolower($value)=='true'|| $value =='1' || $value ==='t')
+                if ($value === true|| strtolower($value)=='true'|| intval($value) === 1 || $value ==='t' || $value ==='on')
                     return $this->trueValue;
                 else
                     return $this->falseValue;
                 break;
             default:
-                return $this->_conn->quote ($value);
+                return $this->_conn->quote2 ($value, true, ($fieldType == 'binary'));
         }
+    }
+
+    /**
+     * finish to initialise a record set. Could be redefined in child class
+     * to do additionnal processes
+     * @param jDbResultSet $rs the record set
+     */
+    protected function finishInitResultSet($rs) {
+        $rs->setFetchMode(8, $this->_DaoRecordClassName);
+    }
+
+    /**
+     * a callback function for some array_map call in generated methods
+     * @since 1.2
+     */
+    protected function _callbackQuote($value) {
+        return $this->_conn->quote2($value);
+    }
+
+    /**
+     * a callback function for some array_map call in generated methods
+     * @since 1.2
+     */
+    protected function _callbackQuoteBin($value) {
+        return $this->_conn->quote2($value, true, true);
+    }
+
+    /**
+     * a callback function for some array_map call in generated methods
+     */
+    protected function _callbackBool($value) {
+        if ($value === true|| strtolower($value)=='true'|| intval($value) === 1 || $value ==='t' || $value ==='on')
+            return $this->trueValue;
+        else
+            return $this->falseValue;
     }
 }

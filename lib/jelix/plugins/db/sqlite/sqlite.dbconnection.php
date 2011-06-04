@@ -4,7 +4,7 @@
 * @subpackage db_driver
 * @author     Loic Mathaud
 * @contributor Laurent Jouanneau
-* @copyright  2006 Loic Mathaud, 2007 Laurent Jouanneau
+* @copyright  2006 Loic Mathaud, 2007-2010 Laurent Jouanneau
 * @link      http://www.jelix.org
 * @licence  http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public Licence, see LICENCE file
 */
@@ -61,10 +61,16 @@ class sqliteDbConnection extends jDbConnection {
 
     protected function _connect (){
         $funcconnect= (isset($this->profile['persistent']) && $this->profile['persistent']? 'sqlite_popen':'sqlite_open');
-        if ($cnx = @$funcconnect(JELIX_APP_VAR_PATH. 'db/sqlite/'.$this->profile['database'])) {
+        $db = $this->profile['database'];
+        if (preg_match('/^(app|lib|var)\:/', $db))
+            $path = str_replace(array('app:','lib:','var:'), array(JELIX_APP_PATH, LIB_PATH, JELIX_APP_VAR_PATH), $db);
+        else
+            $path = JELIX_APP_VAR_PATH.'db/sqlite/'.$db;
+
+        if ($cnx = @$funcconnect($path)) {
             return $cnx;
         } else {
-            throw new jException('jelix~db.error.connection',$this->profile['database']);
+            throw new jException('jelix~db.error.connection',$db);
         }
     }
 
@@ -100,7 +106,7 @@ class sqliteDbConnection extends jDbConnection {
 
     /**
     * tell mysql to be autocommit or not
-    * @param boolean state the state of the autocommit value
+    * @param boolean $state the state of the autocommit value
     * @return void
     */
     protected function _autoCommitNotify ($state){
@@ -108,10 +114,9 @@ class sqliteDbConnection extends jDbConnection {
     }
 
     /**
-    * renvoi une chaine avec les caractères spéciaux échappés
-    * @access private
+    * @return string the text with non ascii char and quotes escaped
     */
-    protected function _quote($text){
+    protected function _quote($text, $binary) {
         return sqlite_escape_string($text);
     }
 

@@ -3,7 +3,6 @@
 * @package     jelix
 * @subpackage  forms
 * @author      Laurent Jouanneau
-* @contributor
 * @copyright   2006-2009 Laurent Jouanneau
 * @link        http://www.jelix.org
 * @licence     http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public Licence, see LICENCE file
@@ -30,6 +29,9 @@ class jForms {
 
     const ERRDATA_INVALID = 1;
     const ERRDATA_REQUIRED = 2;
+    const ERRDATA_INVALID_FILE_SIZE = 3;
+    const ERRDATA_INVALID_FILE_TYPE = 4;
+    const ERRDATA_FILE_UPLOAD_ERROR = 5;
 
     /**
      * pure static class, so no constructor
@@ -49,6 +51,8 @@ class jForms {
      */
     public static function create($formSel, $formId=null){
         $sel = new jSelectorForm($formSel);
+        // normalize the selector to avoid conflict in session
+        $formSel = $sel->toString(); 
         jIncluder::inc($sel);
         $c = $sel->getClass();
         if($formId === null)
@@ -65,7 +69,7 @@ class jForms {
             if ($formId == self::DEFAULT_ID) 
                 $dc->refcount++;
         }
-        $form = new $c($sel->toString(), $dc, true);
+        $form = new $c($formSel, $dc, true);
         return $form;
     }
 
@@ -84,14 +88,17 @@ class jForms {
             $formId= self::DEFAULT_ID;
         $fid = is_array($formId) ? serialize($formId) : $formId;
 
+        $sel = new jSelectorForm($formSel);
+        // normalize the selector to avoid conflict in session
+        $formSel = $sel->toString();
+
         if(!isset($_SESSION['JFORMS'][$formSel][$fid])){
             return null;
         }
 
-        $sel = new jSelectorForm($formSel);
         jIncluder::inc($sel);
         $c = $sel->getClass();
-        $form = new $c($sel->toString(), $_SESSION['JFORMS'][$formSel][$fid],false);
+        $form = new $c($formSel, $_SESSION['JFORMS'][$formSel][$fid],false);
 
         return $form;
     }
@@ -124,6 +131,11 @@ class jForms {
         global $gJCoord;
         if($formId === null)  $formId = self::DEFAULT_ID;
         if(is_array($formId)) $formId = serialize($formId);
+        
+        // normalize the selector to avoid conflict in session
+        $sel = new jSelectorForm($formSel);
+        $formSel = $sel->toString();
+
         if(isset($_SESSION['JFORMS'][$formSel][$formId])){
             if ($formId == self::DEFAULT_ID) {
                 if((--$_SESSION['JFORMS'][$formSel][$formId]->refcount) > 0) {
@@ -142,14 +154,25 @@ class jForms {
     static public function clean($formSel='', $life=86400) {
         if(!isset($_SESSION['JFORMS'])) return;
         if($formSel=='') {
-            foreach($_SESSION['JFORMS'] as $sel=>$f) {
-                self::clean($sel, $life);
-            }
-        } else if(isset($_SESSION['JFORMS'][$formSel])) {
             $t = time();
-            foreach($_SESSION['JFORMS'][$formSel] as $id=>$cont) {
-                if($t-$cont->updatetime > $life)
-                    unset($_SESSION['JFORMS'][$formSel][$id]);
+            foreach($_SESSION['JFORMS'] as $sel=>$f) {
+                // don't call clean itself, see bug #1154
+                foreach($_SESSION['JFORMS'][$sel] as $id=>$cont) {
+                    if($t-$cont->updatetime > $life)
+                        unset($_SESSION['JFORMS'][$sel][$id]);
+                }
+            }
+        } else {
+            // normalize the selector to avoid conflict in session
+            $sel = new jSelectorForm($formSel);
+            $formSel = $sel->toString();
+            
+            if(isset($_SESSION['JFORMS'][$formSel])) {
+                $t = time();
+                foreach($_SESSION['JFORMS'][$formSel] as $id=>$cont) {
+                    if($t-$cont->updatetime > $life)
+                        unset($_SESSION['JFORMS'][$formSel][$id]);
+                }
             }
         }
     }

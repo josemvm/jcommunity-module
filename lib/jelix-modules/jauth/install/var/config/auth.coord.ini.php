@@ -4,7 +4,7 @@
 ;============= Main parameters
 
 ; driver name : "ldap", "Db", "Class" or "LDS" (respect the case of characters)
-driver = Db
+driver = 
 
 ;============ Parameters for the plugin
 ; session variable name
@@ -16,7 +16,7 @@ secure_with_ip = 0
 
 ;Timeout. After the given time (in minutes) without activity, the user is disconnected.
 ; If the value is 0 : no timeout
-timeout = 0
+timeout = 30
 
 ; If the value is "on", the user must be authentificated for all actions, except those
 ; for which a plugin parameter  auth.required is false
@@ -81,7 +81,10 @@ dao = ""
 profile = ""
 
 ; name of the php function to crypt the password in the database
-password_crypt_function = md5
+password_crypt_function = sha1
+; if you want to use a salt with sha1:
+;password_crypt_function = "1:sha1WithSalt"
+;password_salt = "here_your_salt"
 
 ; name of the form for the jauthdb_admin module
 form = ""
@@ -96,7 +99,10 @@ uploadsDirectory= ""
 class = ""
 
 ; name of the php function to crypt the password in the database
-password_crypt_function = md5
+password_crypt_function = sha1
+; if you want to use a salt with sha1:
+;password_crypt_function = "1:sha1WithSalt"
+;password_salt = "here_your_salt"
 
 ;------- parameters for the "LDS" driver
 [LDS]
@@ -122,4 +128,7 @@ searchFilter=
 searchAttributes=
 
 ; name of the php function to crypt the password in the database
-password_crypt_function = md5
+password_crypt_function = sha1
+; if you want to use a salt with sha1:
+;password_crypt_function = "1:sha1WithSalt"
+;password_salt = "here_your_salt"

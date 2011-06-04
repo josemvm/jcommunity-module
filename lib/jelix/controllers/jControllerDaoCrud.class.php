@@ -4,10 +4,10 @@
 * @subpackage   controllers
 * @author       Laurent Jouanneau
 * @contributor  Bastien Jaillot
-* @contributor  Thibault PIRONT < nuKs >
+* @contributor  Thibault Piront (nuKs)
 * @contributor  Mickael Fradin
 * @copyright    2007-2009 Laurent Jouanneau
-* @copyright    2007 Thibault PIRONT
+* @copyright    2007 Thibault Piront
 * @copyright    2007,2008 Bastien Jaillot
 * @copyright    2009 Mickael Fradin
 * @link         http://www.jelix.org
@@ -226,7 +226,7 @@ class jControllerDaoCrud extends jController {
     /**
      * redefine this method if you wan to do additionnal things on the response and on the list template
      * during the index action.
-     * @param jHtmlResponse $resp the response
+     * @param jResponseHtml $resp the response
      * @param jtpl $tpl the template to display the record list
      */
     protected function _index($resp, $tpl) {
@@ -291,7 +291,7 @@ class jControllerDaoCrud extends jController {
      * redefine this method if you want to do additionnal things on the response and on the edit template
      * during the create action.
      * @param jFormsBase $form the form
-     * @param jHtmlResponse $resp the response
+     * @param jResponseHtml $resp the response
      * @param jtpl $tpl the template to display the edit form 
      */
     protected function _create($form, $resp, $tpl) {
@@ -322,8 +322,8 @@ class jControllerDaoCrud extends jController {
         $form->initFromRequest();
 
         if($form->check() && $this->_checkData($form, false)){
-            extract($form->prepareDaoFromControls($this->dao,null,$this->dbProfile), 
-                EXTR_PREFIX_ALL, "form");
+            $results = $form->prepareDaoFromControls($this->dao,null,$this->dbProfile);
+            extract($results, EXTR_PREFIX_ALL, "form");//use a temp variable to avoid notices
             $this->_beforeSaveCreate($form, $form_daorec);
             $form_dao->insert($form_daorec);
             $id = $form_daorec->getPk();
@@ -347,7 +347,7 @@ class jControllerDaoCrud extends jController {
      * the default behavior on uploaded files in the controller. 
      * @param jFormsBase $form the form object
      * @param mixed $id the new id of the inserted record
-     * @param jHtmlResponse $resp the response
+     * @param jResponseHtml $resp the response
      */
     protected function _afterCreate($form, $id, $resp) {
 
@@ -425,7 +425,7 @@ class jControllerDaoCrud extends jController {
      * redefine this method if you wan to do additionnal things on the response and on the edit template
      * during the editupdate action.
      * @param jFormsBase $form the form
-     * @param jHtmlResponse $resp the response
+     * @param jResponseHtml $resp the response
      * @param jtpl $tpl the template to display the edit form 
      */
     protected function _editUpdate($form, $resp, $tpl) {
@@ -458,8 +458,8 @@ class jControllerDaoCrud extends jController {
         $form->initFromRequest();
 
         if($form->check() && $this->_checkData($form, true)){
-            extract($form->prepareDaoFromControls($this->dao,$id,$this->dbProfile), 
-                EXTR_PREFIX_ALL, "form");
+            $results = $form->prepareDaoFromControls($this->dao,$id,$this->dbProfile);
+            extract($results, EXTR_PREFIX_ALL, "form");//use a temp variable to avoid notices
             $this->_beforeSaveUpdate($form, $form_daorec, $id);
             $form_dao->update($form_daorec);
             $rep->action = $this->_getAction('view');
@@ -482,7 +482,7 @@ class jControllerDaoCrud extends jController {
      * the default behavior on uploaded files in the controller.
      * @param jFormsBase $form the form object
      * @param mixed $id the new id of the updated record
-     * @param jHtmlResponse $resp the response
+     * @param jResponseHtml $resp the response
      */
     protected function _afterUpdate($form, $id, $resp) {
 
@@ -521,7 +521,7 @@ class jControllerDaoCrud extends jController {
      * redefine this method if you want to do additionnal things on the response and on the view template
      * during the view action.
      * @param jFormsBase $form the form
-     * @param jHtmlResponse $resp the response
+     * @param jResponseHtml $resp the response
      * @param jtpl $tpl the template to display the form content
      */
     protected function _view($form, $resp, $tpl) {
@@ -546,7 +546,7 @@ class jControllerDaoCrud extends jController {
      * redefine this method if you want to do additionnal things before the deletion of a record
      * @param mixed $id the id of the record to delete
      * @return boolean true if the record can be deleted
-     * @param jHtmlResponse $resp the response
+     * @param jResponseHtml $resp the response
      */
     protected function _delete($id, $resp) {
         return true;

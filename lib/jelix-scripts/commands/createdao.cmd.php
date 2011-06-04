@@ -1,11 +1,11 @@
 <?php
 /**
 * @package     jelix-scripts
-* @author      Jouanneau Laurent
+* @author      Laurent Jouanneau
 * @contributor Nicolas Jeudy (patch ticket #99)
 * @contributor Gwendal Jouannic (patch ticket #615)
 * @contributor Loic Mathaud
-* @copyright   2005-2007 Jouanneau laurent
+* @copyright   2005-2010 Laurent Jouanneau
 * @copyright   2007 Nicolas Jeudy, 2008 Gwendal Jouannic, 2008 Loic Mathaud
 * @link        http://www.jelix.org
 * @licence     GNU General Public Licence see LICENCE file or http://www.gnu.org/licenses/gpl.html
@@ -15,9 +15,9 @@ class createdaoCommand extends JelixScriptCommand {
 
     public  $name = 'createdao';
     public  $allowed_options=array('-profile'=>true, '-empty'=>false);
-    public  $allowed_parameters=array('module'=>true,'name'=>true, 'table'=>false);
+    public  $allowed_parameters=array('module'=>true,'name'=>true, 'table'=>false, 'sequence'=>false);
 
-    public  $syntaxhelp = "[-profile name] [-empty] MODULE DAO [TABLE]";
+    public  $syntaxhelp = "[-profile name] [-empty] MODULE DAO [TABLE [SEQUENCE]]";
     public  $help=array(
         'fr'=>"
     Crée un nouveau fichier de dao
@@ -32,7 +32,10 @@ class createdaoCommand extends JelixScriptCommand {
     TABLE : nom de la table principale sur laquelle s'appuie le dao
             (cette commande ne permet pas de générer un dao s'appuyant sur
              de multiples tables)
-    Si la table n'est pas indiquée, le nom de la DAO devra être le nom de la table.",
+    SEQUENCE : nom de la séquence pour la clé primaire si celle-ci est auto incrementé
+            via une sequence (bases oracles, pgsql...)
+    Si la table n'est pas indiquée, le nom de la DAO devra être le nom de la table.
+    Pour indiquer une séquence, vous devez indiquer une table.",
         'en'=>"
     Create a new dao file.
 
@@ -45,7 +48,9 @@ class createdaoCommand extends JelixScriptCommand {
     DAO    : dao name
     TABLE  : name of the main table on which the dao is mapped. You cannot indicate
              multiple tables
-    If the TABLE is not provided, the DAO name will be used as table name.",
+    SEQUENCE: name of the sequence used to auto increment the primary key.
+    If the TABLE is not provided, the DAO name will be used as table name.
+    You must provide a table name to indicate a sequence.",
     );
 
 
@@ -68,17 +73,19 @@ class createdaoCommand extends JelixScriptCommand {
             $param['table'] = $param['name'];
 
        if($this->getOption('-empty')){
-          $this->createFile($filename,'dao_empty.xml.tpl',$param);
+          $this->createFile($filename,'module/dao_empty.xml.tpl',$param);
        }else{
 
-         $tools = jDb::getTools($profile);
-         $fields = $tools->getFieldList($param['table']);
+         $sequence = $this->getParam('sequence', '');
+         $tools = jDb::getConnection($profile)->tools();
+         $fields = $tools->getFieldList($param['table'], $sequence);
 
          $properties='';
          $primarykeys='';
          foreach($fields as $fieldname=>$prop){
 
-            $properties.="\n        <property name=\"$fieldname\" fieldname=\"$fieldname\"";
+            $name = str_replace('-', '_', $fieldname);
+            $properties.="\n        <property name=\"$name\" fieldname=\"$fieldname\"";
             $properties.=' datatype="'.$prop->type.'"';
             if($prop->primary) {
                if($primarykeys != '')
@@ -111,7 +118,7 @@ class createdaoCommand extends JelixScriptCommand {
 
          $param['properties']=$properties;
          $param['primarykeys']=$primarykeys;
-         $this->createFile($filename,'dao.xml.tpl',$param);
+         $this->createFile($filename,'module/dao.xml.tpl',$param);
        }
     }
 }

@@ -36,10 +36,11 @@ function jErrorHandler($errno, $errmsg, $filename, $linenum, $errcontext){
         E_RECOVERABLE_ERROR => 'error',
         E_WARNING       => 'warning',
         E_NOTICE        => 'notice',
-        E_DEPRECATED    => 'notice',
+        E_DEPRECATED    => 'deprecated',
         E_USER_ERROR    => 'error',
         E_USER_WARNING  => 'warning',
         E_USER_NOTICE   => 'notice',
+        E_USER_DEPRECATED => 'deprecated',
         E_STRICT        => 'strict'
     );
 
@@ -50,17 +51,18 @@ function jErrorHandler($errno, $errmsg, $filename, $linenum, $errcontext){
         $code=1;
     }
 
-    $conf = $gJConfig->error_handling;
+    if (!isset ($codeString[$errno])){
+        $errno = E_ERROR;
+    }
+    $codestr = $codeString[$errno];
 
-    if (isset ($codeString[$errno])){
-        $codestr = $codeString[$errno];
-        $toDo = $conf[$codestr];
-    }else{
-        $codestr = 'error';
-        $toDo = $conf['default'];
+    if ($gJConfig) {
+        $toDo = $gJConfig->error_handling[$codestr];
+    }
+    else {
+        $toDo = 'ECHO EXIT';
     }
     $trace = debug_backtrace();
     array_shift($trace);
     $gJCoord->handleError($toDo, $codestr, $errno, $errmsg, $filename, $linenum, $trace);
-
 }

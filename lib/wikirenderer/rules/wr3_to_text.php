@@ -5,7 +5,7 @@
  * @package WikiRenderer
  * @subpackage wr3_to_text
  * @author Laurent Jouanneau
- * @copyright 2003-2006 Laurent Jouanneau
+ * @copyright 2003-2010 Laurent Jouanneau
  * @link http://wikirenderer.berlios.de
  *
  * This library is free software; you can redistribute it and/or
@@ -59,7 +59,10 @@ class wr3text_em extends WikiTag {
 class wr3text_code extends WikiTag {
     public $beginTag='@@';
     public $endTag='@@';
-    function getContent(){ return '['.$this->contents[0].']';}
+    function getContent(){ return '['.$this->wikiContentArr[0].']';}
+    public function isOtherTagAllowed() {
+        return false;
+    }
 }
 
 class wr3text_q extends WikiTag {
@@ -271,11 +274,16 @@ class wr3text_pre extends WikiRendererBloc {
                 $this->_detectMatch=$string;
             }
             return true;
-
         }else{
-            if(preg_match("/^\s*<code>(.*)/",$string,$m)){
-                $this->isOpen = true;
-                $this->_detectMatch=$m[1];
+            if(preg_match('/^\s*<code>(.*)/',$string,$m)){
+                if(preg_match('/(.*)<\/code>\s*$/',$m[1],$m2)){
+                    $this->_closeNow = true;
+                    $this->_detectMatch=$m2[1];
+                }
+                else {
+                    $this->_closeNow = false;
+                    $this->_detectMatch=$m[1];
+                }
                 return true;
             }else{
                 return false;

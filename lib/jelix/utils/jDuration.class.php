@@ -3,9 +3,8 @@
 * @package     jelix
 * @subpackage  utils
 * @author      Florian Hatat
-* @contributor
-* @copyright   2008 Florian Hatat
-*
+* @contributor Laurent Jouanneau
+* @copyright   2008 Florian Hatat, 2010 Laurent Jouanneau
 * @link        http://www.jelix.org
 * @licence     http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public Licence, see LICENCE file
 */
@@ -33,7 +32,7 @@ class jDuration {
      * as 3600 seconds. There is no general conversion between months and days, 
      * nor between days and hours (because of DST).
      *
-     * @param int/array representation of the duration as an absolute number of seconds, or an array.
+     * @param int,array $init representation of the duration as an absolute number of seconds, or an array.
      */
     function __construct($init = 0){
         $this->days = $this->months = $this->seconds = 0;
@@ -63,14 +62,20 @@ class jDuration {
                 $this->seconds += intval($init['second']);
             }
         }
-        elseif(is_int($init)){
-            $this->seconds = $init;
+        elseif (is_int($init)) {
+            if ($init > 86400) {
+                $this->days = intval($init/86400);
+                $this->seconds = $init % 86400;
+            }
+            else {
+                $this->seconds = $init;
+            }
         }
     }
 
     /**
      * Add a duration to the current duration
-     * @param jDuration the duration value
+     * @param jDuration $data the duration value
      */
     function add(jDuration $data){
         $this->days += $data->days;
@@ -80,7 +85,7 @@ class jDuration {
 
     /**
      * Multiply the current duration by an integer
-     * @param int the scaling integer
+     * @param int $scale the scaling integer
      */
     function mult($scale){
         if(is_int($scale)){

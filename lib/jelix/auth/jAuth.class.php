@@ -3,9 +3,9 @@
 * @package    jelix
 * @subpackage auth
 * @author     Laurent Jouanneau
-* @contributor Frédéric Guillot, Antoine Detante, Julien Issler, Dominique Papin
+* @contributor Frédéric Guillot, Antoine Detante, Julien Issler, Dominique Papin, Tahina Ramaroson, Sylvain de Vathaire, Vincent Viaud
 * @copyright  2001-2005 CopixTeam, 2005-2008 Laurent Jouanneau, 2007 Frédéric Guillot, 2007 Antoine Detante
-* @copyright  2007-2008 Julien Issler, 2008 Dominique Papin
+* @copyright  2007-2008 Julien Issler, 2008 Dominique Papin, 2010 NEOV, 2010 BP2I
 *
 * This classes were get originally from an experimental branch of the Copix project (Copix 2.3dev, http://www.copix.org)
 * Few lines of code are still copyrighted 2001-2005 CopixTeam (LGPL licence).
@@ -183,9 +183,10 @@ class jAuth {
             if(!isset($rep['canremove']) || $rep['canremove'] === false)
                 return false;
         }
+        $user = $dr->getUser($login);
         if($dr->removeUser($login)===false)
             return false;
-        jEvent::notify ('AuthRemoveUser', array('login'=>$login));
+        jEvent::notify ('AuthRemoveUser', array('login'=>$login, 'user'=>$user));
         if(self::isConnected() && self::getUserSession()->login === $login)
             self::logout();
         return true;
@@ -242,6 +243,12 @@ class jAuth {
         $dr = self::_getDriver();
         $config = self::_getConfig();
 
+        $eventresp = jEvent::notify ('AuthBeforeLogin', array('login'=>$login));
+        foreach($eventresp->getResponse() as $rep){
+            if(isset($rep['processlogin']) && $rep['processlogin'] === false)
+                return false;
+        }
+
         if($user = $dr->verifyPassword($login, $password)){
 
             $eventresp = jEvent::notify ('AuthCanLogin', array('login'=>$login, 'user'=>$user));
@@ -254,25 +261,26 @@ class jAuth {
             $persistence = 0;
 
             // Add a cookie for session persistance, if enabled
-            if($persistant && isset($config['persistant_enable']) && $config['persistant_enable']) {
-                if(!isset($config['persistant_crypt_key']) || !isset($config['persistant_cookie_name'])){
+            if ($persistant && isset($config['persistant_enable']) && $config['persistant_enable']) {
+                if (!isset($config['persistant_crypt_key']) || !isset($config['persistant_cookie_name'])) {
                     throw new jException('jelix~auth.error.persistant.incorrectconfig','persistant_cookie_name, persistant_crypt_key');
                 }
 
-                if(isset($config['persistant_duration']))
-                    $persistence=$config['persistant_duration']*86400;
+                if (isset($config['persistant_duration']))
+                    $persistence = $config['persistant_duration']*86400;
                 else
-                    $persistence=86400; // 24h
+                    $persistence = 86400; // 24h
                 $persistence += time();
-                $encryptedPassword=jCrypt::encrypt($password,$config['persistant_crypt_key']);
-                setcookie($config['persistant_cookie_name'].'[login]', $login, $persistence, $config['persistant_cookie_path']);
-                setcookie($config['persistant_cookie_name'].'[passwd]', $encryptedPassword, $persistence, $config['persistant_cookie_path']);
+                $encrypted = jCrypt::encrypt(serialize(array($login, $password)),$config['persistant_crypt_key']);
+                setcookie($config['persistant_cookie_name'].'[auth]', $encrypted, $persistence, $config['persistant_cookie_path']);
             }
 
             jEvent::notify ('AuthLogin', array('login'=>$login, 'persistence'=>$persistence));
             return true;
-        }else
+        }else{
+            jEvent::notify ('AuthErrorLogin', array('login'=>$login));
             return false;
+        }
     }
 
     /**
@@ -295,14 +303,11 @@ class jAuth {
         $config = self::_getConfig();
         jEvent::notify ('AuthLogout', array('login'=>$_SESSION[$config['session_name']]->login));
         $_SESSION[$config['session_name']] = new jAuthDummyUser();
-        try { jAcl::clearCache(); } catch(Exception $e) {}
-        try { jAcl2::clearCache(); } catch(Exception $e) {}
 
         if(isset($config['persistant_enable']) && $config['persistant_enable']){
             if(!isset($config['persistant_cookie_name']))
                 throw new jException('jelix~auth.error.persistant.incorrectconfig','persistant_cookie_name, persistant_crypt_key');
-            setcookie($config['persistant_cookie_name'].'[login]', '', time() - 3600, $config['persistant_cookie_path']);
-            setcookie($config['persistant_cookie_name'].'[passwd]', '', time() - 3600, $config['persistant_cookie_path']);
+            setcookie($config['persistant_cookie_name'].'[auth]', '', time() - 3600, $config['persistant_cookie_path']);
         }
     }
 
@@ -335,7 +340,7 @@ class jAuth {
         $letter = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         $pass = '';
         for($i=0;$i<$length;$i++)
-            $pass .= $letter{rand(0,61)};
+            $pass .= $letter[rand(0,61)];
         return $pass;
     }
 }

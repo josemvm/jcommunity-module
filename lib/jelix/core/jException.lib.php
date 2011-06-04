@@ -18,7 +18,7 @@
 function jExceptionHandler($e){
     global $gJConfig, $gJCoord;
 
-    $gJCoord->handleError($gJConfig->error_handling['exception'].' EXIT', 'exception',
+    $gJCoord->handleError(($gJConfig?$gJConfig->error_handling['exception']:'ECHO').' EXIT', 'exception',
                         $e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine(), $e->getTrace());
 }
 
@@ -61,7 +61,7 @@ class jException extends Exception {
         }catch(Exception $e){
             $message = $e->getMessage();
         }
-        if(preg_match('/^\s*\((\d+)\)(.+)$/',$message,$m)){
+        if(preg_match('/^\s*\((\d+)\)(.+)$/m',$message,$m)){
             $code = $m[1];
             $message = $m[2];
         }

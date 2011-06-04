@@ -43,7 +43,7 @@
  * $params[3][xx] Flashvar for the Flash Player
  *
  * @param jTplCompiler $compiler the template compiler
- * @param boolean true if it is the begin of block, else false
+ * @param boolean $begin true if it is the begin of block, else false
  * @param array $params parameters for the url
  */
 function jtpl_block_html_swfjs($compiler, $begin, $params) {
@@ -82,8 +82,8 @@ function jtpl_block_html_swfjs($compiler, $begin, $params) {
             $script .= "        ".\'});\'."\n";
             $script .= "    ".\'});\'."\n";
 
-            $gJCoord->response->addJSLink($gJConfig->urlengine[\'jelixWWWPath\'].\'jquery/jquery.js\');
-            $gJCoord->response->addJSLink($gJConfig->urlengine[\'jelixWWWPath\'].\'jquery/flash/jquery.flash.js\');
+            $gJCoord->response->addJSLink($gJConfig->urlengine[\'jqueryPath\'].\'jquery.js\');
+            $gJCoord->response->addJSLink($gJConfig->urlengine[\'jqueryPath\'].\'flash/jquery.flash.js\');
             $gJCoord->response->addJSCode($script);
         }
         ';

@@ -1,9 +1,9 @@
-CREATE TABLE jsession (
+CREATE TABLE %%PREFIX%%jsessions (
     id character varying(64) NOT NULL,
     creation time with time zone NOT NULL,
     "access" time with time zone NOT NULL,
-    data text NOT NULL
+    data bytea NOT NULL
 );
 
-ALTER TABLE ONLY jsession
-    ADD CONSTRAINT jsession_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY %%PREFIX%%jsessions
+    ADD CONSTRAINT %%PREFIX%%jsession_pkey PRIMARY KEY (id);

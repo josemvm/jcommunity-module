@@ -2,9 +2,10 @@
 /**
 * @package     jelix
 * @subpackage  dao
-* @author      Croes Gérald, Laurent Jouanneau
+* @author      Gérald Croes, Laurent Jouanneau
 * @contributor Laurent Jouanneau
-* @copyright   2001-2005 CopixTeam, 2005-2009 Laurent Jouanneau
+* @contributor Olivier Demah
+* @copyright   2001-2005 CopixTeam, 2005-2009 Laurent Jouanneau, 2010 Olivier Demah
 * This class was get originally from the Copix project (CopixDAODefinitionV1, Copix 2.3dev20050901, http://www.copix.org)
 * Few lines of code are still copyrighted 2001-2005 CopixTeam (LGPL licence).
 * Initial authors of this Copix class are Gerald Croes and Laurent Jouanneau,
@@ -42,7 +43,8 @@ class jDaoMethod {
     function __construct ($method, $parser){
         $this->_parser = $parser;
 
-        $params = $parser->getAttr($method, array('name', 'type', 'call','distinct', 'eventbefore', 'eventafter', 'groupby'));
+        $params = $parser->getAttr($method, array('name', 'type', 'call','distinct',
+                                                  'eventbefore', 'eventafter', 'groupby'));
 
         if ($params['name']===null){
             throw new jDaoXmlException ($this->_parser->selector, 'missing.attr', array('name', 'method'));
@@ -54,6 +56,9 @@ class jDaoMethod {
         if (isset ($method->parameter)){
             foreach ($method->parameter as $param){
                 $attr = $param->attributes();
+                if (strpos($attr['name'],'$') !== false) {
+                    throw new jDaoXmlException($this->_parser->selector,'method.parameter.invalidname',array($method->name,$attr['name']));
+                }
                 if (!isset ($attr['name'])){
                     throw new jDaoXmlException ($this->_parser->selector, 'method.parameter.unknowname', array($this->name));
                 }
@@ -279,7 +284,7 @@ class jDaoMethod {
 
         if(substr ($way,0,1) == '$'){
             if(!in_array (substr ($way,1),$this->_parameters)){
-                throw new jDaoXmlException ($this->_parser->selector, 'method.orderitem.parameter.unknow', array($this->name, $way));
+                throw new jDaoXmlException ($this->_parser->selector, 'method.orderitem.parameter.unknown', array($this->name, $way));
             }
         }
 
@@ -289,7 +294,7 @@ class jDaoMethod {
                 $this->_conditions->addItemOrder($attr['property'], $way);
             }elseif(substr ($attr['property'],0,1) == '$'){
                 if(!in_array (substr ($attr['property'],1),$this->_parameters)){
-                    throw new jDaoXmlException ($this->_parser->selector, 'method.orderitem.parameter.unknow', array($this->name, $way));
+                    throw new jDaoXmlException ($this->_parser->selector, 'method.orderitem.parameter.unknown', array($this->name, $way));
                 }
                 $this->_conditions->addItemOrder($attr['property'], $way);
             }else{
@@ -312,11 +317,11 @@ class jDaoMethod {
         $props =$this->_parser->getProperties();
 
         if ($prop === null){
-            throw new jDaoXmlException ($this->_parser->selector, 'method.values.property.unknow', array($this->name, $prop));
+            throw new jDaoXmlException ($this->_parser->selector, 'method.values.property.unknown', array($this->name, $prop));
         }
 
         if(!isset($props[$prop])){
-            throw new jDaoXmlException ($this->_parser->selector, 'method.values.property.unknow', array($this->name, $prop));
+            throw new jDaoXmlException ($this->_parser->selector, 'method.values.property.unknown', array($this->name, $prop));
         }
 
         if($props[$prop]->table != $this->_parser->getPrimaryTable()){
@@ -354,7 +359,7 @@ class jDaoMethod {
             if(in_array (substr ($offset,1),$this->_parameters)){
                 $offsetparam=true;
             }else{
-                throw new jDaoXmlException ($this->_parser->selector, 'method.limit.parameter.unknow', array($this->name, $offset));
+                throw new jDaoXmlException ($this->_parser->selector, 'method.limit.parameter.unknown', array($this->name, $offset));
             }
         }else{
             if(is_numeric ($offset)){
@@ -369,7 +374,7 @@ class jDaoMethod {
             if(in_array (substr ($count,1),$this->_parameters)){
                 $countparam=true;
             }else{
-                throw new jDaoXmlException ($this->_parser->selector, 'method.limit.parameter.unknow', array($this->name, $count));
+                throw new jDaoXmlException ($this->_parser->selector, 'method.limit.parameter.unknown', array($this->name, $count));
             }
         }else{
             if(is_numeric($count)){

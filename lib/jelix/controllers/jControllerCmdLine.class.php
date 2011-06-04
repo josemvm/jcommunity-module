@@ -3,8 +3,8 @@
 * @package     jelix
 * @subpackage  controllers
 * @author      Loic Mathaud
-* @contributor M. Thiriot, Laurent Jouanneau
-* @copyright   2006 Loic Mathaud, 2007 M. Thiriot, 2008 Laurent Jouanneau
+* @contributor Christophe Thiriot, Laurent Jouanneau
+* @copyright   2006 Loic Mathaud, 2007 Christophe Thiriot, 2008 Laurent Jouanneau
 * @link        http://www.jelix.org
 * @licence     http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public Licence, see LICENCE file
 *
@@ -68,7 +68,7 @@ class jControllerCmdLine extends jController {
         $action = new jSelectorAct($this->request->params['action']);
 
         if( !in_array($action->method, get_class_methods(get_class($this)))) {
-            throw new jException('jelix~errors.cli.unknow.command', $action->method);
+            throw new jException('jelix~errors.cli.unknown.command', $action->method);
         }
         $opt = isset($this->allowed_options[$action->method]) ? $this->allowed_options[$action->method]: array();
         $par = isset($this->allowed_parameters[$action->method]) ? $this->allowed_parameters[$action->method]: array();

@@ -3,11 +3,11 @@
 * @package      jelix
 * @subpackage   core
 * @author       Laurent Jouanneau
-* @contributor  Thibault PIRONT < nuKs >, Julien Issler, Dominique Papin
-* @copyright    2005-2009 laurent Jouanneau
-* @copyright    2007 Thibault PIRONT
+* @contributor  Thibault Piront (nuKs), Julien Issler, Dominique Papin
+* @copyright    2005-2010 laurent Jouanneau
+* @copyright    2007 Thibault Piront
 * @copyright    2008 Julien Issler
-* @copyright    2008 Dominique Papin
+* @copyright    2008-2010 Dominique Papin
 * @link         http://www.jelix.org
 * @licence      GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
 */
@@ -74,21 +74,23 @@ class jCoordinator {
 
     /**
      * @param  string $configFile name of the ini file to configure the framework
+     * @param  boolean $enableErrorHandler enable the error handler of jelix.
+     *                 keep it to true, unless you have something to debug
+     *                 and really have to use the default handler or an other handler
      */
-    function __construct ($configFile) {
+    function __construct ($configFile, $enableErrorHandler=true) {
         global $gJCoord, $gJConfig;
 
         $gJCoord =  $this;
 
-        // load configuration data
-        $gJConfig = jConfig::load($configFile);
-
-        // set Error and exception handler
-        // ne devrait être désactivé que lors de certains tests de jelix
-        if($gJConfig->use_error_handler){
+        if ($enableErrorHandler) {
             set_error_handler('jErrorHandler');
             set_exception_handler('JExceptionHandler');
         }
+
+        // load configuration data
+        $gJConfig = jConfig::load($configFile);
+
         date_default_timezone_set($gJConfig->timeZone);
         $this->_loadPlugins();
     }
@@ -108,7 +110,7 @@ class jCoordinator {
             else {
                 $conff = JELIX_APP_CONFIG_PATH.$conf;
                 if (false === ($conf = parse_ini_file($conff,true)))
-                    die("Jelix Error: Error in the configuration file of plugin $name ($conff)!");
+                    throw new Exception("Error in the configuration file of plugin $name ($conff)!", 13);
             }
             include( $gJConfig->_pluginsPathList_coord[$name].$name.'.coord.php');
             $class= $name.'CoordPlugin';
@@ -143,14 +145,14 @@ class jCoordinator {
             }
         }
 
-        // module check
-        if($gJConfig->checkTrustedModules && !in_array($this->moduleName,$gJConfig->_trustedModules)){
-            throw new jException('jelix~errors.module.untrusted',$this->moduleName);
-        }
-
         jContext::push ($this->moduleName);
         try{
             $this->action = new jSelectorActFast($this->request->type, $this->moduleName, $this->actionName);
+
+            if($gJConfig->modules[$this->moduleName.'.access'] < 2){
+                throw new jException('jelix~errors.module.untrusted',$this->moduleName);
+            }
+
             $ctrl = $this->getController($this->action);
         }catch(jException $e){
             if ($gJConfig->urlengine['notfoundAct'] =='') {
@@ -197,7 +199,6 @@ class jCoordinator {
             $this->plugins[$name]->beforeOutput ();
         }
 
-        // envoi de la réponse
         if(!$this->response->output()){
             $this->response->outputErrors();
         }
@@ -218,18 +219,18 @@ class jCoordinator {
 
         $ctrlpath = $selector->getPath();
         if(!file_exists($ctrlpath)){
-            throw new jException('jelix~errors.ad.controller.file.unknow',array($this->actionName,$ctrlpath));
+            throw new jException('jelix~errors.ad.controller.file.unknown',array($this->actionName,$ctrlpath));
         }
         require_once($ctrlpath);
         $class = $selector->getClass();
         if(!class_exists($class,false)){
-            throw new jException('jelix~errors.ad.controller.class.unknow',array($this->actionName,$class, $ctrlpath));
+            throw new jException('jelix~errors.ad.controller.class.unknown',array($this->actionName,$class, $ctrlpath));
         }
         $ctrl = new $class($this->request);
         if($ctrl instanceof jIRestController){
             $method = $selector->method = strtolower($_SERVER['REQUEST_METHOD']);
         }elseif(!method_exists($ctrl, $selector->method)){
-            throw new jException('jelix~errors.ad.controller.method.unknow',array($this->actionName, $selector->method, $class, $ctrlpath));
+            throw new jException('jelix~errors.ad.controller.method.unknown',array($this->actionName, $selector->method, $class, $ctrlpath));
         }
         return $ctrl;
     }
@@ -250,7 +251,7 @@ class jCoordinator {
         $type = $this->request->defaultResponseType;
 
         if(!isset($responses[$type]))
-            return jLocale::get('jelix~errors.default.response.type.unknow',array($this->moduleName.'~'.$this->actionName,$type));
+            throw new jException('jelix~errors.default.response.type.unknown',array($this->moduleName.'~'.$this->actionName,$type));
 
         try{
             $respclass = $responses[$type];
@@ -277,74 +278,95 @@ class jCoordinator {
      */
     public function handleError($toDo, $type, $code, $message, $file, $line, $trace){
         global $gJConfig;
-        $conf = $gJConfig->error_handling;
-
-        $doEchoByResponse = true;
-
-        if($this->request == null){
-            $message = 'JELIX PANIC ! Error during initialization !! '.$message;
-            $doEchoByResponse = false;
-            $toDo.= ' EXIT';
-
-        }elseif($this->response == null){
-            $ret = $this->initDefaultResponseOfRequest();
-            if(is_string($ret)){
-                $message = 'Double error ! 1)'. $ret.'; 2)'.$message;
-                $doEchoByResponse = false;
-            }
+        if ($gJConfig)
+            $conf = $gJConfig->error_handling;
+        else {
+            $conf = array(
+                'messageLogFormat'=>'%date%\t[%code%]\t%msg%\t%file%\t%line%\n\t%url%\n',
+                'quietMessage'=>'A technical error has occured. Sorry for this trouble.',
+                'logFile'=>'error.log',
+            );
         }
 
-        // When we are in cmdline we need to fix the remoteAddr
-        $remoteAddr = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
-
+        $url = isset($_SERVER['REQUEST_URI'])?$_SERVER['REQUEST_URI']:'Unknow requested URI';
         // url params including module and action
-        if ($this->request)
-            $url = str_replace('array', 'url', var_export($this->request->params, true));
-        else $url = 'Unknow url';
+        if ($this->request) {
+            $params = str_replace("\n", ' ', var_export($this->request->params, true));
+            $remoteAddr = $this->request->getIP();
+        }
+        else {
+            $params = isset($_SERVER['QUERY_STRING'])?$_SERVER['QUERY_STRING']:'';
+            // When we are in cmdline we need to fix the remoteAddr
+            $remoteAddr = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
+        }
 
         // formatting message
         $messageLog = strtr($conf['messageLogFormat'], array(
-            '%date%' => date("Y-m-d H:i:s"),
+            '%date%' => @date("Y-m-d H:i:s"), // @ because if the timezone is not set, we will have an error here
             '%ip%'   => $remoteAddr,
             '%typeerror%'=>$type,
             '%code%' => $code,
             '%msg%'  => $message,
             '%url%'  => $url,
+            '%params%'=>$params,
             '%file%' => $file,
             '%line%' => $line,
             '\t' =>"\t",
             '\n' => "\n"
         ));
 
+        $traceLog = '';
         if(strpos($toDo , 'TRACE') !== false){
-            $arr = debug_backtrace();
             $messageLog.="\ttrace:";
-            foreach($arr as $k=>$t){
-                $messageLog.="\n\t$k\t".(isset($t['class'])?$t['class'].$t['type']:'').$t['function']."()\t";
-                $messageLog.=(isset($t['file'])?$t['file']:'[php]').' : '.(isset($t['line'])?$t['line']:'');
+            foreach($trace as $k=>$t){
+                $traceLog.="\n\t$k\t".(isset($t['class'])?$t['class'].$t['type']:'').$t['function']."()\t";
+                $traceLog.=(isset($t['file'])?$t['file']:'[php]').' : '.(isset($t['line'])?$t['line']:'');
             }
-            $messageLog.="\n";
+            $messageLog.=$traceLog."\n";
         }
 
+        // the error should be shown by the response
+        $doEchoByResponse = true;
+
+        if ($this->request == null) {
+            $message = 'JELIX PANIC ! Error during initialization !! '.$message;
+            $doEchoByResponse = false;
+            $toDo.= ' EXIT';
+        }
+        elseif ($this->response == null) {
+            try {
+                $this->initDefaultResponseOfRequest();
+            }
+            catch(Exception $e) {
+                $message = 'Double error ! 1)'. $e->getMessage().'; 2)'.$message;
+                $doEchoByResponse = false;
+            }
+        }
 
         $echoAsked = false;
         // traitement du message
         if(strpos($toDo , 'ECHOQUIET') !== false){
             $echoAsked = true;
             if(!$doEchoByResponse){
+                while (ob_get_level()) {
+                        ob_end_clean();
+                }
                 header("HTTP/1.1 500 Internal jelix error");
                 header('Content-type: text/plain');
                 echo 'JELIX PANIC ! Error during initialization !! ';
-            }elseif($this->addErrorMsg($type, $code, $conf['quietMessage'], '', '')){
+            }elseif($this->addErrorMsg($type, $code, $conf['quietMessage'], '', '', '')){
                 $toDo.=' EXIT';
             }
         }elseif(strpos($toDo , 'ECHO') !== false){
             $echoAsked = true;
             if(!$doEchoByResponse){
+                while (ob_get_level()) {
+                        ob_end_clean();
+                }
                 header("HTTP/1.1 500 Internal jelix error");
                 header('Content-type: text/plain');
                 echo $messageLog;
-            }elseif($this->addErrorMsg($type, $code, $message, $file, $line)){
+            }elseif($this->addErrorMsg($type, $code, $message, $file, $line, $traceLog)){
                 $toDo.=' EXIT';
             }
         }
@@ -352,8 +374,8 @@ class jCoordinator {
         if(strpos($toDo , 'LOGFILE') !== false){
             @error_log($messageLog,3, JELIX_APP_LOG_PATH.$conf['logFile']);
         }
-        if(strpos($toDo , 'MAIL') !== false){
-            error_log(wordwrap($messageLog,70),1, $conf['email'], $conf['emailHeaders']);
+        if(strpos($toDo , 'MAIL') !== false && $gJConfig){
+            error_log(wordwrap($messageLog,70),1, $conf['email'], str_replace(array('\\r','\\n'),array("\r","\n"),$conf['emailHeaders']));
         }
         if(strpos($toDo , 'SYSLOG') !== false){
             error_log($messageLog,0);
@@ -361,6 +383,9 @@ class jCoordinator {
 
         if(strpos($toDo , 'EXIT') !== false){
             if($doEchoByResponse) {
+                while (ob_get_level()) {
+                        ob_end_clean();
+                }
                 if ($this->response)
                     $this->response->outputErrors();
                 else if($echoAsked) {
@@ -371,7 +396,7 @@ class jCoordinator {
                 }
             }
             jSession::end();
-            exit;
+            exit(1);
         }
     }
 
@@ -384,8 +409,8 @@ class jCoordinator {
      * @param  integer $line  the line number where the error appear
      * @return boolean    true= the process should stop now, false = the error manager do its job
      */
-    protected function addErrorMsg($type, $code, $message, $file, $line){
-        $this->errorMessages[] = array($type, $code, $message, $file, $line);
+    protected function addErrorMsg($type, $code, $message, $file, $line, $trace){
+        $this->errorMessages[] = array($type, $code, $message, $file, $line, $trace);
         return !$this->response->acceptSeveralErrors();
     }
 
@@ -430,21 +455,30 @@ class jCoordinator {
     /**
     * Says if the given module $name is enabled
     * @param string $moduleName
+    * @param boolean $includingExternal  true if we want to know if the module
+    *               is also an external module, e.g. in an other entry point
     * @return boolean true : module is ok
     */
-    public function isModuleEnabled ($moduleName){
-        return in_array($moduleName, $GLOBALS['gJConfig']->_trustedModules);
+    public function isModuleEnabled ($moduleName, $includingExternal = false) {
+        if ($includingExternal && isset($GLOBALS['gJConfig']->_externalModulesPathList[$moduleName])) {
+            return true;
+        }
+        return isset($GLOBALS['gJConfig']->_modulesPathList[$moduleName]);
     }
 
     /**
      * return the real path of a module
      * @param string $module a module name
+     * @param boolean $includingExternal  true if we want to know if the module
+     *               is also an external module, e.g. in an other entry point
      * @return string the corresponding path
      */
-
-    public function getModulePath($module){
+    public function getModulePath($module, $includingExternal = false){
         global $gJConfig;
-        if(!isset($gJConfig->_modulesPathList[$module])){
+        if (!isset($gJConfig->_modulesPathList[$module])) {
+            if ($includingExternal && isset($gJConfig->_externalModulesPathList[$module])) {
+                return $gJConfig->_externalModulesPathList[$module];
+            }
             throw new Exception('getModulePath : invalid module name');
         }
         return $gJConfig->_modulesPathList[$module];

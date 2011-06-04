@@ -5,7 +5,7 @@
 * @author     Laurent Jouanneau
 * @contributor Laurent Jouanneau
 * @contributor Nicolas Jeudy (patch ticket #99)
-* @copyright  2005-2009 Laurent Jouanneau
+* @copyright  2005-2010 Laurent Jouanneau
 * @link        http://jelix.org
 * @licence  http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public Licence, see LICENCE file
 */
@@ -103,7 +103,7 @@ class pgsqlDbTools extends jDbTools {
       'circle'          =>array('circle',   'varchar',    null,       null,       0,     24),
       'cidr'            =>array('cidr',     'varchar',    null,       null,       0,     24),
       'inet'            =>array('inet',     'varchar',    null,       null,       0,     24),
-      'macaddr'         =>array('macaddr',  'integer',    0,          0xFFFFFFFFFFFF, null,       null),
+      'macaddr'         =>array('macaddr',    'integer',    0,          0xFFFFFFFFFFFF, null,       null),
       'bit varying'     =>array('bit varying', 'varchar', null,       null,       0,     65535),
       'arrays'          =>array('array',    'varchar',    null,       null,       0,     65535),
       'complex types'   =>array('complex',  'varchar',    null,       null,       0,     65535),
@@ -126,11 +126,14 @@ class pgsqlDbTools extends jDbTools {
       }
       return $results;
    }
+
     /**
     * retrieve the list of fields of a table
+    * @param string $tableName the name of the table
+    * @param string $sequence  the sequence used to auto increment the primary key
     * @return   array    keys are field names and values are jDbFieldProperties objects
     */
-    public function getFieldList ($tableName) {
+    public function getFieldList ($tableName, $sequence='') {
         $tableName = $this->_conn->prefixTable($tableName);
         $results = array ();
         
@@ -138,7 +141,7 @@ class pgsqlDbTools extends jDbTools {
         $sql ='SELECT oid, relhaspkey, relhasindex FROM pg_class WHERE relname = \''.$tableName.'\'';
         $rs = $this->_conn->query ($sql);
         if (! ($table = $rs->fetch())) {
-            throw new Exception('dbtools, pgsql: unknow table');
+            throw new Exception('dbtools, pgsql: unknown table');
         }
 
         $pkeys = array();
@@ -182,6 +185,9 @@ class pgsqlDbTools extends jDbTools {
             if(in_array($line->attnum, $pkeys))
                 $field->primary = true;
 
+            if($field->autoIncrement && $sequence && $field->primary)
+                $field->sequence = $sequence;
+
             if($line->attlen == -1 && $line->atttypmod != -1) {
                 $field->length = $line->atttypmod - 4;
                 $field->maxLength = $field->length;
@@ -194,7 +200,11 @@ class pgsqlDbTools extends jDbTools {
     }
 
     public function execSQLScript ($file) {
-        $sqlQueries=file_get_contents($file);
+        if(!isset($this->_conn->profile['table_prefix']))
+            $prefix = '';
+        else
+            $prefix = $this->_conn->profile['table_prefix'];
+        $sqlQueries = str_replace('%%PREFIX%%', $prefix, file_get_contents($file));
         $this->_conn->query ($sqlQueries);
     }
 }

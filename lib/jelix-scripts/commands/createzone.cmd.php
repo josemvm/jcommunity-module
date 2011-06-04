@@ -1,9 +1,9 @@
 <?php
 /**
 * @package     jelix-scripts
-* @author      Jouanneau Laurent
+* @author      Laurent Jouanneau
 * @contributor
-* @copyright   2005-2007 Jouanneau laurent
+* @copyright   2005-2007 Laurent Jouanneau
 * @link        http://www.jelix.org
 * @licence     GNU General Public Licence see LICENCE file or http://www.gnu.org/licenses/gpl.html
 */
@@ -53,12 +53,12 @@ class createzoneCommand extends JelixScriptCommand {
           }else{
              $param['template'] = strtolower($this->_parameters['name']);
           }
-          $this->createFile($path.'templates/'.$param['template'].'.tpl','template.tpl');
+          $this->createFile($path.'templates/'.$param['template'].'.tpl','module/template.tpl');
        }else{
           $param['template'] = '';
        }
 
-       $this->createFile($filename,'zone.tpl',$param);
+       $this->createFile($filename,'module/zone.tpl',$param);
     }
 }
 

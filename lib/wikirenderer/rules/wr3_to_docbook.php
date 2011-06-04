@@ -5,7 +5,7 @@
  * @package WikiRenderer
  * @subpackage rules
  * @author Laurent Jouanneau
- * @copyright 2003-2006 Laurent Jouanneau
+ * @copyright 2003-2010 Laurent Jouanneau
  * @link http://wikirenderer.berlios.de
  *
  * This library is free software; you can redistribute it and/or
@@ -83,6 +83,13 @@ class wr3dbk_code extends WikiTagXhtml {
     protected $name='code';
     public $beginTag='@@';
     public $endTag='@@';
+    public function getContent(){
+        $code = $this->wikiContentArr[0];
+        return '<code>'.htmlspecialchars($code).'</code>';
+    }
+    public function isOtherTagAllowed() {
+        return false;
+    }
 }
 
 class wr3dbk_q extends WikiTagXhtml {
@@ -222,7 +229,7 @@ class wr3dbk_list extends WikiRendererBloc {
       $str='';
 
       for($i=strlen($t); $i >= $this->_firstTagLen; $i--){
-          $str.=($t{$i-1}== '#'?"</listitem></orderedlist>\n":"</listitem></itemizedlist>\n");
+          $str.=($t[$i-1]== '#'?"</listitem></orderedlist>\n":"</listitem></itemizedlist>\n");
       }
       return $str;
    }
@@ -235,7 +242,7 @@ class wr3dbk_list extends WikiRendererBloc {
       if( $d > 0 ){ // on remonte d'un ou plusieurs cran dans la hierarchie...
          $l=strlen($this->_detectMatch[1]);
          for($i=strlen($t); $i>$l; $i--){
-            $str.=($t{$i-1}== '#'?"</listitem></orderedlist>\n":"</listitem></itemizedlist>\n");
+            $str.=($t[$i-1]== '#'?"</listitem></orderedlist>\n":"</listitem></itemizedlist>\n");
          }
          $str.="</listitem>\n<listitem>";
          $this->_previousTag=substr($this->_previousTag,0,-$d); // pour �tre sur...
@@ -405,7 +412,14 @@ class wr3dbk_pre extends WikiRendererBloc {
 
         }else{
             if(preg_match('/^\s*<code>(.*)/',$string,$m)){
-                $this->_detectMatch=$m[1];
+                if(preg_match('/(.*)<\/code>\s*$/',$m[1],$m2)){
+                    $this->_closeNow = true;
+                    $this->_detectMatch=$m2[1];
+                }
+                else {
+                    $this->_closeNow = false;
+                    $this->_detectMatch=$m[1];
+                }
                 return true;
             }else{
                 return false;

@@ -4,7 +4,8 @@
 * @subpackage ldap_driver
 * @author     Tahina Ramaroson
 * @contributor Sylvain de Vathaire
-* @copyright  2009 Neov
+* @contributor Thibaud Fabre, Laurent Jouanneau
+* @copyright  2009 Neov, 2010 Thibaud Fabre, 2011 Laurent Jouanneau
 * @licence  http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public Licence, see LICENCE file
 */
 
@@ -14,17 +15,14 @@
 * @package    jelix
 * @subpackage auth_driver
 */
-class ldapAuthDriver implements jIAuthDriver {
+class ldapAuthDriver extends jAuthDriverBase implements jIAuthDriver {
 
     /**
     * default user attributes list
     * @var array
-    * @access proteced
+    * @access protected
     */
     protected $_default_attributes = array("cn","distinguishedName","name");
-
-
-    protected $_params;
 
     function __construct($params){
 
@@ -32,22 +30,23 @@ class ldapAuthDriver implements jIAuthDriver {
             throw new jException('jelix~auth.ldap.extension.unloaded');
         }
 
-        $this->_params = $params;
+        parent::__construct($params);
 
-        if (!isset($this->_params['hostname']) || $this->_params['hostname'] == '') {
-            $this->_params['hostname'] = 'localhost';
-        }
+        // default ldap parameters
+        $_default_params = array(
+            'hostname'      =>  'localhost',
+            'port'          =>  389,
+            'ldapUser'      =>  null,
+            'ldapPassword'      =>  null,
+            'protocolVersion'   =>  3,
+            'uidProperty'       =>  'cn'
+        );
 
-        if (!isset($this->_params['port']) || $this->_params['port'] == '') {
-            $this->_params['port'] = 389;
-        }
-
-        if (!isset($this->_params['ldapUser']) || $this->_params['ldapUser'] == '') {
-            $this->_params['ldapUser'] = null;
-        }
-
-        if (!isset($this->_params['ldapPassword']) || $this->_params['ldapPassword'] == '') {
-            $this->_params['ldapPassword'] = null;
+        // iterate each default parameter and apply it to actual params if missing in $params.
+        foreach($_default_params as $name => $value) {
+            if (!isset($this->_params[$name]) || $this->_params[$name] == '') {
+                $this->_params[$name] = $value;
+            }
         }
 
         if (!isset($this->_params['searchBaseDN']) || $this->_params['searchBaseDN'] == '') {
@@ -63,7 +62,6 @@ class ldapAuthDriver implements jIAuthDriver {
         } else {
             $this->_params['searchAttributes'] = explode(",", $this->_params['searchAttributes']);
         }
-
     }
 
     public function saveNewUser($user){
@@ -78,14 +76,12 @@ class ldapAuthDriver implements jIAuthDriver {
 
         $entries = $this->getAttributesLDAP($user);
 
-        $connect = ldap_connect($this->_params['hostname'],$this->_params['port']);
+        $connect = $this->_getLinkId();
         $result = false;
         if($connect){
-            ldap_set_option($connect, LDAP_OPT_PROTOCOL_VERSION, 3);
-            ldap_set_option($connect, LDAP_OPT_REFERRALS, 0);
 
             if(ldap_bind($connect, $this->_params['ldapUser'], $this->_params['ldapPassword'])) {
-                $result = ldap_add($connect, 'cn='.$user->login.','.$this->_params['searchBaseDN'], $entries);
+                $result = ldap_add($connect, $this->_buildUserDn($user->login), $entries);
             }
             ldap_close($connect);
         }
@@ -96,15 +92,11 @@ class ldapAuthDriver implements jIAuthDriver {
 
     public function removeUser($login){
 
-        $connect = ldap_connect($this->_params['hostname'], $this->_params['port']);
+        $connect = $this->_getLinkId();
         $result = false;
         if ($connect) {
-
-            ldap_set_option($connect, LDAP_OPT_PROTOCOL_VERSION, 3);
-            ldap_set_option($connect, LDAP_OPT_REFERRALS, 0);
-
             if (ldap_bind($connect, $this->_params['ldapUser'], $this->_params['ldapPassword'])) {
-                $result = ldap_delete($connect, 'cn='.$user->login.','.$this->_params['searchBaseDN']);
+                $result = ldap_delete($connect, $this->_buildUserDn($user->login));
             }
             ldap_close($connect);
         }
@@ -123,14 +115,11 @@ class ldapAuthDriver implements jIAuthDriver {
 
         $entries=$this->getAttributesLDAP($user,true);
 
-        $connect = ldap_connect($this->_params['hostname'], $this->_params['port']);
+        $connect = $this->_getLinkId();
         $result = false;
         if ($connect) {
-            ldap_set_option($connect, LDAP_OPT_PROTOCOL_VERSION, 3);
-            ldap_set_option($connect, LDAP_OPT_REFERRALS, 0);
-
             if (ldap_bind($connect,$this->_params['ldapUser'], $this->_params['ldapPassword'])) {
-                $result = ldap_modify($connect, 'cn='.$user->login.','.$this->_params['searchBaseDN'], $entries);
+                $result = ldap_modify($connect, $this->_buildUserDn($user->login), $entries);
             }
             ldap_close($connect);
         }
@@ -140,14 +129,12 @@ class ldapAuthDriver implements jIAuthDriver {
 
     public function getUser($login){
 
-        $connect = ldap_connect($this->_params['hostname'], $this->_params['port']);
+        $connect = $this->_getLinkId();
 
         if($connect){
-            ldap_set_option($connect, LDAP_OPT_PROTOCOL_VERSION, 3);
-            ldap_set_option($connect, LDAP_OPT_REFERRALS, 0);
 
             if(ldap_bind($connect, $this->_params['ldapUser'], $this->_params['ldapPassword'])) {
-                if (($search = ldap_search($connect, $this->_params['searchBaseDN'], "cn=".$login,$this->_params['searchAttributes']))) {
+                if (($search = ldap_search($connect, $this->_params['searchBaseDN'], $this->_params['uidProperty'].'='.$login,$this->_params['searchAttributes']))) {
                     if (($entry = ldap_first_entry($connect, $search))) {
                         $attributes = ldap_get_attributes($connect, $entry);
                         if($attributes['count']>0){
@@ -184,17 +171,15 @@ class ldapAuthDriver implements jIAuthDriver {
 
         $users = array();
 
-        $connect = ldap_connect($this->_params['hostname'], $this->_params['port']);
+        $connect = $this->_getLinkId();
 
         if ($connect) {
-            ldap_set_option($connect, LDAP_OPT_PROTOCOL_VERSION, 3);
-            ldap_set_option($connect, LDAP_OPT_REFERRALS, 0);
 
             if (ldap_bind($connect, $this->_params['ldapUser'], $this->_params['ldapPassword'])) {
-                $filter = ($pattern != '' && $pattern != '%') ? "(&".$this->_params['searchFilter'] . "(cn={$pattern}))" : $this->_params['searchFilter'] ;
-                
+                $filter = ($pattern != '' && $pattern != '%') ? "(&".$this->_params['searchFilter'] . "({$this->_params['uidProperty']}={$pattern}))" : $this->_params['searchFilter'] ;
+
                 if (($search = ldap_search($connect, $this->_params['searchBaseDN'], $filter, $this->_params['searchAttributes']))) {
-                    ldap_sort($connect, $search,"cn");
+                    ldap_sort($connect, $search, $this->params['uidProperty']);
                     $entry = ldap_first_entry($connect, $search);
                     while ($entry) {
                         $attributes = ldap_get_attributes($connect, $entry);
@@ -219,14 +204,11 @@ class ldapAuthDriver implements jIAuthDriver {
         $entries = array();
         $entries["userpassword"][0] = $this->cryptPassword($newpassword);
 
-        $connect = ldap_connect($this->_params['hostname'], $this->_params['port']);
+        $connect = $connect = $this->_getLinkId();
         $result = false;
         if ($connect) {
-            ldap_set_option($connect, LDAP_OPT_PROTOCOL_VERSION, 3);
-            ldap_set_option($connect, LDAP_OPT_REFERRALS, 0);
-
             if (ldap_bind($connect,$this->_params['ldapUser'], $this->_params['ldapPassword'])) {
-                $result = ldap_mod_replace($connect, 'cn='.$user->login.','.$this->_params['searchBaseDN'], $entries);
+                $result = ldap_mod_replace($connect, $this->_buildUserDn($user->login), $entries);
             }
             ldap_close($connect);
         }
@@ -236,20 +218,16 @@ class ldapAuthDriver implements jIAuthDriver {
 
     public function verifyPassword($login, $password) {
 
-        $connect = ldap_connect($this->_params['hostname'], $this->_params['port']);
+        $connect = $this->_getLinkId();
 
         if ($connect) {
-
-            ldap_set_option($connect, LDAP_OPT_PROTOCOL_VERSION, 3);
-            ldap_set_option($connect, LDAP_OPT_REFERRALS, 0);
-
             //authenticate user
-            $bind = @ldap_bind($connect, "CN=".$login.",".$this->_params['searchBaseDN'], $this->cryptPassword($password));
+            $bind = @ldap_bind($connect, $this->_buildUserDn($login), $this->cryptPassword($password));
 
             if ($bind) {
                 //get connected user infos
                 if (ldap_bind($connect,$this->_params['ldapUser'], $this->_params['ldapPassword'])) {
-                    if (($search = ldap_search($connect, $this->_params['searchBaseDN'], "cn=".$login,$this->_params['searchAttributes']))) {
+                    if (($search = ldap_search($connect, $this->_params['searchBaseDN'], $this->_params['uidProperty'].'='.$login,$this->_params['searchAttributes']))) {
                         if (($entry = ldap_first_entry($connect,$search))) {
                             $attributes = ldap_get_attributes($connect,$entry);
                             if($attributes['count']>0){
@@ -278,7 +256,7 @@ class ldapAuthDriver implements jIAuthDriver {
             switch(strtolower($property)) {
                 case 'login':
                     if (!$update) {
-                        $entries["cn"][0] = $value;
+                        $entries[$this->_params['uidProperty']][0] = $value;
                         $entries["name"][0] = $value;
                     }
                     break;
@@ -311,7 +289,7 @@ class ldapAuthDriver implements jIAuthDriver {
                     case 'mail':
                         $user->email = $attributes[$attribute];
                         break;
-                    case 'cn':
+                    case $this->_params['uidProperty']:
                         $user->login = $attributes[$attribute];
                     default:
                         $user->$attribute = $attributes[$attribute];
@@ -321,13 +299,20 @@ class ldapAuthDriver implements jIAuthDriver {
         }
     }
 
-    protected function cryptPassword($password){
-        if(isset($this->_params['password_crypt_function'])){
-            $f=$this->_params['password_crypt_function'];
-            if( $f != '')
-               $password = $f($password);
+    protected function _buildUserDn($login) {
+        if ($login) {
+            return $this->_params['uidProperty'].'='.$login.",".$this->_params['searchBaseDN'];
         }
-        return $password;
+        return '';
+    }
+
+    protected function _getLinkId() {
+        if ($connect = ldap_connect($this->_params['hostname'], $this->_params['port'])) {
+            ldap_set_option($connect, LDAP_OPT_PROTOCOL_VERSION, $this->_params['protocolVersion']);
+            ldap_set_option($connect, LDAP_OPT_REFERRALS, 0);
+            return $connect;
+        }
+        return false;
     }
 
 }

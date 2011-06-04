@@ -3,9 +3,8 @@
 * @package    jelix
 * @subpackage utils
 * @author     Laurent Jouanneau
-* @contributor
-* @copyright  2008 Laurent Jouanneau
-* @link       http://www.jelix.org
+* @copyright  2008-2010 Laurent Jouanneau
+* @link       http://jelix.org
 * @licence    http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public Licence, see LICENCE file
 */
 
@@ -29,14 +28,20 @@ class jIniMultiFilesModifier {
      */
     protected $overrider;
 
-
     /**
      * load the two ini files
-     * @param string $masterfilename the file to load
+     * @param jIniFileModifier|string $master the master ini file (object or filename)
+     * @param jIniFileModifier|string $overrider the ini file overriding the master ini file (object or filename)
      */
-    function __construct($masterfilename, $overriderFilename) {
-        $this->master = new jIniFileModifier($masterfilename);
-        $this->overrider = new jIniFileModifier($overriderFilename);
+    function __construct($master, $overrider) {
+        if (is_object($master))
+            $this->master = $master;
+        else
+            $this->master = new jIniFileModifier($master);
+        if (is_object($overrider))
+            $this->overrider = $overrider;
+        else
+            $this->overrider = new jIniFileModifier($overrider);
     }
 
     /**
@@ -87,6 +92,31 @@ class jIniMultiFilesModifier {
     public function save() {
         $this->master->save();
         $this->overrider->save();
+    }
+
+    /**
+     * says if the ini content has been modified
+     * @return boolean
+     * @since 1.2
+     */
+    public function isModified() {
+        return $this->master->isModified() || $this->overrider->isModified();
+    }
+
+    /**
+     * @return jIniFileModifier the first ini file
+     * @since 1.2
+     */
+    public function getMaster() {
+        return $this->master;
+    }
+    
+    /**
+     * @return jIniFileModifier the second ini file
+     * @since 1.2
+     */
+    public function getOverrider() {
+        return $this->overrider;
     }
 }
 

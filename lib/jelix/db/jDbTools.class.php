@@ -2,16 +2,16 @@
 /**
 * @package    jelix
 * @subpackage db
-* @author     Croes Gérald, Laurent Jouanneau
+* @author     Gérald Croes, Laurent Jouanneau
 * @contributor Laurent Jouanneau, Gwendal Jouannic, Julien Issler
-* @copyright  2001-2005 CopixTeam, 2005-2006 Laurent Jouanneau
+* @copyright  2001-2005 CopixTeam, 2005-2010 Laurent Jouanneau
 * @copyright  2008 Gwendal Jouannic
 * @copyright  2008 Julien Issler
 *
 * This class was get originally from the Copix project (CopixDbTools, CopixDbConnection, Copix 2.3dev20050901, http://www.copix.org)
 * Some lines of code are still copyrighted 2001-2005 CopixTeam (LGPL licence).
 * Initial authors of this Copix classes are Gerald Croes and Laurent Jouanneau,
-* and this class was adapted/improved for Jelix by Laurent Jouanneau
+* and this class was adapted for Jelix by Laurent Jouanneau
 *
 * @link        http://www.jelix.org
 * @licence     http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public Licence, see LICENCE file
@@ -152,7 +152,7 @@ abstract class jDbTools {
         }
         else 
             $r = $this->typesInfo['varchar'];
-        $r[] = ($nativeType == 'serial' || $nativeType == 'autoincrement' || $nativeType == 'bigautoincrement');
+        $r[] = ($nativeType == 'serial' || $nativeType == 'bigserial' ||$nativeType == 'autoincrement' || $nativeType == 'bigautoincrement');
         return $r;
     }
 
@@ -220,9 +220,13 @@ abstract class jDbTools {
                     return (string)floatval($value);
             default:
                 if ($toPhpSource) {
-                    if(strpos($value,"'") !== false){
+                    if ($unifiedType == 'varbinary' || $unifiedType == 'binary') {
+                        return '\'.$this->_conn->quote2(\''.str_replace('\'','\\\'',$value).'\',true,true).\'';
+                    }
+                    else if(strpos($value,"'") !== false) {
                         return '\'.$this->_conn->quote(\''.str_replace('\'','\\\'',$value).'\').\'';
-                    }else{
+                    }
+                    else {
                         return "\\'".$value."\\'";
                     }
                 }
@@ -241,7 +245,7 @@ abstract class jDbTools {
     public function getBooleanValue($value) {
       if(is_string($value))
           $value = strtolower($value);
-      if ($value =='true' || $value === true || $value =='1'|| $value=='t')
+      if ($value === 'true' || $value === true || intval($value) === 1 || $value === 't' || $value === 'on')
           return $this->trueValue;
       else
           return $this->falseValue;
@@ -263,10 +267,12 @@ abstract class jDbTools {
     abstract public function getTableList ();
 
     /**
-    * return the field list of a given table
-    * @return array  array of jDbFieldProperties
+    * retrieve the list of fields of a table
+    * @param string $tableName the name of the table
+    * @param string $sequence  the sequence used to auto increment the primary key
+    * @return   array    keys are field names and values are jDbFieldProperties objects
     */
-    abstract public function getFieldList ($tableName);
+    abstract public function getFieldList ($tableName, $sequence='');
 
     /**
      * regular expression to detect comments and end of query
@@ -274,6 +280,10 @@ abstract class jDbTools {
     protected $dbmsStyle = array('/^\s*#/', '/;\s*$/');
 
     public function execSQLScript ($file) {
+        if(!isset($this->_conn->profile['table_prefix']))
+            $prefix = '';
+        else
+            $prefix = $this->_conn->profile['table_prefix'];
 
         $lines = file($file);
         $cmdSQL = '';
@@ -285,13 +295,14 @@ abstract class jDbTools {
             if ((!preg_match($style[0],$line))&&(strlen(trim($line))>0)) { // la ligne n'est ni vide ni commentaire
                //$line = str_replace("\\'","''",$line);
                //$line = str_replace($this->scriptReplaceFrom, $this->scriptReplaceBy,$line);
-
+               
                 $cmdSQL.=$line;
 
                 if (preg_match($style[1],$line)) {
                     //Si on est à la ligne de fin de la commande on l'execute
                     // On nettoie la commande du ";" de fin et on l'execute
                     $cmdSQL = preg_replace($style[1],'',$cmdSQL);
+                    $cmdSQL = str_replace('%%PREFIX%%', $prefix, $cmdSQL);
                     $this->_conn->query ($cmdSQL);
                     $nbCmd++;
                     $cmdSQL = '';

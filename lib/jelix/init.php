@@ -4,9 +4,9 @@
 *
 * @package  jelix
 * @subpackage core
-* @author   Jouanneau Laurent
+* @author   Laurent Jouanneau
 * @contributor Loic Mathaud, Julien Issler
-* @copyright 2005-2007 Jouanneau laurent
+* @copyright 2005-2010 Laurent Jouanneau
 * @copyright 2007 Julien Issler
 * @link     http://www.jelix.org
 * @licence  GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
@@ -17,7 +17,7 @@
  * Version number of Jelix
  * @name  JELIX_VERSION
  */
-define ('JELIX_VERSION', '1.2b1pre.1425:1426');
+define ('JELIX_VERSION', '1.2.3pre.1814');
 
 /**
  * base of namespace path used in xml files of jelix
@@ -34,6 +34,8 @@ define ('BYTECODE_CACHE_EXISTS', function_exists('apc_cache_info') || function_e
 
 if(!defined('E_DEPRECATED'))
     define ('E_DEPRECATED',8192);
+if(!defined('E_USER_DEPRECATED'))
+    define ('E_USER_DEPRECATED',16384);
 error_reporting (E_ALL | E_STRICT);
 
 
@@ -92,13 +94,14 @@ $gJConfig = null;
 $gLibPath=array('Db'=>JELIX_LIB_PATH.'db/', 'Dao'=>JELIX_LIB_PATH.'dao/',
  'Forms'=>JELIX_LIB_PATH.'forms/', 'Event'=>JELIX_LIB_PATH.'events/',
  'Tpl'=>JELIX_LIB_PATH.'tpl/', 'Acl'=>JELIX_LIB_PATH.'acl/', 'Controller'=>JELIX_LIB_PATH.'controllers/',
- 'Auth'=>JELIX_LIB_PATH.'auth/', 'Installer'=>JELIX_LIB_PATH.'installer/');
+ 'Auth'=>JELIX_LIB_PATH.'auth/', 'Installer'=>JELIX_LIB_PATH.'installer/',
+ 'KV'=>JELIX_LIB_PATH.'kvdb/');
 
 /**
  * function used by php to try to load an unknown class
  */
 function jelix_autoload($class) {
-    if(preg_match('/^j(Dao|Tpl|Acl|Event|Db|Controller|Forms|Auth|Installer).*/i', $class, $m)){
+    if(preg_match('/^j(Dao|Tpl|Acl|Event|Db|Controller|Forms|Auth|Installer|KV).*/i', $class, $m)){
         $f=$GLOBALS['gLibPath'][$m[1]].$class.'.class.php';
     }elseif(preg_match('/^cDao(?:Record)?_(.+)_Jx_(.+)_Jx_(.+)$/', $class, $m)){
         // for DAO which are stored in sessions for example
@@ -128,3 +131,56 @@ function jelix_autoload($class) {
 }
 
 spl_autoload_register("jelix_autoload");
+
+/**
+ * check if the application is opened. If not, it displays the yourapp/install/closed.html
+ * file with a http error (or lib/jelix/installer/closed.html), and exit.
+ * This function should be called in all entry point, before the creation of the coordinator.
+ * @see jAppManager
+ */
+function checkAppOpened(){
+    if (file_exists(JELIX_APP_CONFIG_PATH.'CLOSED')) {
+        $message = file_get_contents(JELIX_APP_CONFIG_PATH.'CLOSED');
+
+        if (php_sapi_name() == 'cli') {
+            echo "Application closed.". ($message?"\n$message\n":"\n");
+            exit(1);
+        }
+
+        if (file_exists(JELIX_APP_PATH.'install/closed.html')) {
+            $file = JELIX_APP_PATH.'install/closed.html';
+        }
+        else
+            $file = JELIX_LIB_PATH.'installer/closed.html';
+
+        header("HTTP/1.1 500 Application not available");
+        header('Content-type: text/html');
+        echo str_replace('%message%', $message, file_get_contents($file));
+        exit(1);
+    }
+}
+
+
+/**
+ * check if the application is not installed. If the app is installed, an
+ * error message appears and the scripts ends.
+ * It should be called only by some scripts
+ * like an installation wizard, not by entry point.
+ */
+function checkAppNotInstalled() {
+    if (isAppInstalled()) {
+         if (php_sapi_name() == 'cli') {
+            echo "Application is installed. The script cannot be runned.\n";
+        }
+        else {
+            header("HTTP/1.1 500 Application not available");
+            header('Content-type: text/plain');
+            echo "Application is installed. The script cannot be runned.\n";
+        }
+        exit(1);
+    }
+}
+
+function isAppInstalled() {
+    return file_exists(JELIX_APP_CONFIG_PATH.'installer.ini.php');
+}

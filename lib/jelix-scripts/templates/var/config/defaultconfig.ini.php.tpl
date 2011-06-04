@@ -2,6 +2,9 @@
 ;for security reasons , don't remove or modify the first line
 ;this file doesn't list all possible properties. See lib/jelix/core/defaultconfig.ini.php for that
 
+startModule = "%%modulename%%"
+startAction = "default:index"
+
 locale = "%%default_locale%%"
 charset = "UTF-8"
 
@@ -14,19 +17,30 @@ pluginsPath = app:plugins/,lib:jelix-plugins/
 
 modulesPath = lib:jelix-modules/,app:modules/
 
-; says if jelix should check trustedModules
-checkTrustedModules = off
+; default domain name to use with jfullurl for example.
+; Let it empty to use $_SERVER['SERVER_NAME'] value instead.
+domainName =
 
-; list of modules which can be accessed from the web
-;    module,module,module
-trustedModules =
 
-; list of modules which are not used by the application
-; or not installed.
-unusedModules = jacldb
+[modules]
+; modulename.access = x where x =
+; 0 if installed but not used (database schema is ok for example)
+; 1 if accessible by other modules (other modules can use it, but it is not accessible directly through the web)
+; 2 if public (accessible through the web)
+
+jelix.access = 2
+
+; jacldb is deprecated. keep it uninstall if possible. install jacl2db instead
+jacldb.access = 0
+
+jacl2db.access = 0
+jauth.access = 0
+jauthdb.access = 0
+junittests.access = 0
+jWSDL.access = 0
 
 [coordplugins]
-;nom = nom_fichier_ini
+;name = file_ini_name or 1
 
 [tplplugins]
 defaultJformsBuilder = html
@@ -35,26 +49,25 @@ defaultJformsBuilder = html
 html=myHtmlResponse
 
 [error_handling]
-messageLogFormat = "%date%\t[%code%]\t%msg%\t%file%\t%line%\n"
-logFile = error.log
-email = root@localhost
-emailHeaders = "Content-Type: text/plain; charset=UTF-8\nFrom: webmaster@yoursite.com\nX-Mailer: Jelix\nX-Priority: 1 (Highest)\n"
-quietMessage="Une erreur technique est survenue. Désolé pour ce désagrément."
+;messageLogFormat = "%date%\t%url%\n\t[%code%]\t%msg%\t%file%\t%line%\n"
+;logFile = error.log
+;email = root@localhost
+;emailHeaders = "Content-Type: text/plain; charset=UTF-8\nFrom: webmaster@yoursite.com\nX-Mailer: Jelix\nX-Priority: 1 (Highest)\n"
+;quietMessage="An error occured. Sorry for the inconvenience."
 
-; mots clés que vous pouvez utiliser : ECHO, ECHOQUIET, EXIT, LOGFILE, SYSLOG, MAIL, TRACE
-default      = ECHO EXIT
-error        = ECHO EXIT
-warning      = ECHO
-notice       = ECHO
-strict       = ECHO
-; pour les exceptions, il y a implicitement un EXIT
-exception    = ECHO
+; on a production server :
+; keywords you can use: ECHO, ECHOQUIET, EXIT, LOGFILE, SYSLOG, MAIL, TRACE
+;default      = ECHOQUIET LOGFILE TRACE EXIT
+;error        = ECHOQUIET LOGFILE TRACE EXIT
+;warning      = ECHOQUIET LOGFILE TRACE
+;notice       = ECHOQUIET
+;strict       =
+;deprecated   = 
+;exception    = ECHOQUIET LOGFILE TRACE EXIT
 
-
-
-[compilation]
-checkCacheFiletime  = on
-force  = off
+;[compilation]
+;checkCacheFiletime  = on
+;force  = off
 
 [urlengine]
 ; name of url engine :  "simple", "basic_significant" or "significant"
@@ -103,6 +116,7 @@ simple_urlengine_https =
 ; script_name_without_suffix = "list of action selectors separated by a space"
 ; selector syntax :
 ;   m~a@r    -> for the action "a" of the module "m" and for the request of type "r"
+;   m~c:*@r  -> for all actions of the controller "c" of the module "m" and for the request of type "r"
 ;   m~*@r    -> for all actions of the module "m" and for the request of type "r"
 ;   @r       -> for all actions for the request of type "r"
 
@@ -124,7 +138,8 @@ default=messages.log
 webmasterEmail = root@localhost
 webmasterName =
 
-; how to send mail : "mail" (mail()), "sendmail" (call sendmail), or "smtp" (send directly to a smtp)
+; How to send mail : "mail" (mail()), "sendmail" (call sendmail), "smtp" (send directly to a smtp)
+;                   or "file" (store the mail into a file, in filesDir directory)
 mailerType = mail
 ; Sets the hostname to use in Message-Id and Received headers
 ; and as default HELO string. If empty, the value returned
@@ -160,31 +175,33 @@ smtpTimeout = 10
 driver =
 
 [sessions]
-; to disable sessions, set the following parameter to 0
-start = 1
-; You can change the session name by setting the following parameter (only accepts alpha-numeric chars) :
-; name = "mySessionName"
+; If several applications are installed in the same documentRoot but with
+; a different basePath, shared_session indicates if these application
+; share the same php session
+shared_session = off
+
+; indicate a session name for each applications installed with the same
+; domain and basePath, if their respective sessions shouldn't be shared
+name=
+
 ; Use alternative storage engines for sessions
-;
-; usage :
-;
-; storage = "files"
-; files_path = "app:var/sessions/"
+;storage = "files"
+;files_path = "app:var/sessions/"
 ;
 ; or
 ;
-; storage = "dao"
-; dao_selector = "jelix~jsession"
-; dao_db_profile = ""
+;storage = "dao"
+;dao_selector = "jelix~jsession"
+;dao_db_profile = ""
 
 
 [forms]
 ; define input type for datetime widgets : "textboxes" or "menulists"
-controls.datetime.input = "menulists"
+;controls.datetime.input = "menulists"
 ; define the way month labels are displayed widgets: "numbers", "names" or "shortnames"
-controls.datetime.months.labels = "names"
+;controls.datetime.months.labels = "names"
 ; define the default config for datepickers in jforms
-datepicker = default
+;datepicker = default
 
 [datepickers]
-default = jelix/js/jforms/datepickers/default/init.js
+;default = jelix/js/jforms/datepickers/default/init.js

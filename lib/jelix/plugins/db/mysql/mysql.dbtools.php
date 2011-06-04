@@ -2,9 +2,9 @@
 /**
 * @package    jelix
 * @subpackage db_driver
-* @author     Croes Gérald, Laurent Jouanneau
+* @author     Gérald Croes, Laurent Jouanneau
 * @contributor Laurent Jouanneau
-* @copyright  2001-2005 CopixTeam, 2005-2009 Laurent Jouanneau
+* @copyright  2001-2005 CopixTeam, 2005-2010 Laurent Jouanneau
 * This class was get originally from the Copix project (CopixDbToolsMysql, Copix 2.3dev20050901, http://www.copix.org)
 * Some lines of code are copyrighted 2001-2005 CopixTeam (LGPL licence).
 * Initial authors of this Copix class are Gerald Croes and Laurent Jouanneau,
@@ -45,7 +45,7 @@ class mysqlDbTools extends jDbTools {
       'number'          =>array('real',             'decimal',  null,       null,       null,     null), //8bytes
       'binary_float'    =>array('float',            'float',    null,       null,       null,     null), //4bytes
       'binary_double'   =>array('real',             'decimal',  null,       null,       null,     null), //8bytes
-      
+
       'numeric'         =>array('numeric',          'numeric',  null,       null,       null,     null),
       'decimal'         =>array('decimal',          'decimal',  null,       null,       null,     null),
       'dec'             =>array('decimal',          'decimal',  null,       null,       null,     null),
@@ -78,13 +78,13 @@ class mysqlDbTools extends jDbTools {
       'nclob'           =>array('longtext',   'text',       null,       null,       0,     0),
 
 
-      'tinyblob'        =>array('tinyblob',   'blob',       null,       null,       0,     255),
-      'blob'            =>array('blob',       'blob',       null,       null,       0,     65535),
-      'mediumblob'      =>array('mediumblob', 'blob',       null,       null,       0,     16777215),
-      'longblob'        =>array('longblob',   'blob',       null,       null,       0,     0),
-      'bfile'           =>array('longblob',   'blob',       null,       null,       0,     0),
-      
-      'bytea'           =>array('longblob',   'blob',       null,       null,       0,     0),
+      'tinyblob'        =>array('tinyblob',   'varbinary',  null,       null,       0,     255),
+      'blob'            =>array('blob',       'varbinary',  null,       null,       0,     65535),
+      'mediumblob'      =>array('mediumblob', 'varbinary',  null,       null,       0,     16777215),
+      'longblob'        =>array('longblob',   'varbinary',  null,       null,       0,     0),
+      'bfile'           =>array('longblob',   'varbinary',  null,       null,       0,     0),
+
+      'bytea'           =>array('longblob',   'varbinary',  null,       null,       0,     0),
       'binary'          =>array('binary',     'binary',     null,       null,       0,     255),
       'varbinary'       =>array('varbinary',  'varbinary',  null,       null,       0,     255),
       'raw'             =>array('varbinary',  'varbinary',  null,       null,       0,     2000),
@@ -114,7 +114,7 @@ class mysqlDbTools extends jDbTools {
     }
 
     /**
-    * returns the list of tables 
+    * returns the list of tables
     * @return   array    list of table names
     */
     public function getTableList () {
@@ -124,7 +124,7 @@ class mysqlDbTools extends jDbTools {
         }
         else if (isset($this->_conn->profile['dsn'])
                  && preg_match('/dbname=([a-z0-9_ ]*)/', $this->_conn->profile['dsn'], $m)){
-            $db = $m[1];  
+            $db = $m[1];
         }
         else {
             throw new jException("jelix~error.no.database.name", $this->_conn->profile['name']);
@@ -141,9 +141,12 @@ class mysqlDbTools extends jDbTools {
 
     /**
     * retrieve the list of fields of a table
+    * @param string $tableName the name of the table
+    * @param string $sequence  the sequence used to auto increment the primary key (not supported here)
     * @return   array    keys are field names and values are jDbFieldProperties objects
     */
-    public function getFieldList ($tableName) {
+    public function getFieldList ($tableName, $sequence='') {
+
         $tableName = $this->_conn->prefixTable($tableName);
         $results = array ();
 
@@ -183,9 +186,14 @@ class mysqlDbTools extends jDbTools {
         }
         return $results;
     }
-    
+
     public function execSQLScript ($file) {
-        $queries = $this->parseSQLScript(file_get_contents($file));
+        if(!isset($this->_conn->profile['table_prefix']))
+            $prefix = '';
+        else
+            $prefix = $this->_conn->profile['table_prefix'];
+        $sqlQueries = str_replace('%%PREFIX%%', $prefix, file_get_contents($file));
+        $queries = $this->parseSQLScript($sqlQueries);
         foreach($queries as $query)
             $this->_conn->exec($query);
         return count($queries);
@@ -207,7 +215,7 @@ class mysqlDbTools extends jDbTools {
             $preg.='|'.preg_quote($dd);
         }
 
-        $tokens = preg_split('!(\'|"|\\\\|`|DELIMITER |#|/\\*|\\*/|\\-\\- |'."\n".$preg.')!i', $script, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+        $tokens = preg_split('!(\'|"|\\\\|`|DELIMITER |#|/\\*|\\*/|\\-\\-(?=\s)|'."\n".$preg.')!i', $script, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
         $currentDelimiter = ';';
         $context = 0;
@@ -221,7 +229,9 @@ class mysqlDbTools extends jDbTools {
                 $previousToken = $token;
                 switch($token) {
                 case $currentDelimiter:
-                    $queries[] = trim($query);
+                    if (preg_replace("/\s/","",$query) != '') {
+                        $queries[] = trim($query);
+                    }
                     $query = '';
                     break;
                 case '\'':
@@ -243,7 +253,7 @@ class mysqlDbTools extends jDbTools {
                     $context = 6;
                     break;
                 case '#':
-                case '-- ':
+                case '--':
                     $context = 4;
                     break;
                 case '/*':
@@ -305,7 +315,7 @@ class mysqlDbTools extends jDbTools {
             // 4 : comment single line
             case 4:
                 if ($token == "\n") {
-                    $query.=$token;
+                    //$query.=$token;
                     $context = 0;
                 }
                 break;
@@ -321,12 +331,11 @@ class mysqlDbTools extends jDbTools {
                 $context = 0;
                 break;
             }
-            
+
         }
-        if (trim($query) != '')
+        if (preg_replace("/\s/","",$query) != '') {
             $queries[] = trim($query);
+        }
         return $queries;
     }
 }
-
-

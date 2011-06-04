@@ -3,11 +3,12 @@
 * @package     jelix
 * @subpackage  core_url
 * @author      Laurent Jouanneau
-* @contributor Thibault PIRONT < nuKs >
+* @contributor Thibault Piront (nuKs)
 * @contributor Loic Mathaud
-* @copyright   2005-2008 Laurent Jouanneau
-* @copyright   2007 Thibault PIRONT
-* @copyright   2006 Loic Mathaud
+* @contributor Hadrien Lanneau
+* @copyright   2005-2010 Laurent Jouanneau
+* @copyright   2007 Thibault Piront
+* @copyright   2006 Loic Mathaud, 2010 Hadrien Lanneau
 * Some parts of this file are took from an experimental branch of the Copix project (CopixUrl.class.php, Copix 2.3dev20050901, http://www.copix.org),
 * Some lines of code are still copyrighted 2001-2005 CopixTeam (LGPL licence).
 * Initial authors of this parts are Gerald Croes and Laurent Jouanneau,
@@ -24,7 +25,7 @@
  * @author      Laurent Jouanneau (for the original code from Copix and enhancement for jelix)
  * @author      Gerald Croes (for the original code from Copix)
  * @contributor Loic Mathaud
- * @contributor Thibault PIRONT < nuKs >
+ * @contributor Thibault Piront (nuKs)
  */
 class jUrl extends jUrlBase {
 
@@ -93,14 +94,15 @@ class jUrl extends jUrlBase {
      * @since 1.0.4
      */
     public function getQuery($forxml = false) {
-        $url = '';
         if (count ($this->params)>0){
             $q = http_build_query($this->params, '', ($forxml?'&amp;':'&'));
+            if(!$q)
+                return '';
             if(strpos($q, '%3A')!==false)
                 $q = str_replace( '%3A', ':', $q);
-            $url .='?'.$q;
+            return '?'.$q;
         }
-        return $url;
+        return '';
     }
 
     //============================== static helper methods
@@ -154,7 +156,7 @@ class jUrl extends jUrlBase {
     */
     static function get ($actSel, $params = array (), $what=0) {
 
-        $sel = new jSelectorAct($actSel,true);
+        $sel = new jSelectorAct($actSel,true, true);
         $params['module'] = $sel->module;
         $params['action'] = $sel->resource;
         $ua = new jUrlAction($params, $sel->request);
@@ -166,6 +168,39 @@ class jUrl extends jUrlBase {
         if($what == 2) return $url;
 
         return $url->toString($what != 0);
+    }
+
+    /**
+    * Gets the absolute url corresponding to an action, in the given format with
+    * the domainName in defaultConfig or current
+    * @param string $actSel  action selector. You can use # instead of the module
+    *                or the action name, to specify the current url.
+    * @param array $params associative array with the parameters
+    * @param integer $what the format you want : only jUrl::STRING or jUrl::XMLSTRING
+    * @param string $domainName Customized domain name
+    * @return string the url string
+    */
+    static function getFull ($actSel, $params = array (), $what=0, $domainName = null) {
+        global $gJConfig;
+
+        if ($domainName) {
+            $domain = $domainName;
+        }
+        elseif ($gJConfig->domainName != '') {
+            $domain = $gJConfig->domainName;
+        }
+        elseif (isset($_SERVER['HTTP_HOST'])) {
+            $domain = $_SERVER['HTTP_HOST'];
+        }
+        else {
+            throw new jException('jelix~errors.urls.domain.void');
+        }
+
+        if (!preg_match('/^http/', $domain)) {
+            $domain = $GLOBALS['gJCoord']->request->getProtocol().$domain;
+        }
+
+        return $domain . self::get($actSel, $params, ($what != self::XMLSTRING?self::STRING:$what));
     }
 
     /**
@@ -206,12 +241,18 @@ class jUrl extends jUrlBase {
                 $url_escape_from = explode(' ',jLocale::get('jelix~format.url_escape_from'));
                 $url_escape_to = explode(' ',jLocale::get('jelix~format.url_escape_to'));
             }
+            // first, we do transliteration.
+            // we don't use iconv because it is system dependant
             // we don't use strtr because it is not utf8 compliant
-            $str=str_replace($url_escape_from, $url_escape_to, $str); // supprime les caractères accentués, et les quotes, doubles quotes
-            $str=preg_replace("/([^\w])/"," ",$str); // remplace tout ce qui n'est pas lettre par un espace
-            //$str=preg_replace("/(?<=\s)\w{1,2}(?=\s)/"," ",$str); // enleve les mots de moins de 2 lettres
-            $str=preg_replace("/( +)/","-",trim($str)); // on remplace les espaces et groupes d'espaces par -
-            $str=strtolower($str); // on met en minuscule
+            $str = str_replace($url_escape_from, $url_escape_to, $str);
+            // then we replace all non word characters by a space
+            $str = preg_replace("/([^\w])/"," ",$str);
+            // then we remove words of 2 letters
+            //$str=preg_replace("/(?<=\s)\w{1,2}(?=\s)/"," ",$str);
+            // then we replace all spaces by a -
+            $str = preg_replace("/( +)/","-",trim($str));
+            // we convert all character to lower case
+            $str = strtolower($str);
             return $str;
         }else{
             return urlencode (str_replace (array ('-', ' '), array ('--','-'), $str));
