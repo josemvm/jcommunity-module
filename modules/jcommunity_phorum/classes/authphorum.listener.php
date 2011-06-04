@@ -17,7 +17,7 @@ class authphorumListener extends jEventListener{
    protected $phorumPath = '';
 
    protected $enable = false;
-   
+
    protected function getDaoName() {
       global $gJCoord;
       $plugin = $gJCoord->getPlugin('auth');
@@ -39,7 +39,10 @@ class authphorumListener extends jEventListener{
          return;
       }
       $this->enable = true;
-      $this->phorumPath = JELIX_APP_WWW_PATH.$plugin->config['phorumPathInWWW'];
+      if (defined('JELIX_APP_WWW_PATH')) // for Jelix 1.2 and older
+         $this->phorumPath = JELIX_APP_WWW_PATH.$plugin->config['phorumPathInWWW'];
+      else
+         $this->phorumPath = jApp::wwwPath($plugin->config['phorumPathInWWW']);
       $this->currentDir = getcwd();
 
       chdir($this->phorumPath);
@@ -103,16 +106,16 @@ class authphorumListener extends jEventListener{
             $phuser['real_name'] = $user->nickname;
             $phuser['email'] = $user->email;
             $phuser['active'] = PHORUM_USER_PENDING_EMAIL;
-            break;         
+            break;
       }
 
       phorum_api_user_save_raw($phuser);
    }
-   
+
    function onAuthCanRemoveUser($event) {
       $event->add(array('canremove'=>true));
    }
-   
+
    function onAuthRemoveUser($event) {
       $user = $event->getParam('user');
       phorum_api_user_delete($user->id);
@@ -123,7 +126,7 @@ class authphorumListener extends jEventListener{
       $persistence = $event->getParam('persistence');
       $user = jDao::get($this->getDaoName())->getByLogin($login);
       phorum_api_user_set_active_user(PHORUM_FORUM_SESSION, $user->id, ($persistence?0:PHORUM_FLAG_SESSION_ST));
-      
+
       global $PHORUM;
       $PHORUM['use_cookies'] = PHORUM_REQUIRE_COOKIES;
       phorum_api_user_session_create(PHORUM_FORUM_SESSION);
@@ -142,15 +145,15 @@ class authphorumListener extends jEventListener{
    function onjcommunity_init_edit_form_account($event) {
       //data: $user, $form
    }
-   
+
    function onjcommunity_prepare_edit_account($event) {
       //data: $user, $form
    }
-   
+
    function onjcommunity_edit_account($event) {
       //data: $user, $rep, $form, $tpl
    }
-   
+
    function onjcommunity_check_before_save_account($event) {
       //data: $user, $form
    }
@@ -175,4 +178,3 @@ class authphorumListener extends jEventListener{
       //data: $user
    }*/
 }
-
