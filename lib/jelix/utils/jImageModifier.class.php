@@ -129,6 +129,7 @@ class jImageModifier {
 
         // paths & uri
         global $gJConfig;
+
         list($srcPath, $srcUri, $cachePath, $cacheUri) = self::computeUrlFilePath($config);
 
         // apply transforms if necessary (serve directly or from cache otherwise)
@@ -177,12 +178,12 @@ class jImageModifier {
             if ($srcUri[0] != '/' && strpos($srcUri, 'http:') !== 0)
                 $srcUri = $basePath.$srcUri;
             $srcPath = str_replace(array('www:','app:'),
-                                     array(JELIX_APP_WWW_PATH, JELIX_APP_PATH),
+                                     array(jApp::wwwPath(), jApp::appPath()),
                                      $config['src_path']);
         }
         else {
             $srcUri = $GLOBALS['gJCoord']->request->getProtocol().$_SERVER['HTTP_HOST'].$basePath;
-            $srcPath = JELIX_APP_WWW_PATH;
+            $srcPath = jApp::wwwPath();
         }
 
         if ($config['cache_path'] && $config['cache_url']) {
@@ -190,11 +191,11 @@ class jImageModifier {
             if ($cacheUri[0] != '/' && strpos($cacheUri, 'http:') !== 0)
                 $cacheUri = $basePath.$cacheUri;
             $cachePath = str_replace(array('www:','app:'),
-                                     array(JELIX_APP_WWW_PATH, JELIX_APP_PATH),
+                                     array(jApp::wwwPath(), jApp::appPath()),
                                      $config['cache_path']);
         }
         else {
-            $cachePath = JELIX_APP_WWW_PATH.'cache/images/';
+            $cachePath = jApp::wwwPath('cache/images/');
             $cacheUri = $GLOBALS['gJCoord']->request->getProtocol().$_SERVER['HTTP_HOST'].$basePath.'cache/images/';
         }
         return array($srcPath, $srcUri, $cachePath, $cacheUri);
@@ -214,6 +215,7 @@ class jImageModifier {
 
         $path_parts = pathinfo($srcFs);
         $mimeType = self::$mimes[strtolower($path_parts['extension'])];
+
         $quality = (!empty($params['quality']))?  $params['quality'] : 100;
 
         // Creating an image

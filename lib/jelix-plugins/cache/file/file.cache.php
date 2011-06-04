@@ -87,7 +87,7 @@ class fileCacheDriver implements jICacheDriver {
 
     public function __construct($params){
 
-        $this->profil_name = $params['profile'];
+        $this->profil_name = $params['_name'];
 
         if(isset($params['enabled'])){
             $this->enabled = ($params['enabled'])?true:false;
@@ -97,7 +97,7 @@ class fileCacheDriver implements jICacheDriver {
             $this->ttl = $params['ttl'];
         }
 
-        $this->_cache_dir = JELIX_APP_TEMP_PATH.'cache/'.$this->profil_name.'/';
+        $this->_cache_dir = jApp::tempPath('cache/').$this->profil_name.'/';
         if(isset($params['cache_dir']) && $params['cache_dir']!=''){
             if (is_dir($params['cache_dir']) && is_writable($params['cache_dir'])) {
                 $this->_cache_dir = rtrim(realpath($params['cache_dir']), '\\/') . DIRECTORY_SEPARATOR;

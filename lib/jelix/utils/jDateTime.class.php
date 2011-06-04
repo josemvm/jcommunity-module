@@ -8,7 +8,7 @@
 * @contributor Florian Hatat
 * @contributor Emmanuel Hesry
 * @contributor Hadrien Lanneau <hadrien@over-blog.com>
-* @copyright   2005-2008 Laurent Jouanneau
+* @copyright   2005-2011 Laurent Jouanneau
 * @copyright   2007 Loic Mathaud
 * @copyright   2007-2008 Florian Hatat
 * @copyright   2001-2005 CopixTeam, GeraldCroes, Laurent Jouanneau
@@ -25,8 +25,8 @@
 * @licence     http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public Licence, see LICENCE file
 */
 
-#if PHP50
-if(!function_exists('strptime')){ // existe depuis php 5.1
+// on windows plateform, this function doesn't exist.
+if(!function_exists('strptime')){
     /**
      * @ignore
      */
@@ -66,12 +66,13 @@ if(!function_exists('strptime')){ // existe depuis php 5.1
         return false;
     }
 }
-#endif
+
 
 /**
  * Utility to manipulate dates and convert date format
  * @package     jelix
  * @subpackage  utils
+ * @todo PHP53 : replace the use of strptime by date_parse_from_format
  */
 class jDateTime {
     public $day;

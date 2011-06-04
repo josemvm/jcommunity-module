@@ -4,7 +4,7 @@
 * @subpackage auth
 * @author     Laurent Jouanneau
 * @contributor Frédéric Guillot, Antoine Detante, Julien Issler, Dominique Papin, Tahina Ramaroson, Sylvain de Vathaire, Vincent Viaud
-* @copyright  2001-2005 CopixTeam, 2005-2008 Laurent Jouanneau, 2007 Frédéric Guillot, 2007 Antoine Detante
+* @copyright  2001-2005 CopixTeam, 2005-2010 Laurent Jouanneau, 2007 Frédéric Guillot, 2007 Antoine Detante
 * @copyright  2007-2008 Julien Issler, 2008 Dominique Papin, 2010 NEOV, 2010 BP2I
 *
 * This classes were get originally from an experimental branch of the Copix project (Copix 2.3dev, http://www.copix.org)
@@ -54,16 +54,10 @@ class jAuth {
         static $driver = null;
         if($driver == null){
             $config = self::_getConfig();
-            global $gJConfig;
             $db = strtolower($config['driver']);
-            if(!isset($gJConfig->_pluginsPathList_auth)
-                || !isset($gJConfig->_pluginsPathList_auth[$db])
-                || !file_exists($gJConfig->_pluginsPathList_auth[$db]) )
+            $driver = jApp::loadPlugin($db, 'auth', '.auth.php', $config['driver'].'AuthDriver', $config[$config['driver']]);
+            if(is_null($driver))
                 throw new jException('jelix~auth.error.driver.notfound',$db);
-
-            require_once($gJConfig->_pluginsPathList_auth[$db].$db.'.auth.php');
-            $dname = $config['driver'].'AuthDriver';
-            $driver = new $dname($config[$config['driver']]);
         }
         return $driver;
     }
@@ -332,15 +326,45 @@ class jAuth {
     }
 
     /**
-     * generate a password with random letter or number
+     * generate a password with random letters, numbers and special characters
      * @param int $length the length of the generated password
      * @return string the generated password
      */
-    public static function getRandomPassword($length = 10){
-        $letter = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    public static function getRandomPassword($length = 10, $withoutSpecialChars = false){
+        if ($length < 10)
+            $length = 10;
+        $nbNumber = floor($length/4);
+        if ($nbNumber < 2)
+            $nbNumber = 2;
+        if ($withoutSpecialChars)
+            $nbSpec = 0;
+        else {
+            $nbSpec = floor($length/5);
+            if ($nbSpec < 1)
+                $nbSpec = 1;
+        }
+
+        $nbLower = floor(($length-$nbNumber-$nbSpec)/2);
+        $nbUpper = $length-$nbNumber-$nbUpper-$nbSpec;
+
         $pass = '';
-        for($i=0;$i<$length;$i++)
-            $pass .= $letter[rand(0,61)];
-        return $pass;
+
+        $letter = "1234567890";
+        for($i=0;$i<$nbNumber;$i++)
+            $pass .= $letter[rand(0,9)];
+
+        $letter = '!@#$%^&*?_,~';
+        for($i=0;$i<$nbSpec;$i++)
+            $pass .= $letter[rand(0,11)];
+
+        $letter = "abcdefghijklmnopqrstuvwxyz";
+        for($i=0;$i<$nbLower;$i++)
+            $pass .= $letter[rand(0,25)];
+
+        $letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for($i=0;$i<$nbUpper;$i++)
+            $pass .= $letter[rand(0,25)];
+
+        return str_shuffle($pass);
     }
 }

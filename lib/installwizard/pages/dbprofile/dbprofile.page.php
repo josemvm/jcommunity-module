@@ -35,7 +35,7 @@ class dbprofileWizPage extends installWizardPage {
         if (count($ignoreProfiles)) {
             $newsections = array();
             foreach($sections as $profile) {
-                if(!in_array($profile, $ignoreProfiles))
+                if(!in_array(substr($profile,4), $ignoreProfiles))
                     $newsections[] = $profile;
             }
             $tpl->assign('profiles', $newsections);
@@ -74,7 +74,7 @@ class dbprofileWizPage extends installWizardPage {
 
     function process() {
 
-        $ini = new jIniFileModifier(JELIX_APP_CONFIG_PATH.'dbprofils.ini.php');
+        $ini = new jIniFileModifier(jApp::configPath('profiles.ini.php'));
         $hasErrors = false;
         $_SESSION['dbprofiles']['data'] = $_POST;
 
@@ -85,13 +85,14 @@ class dbprofileWizPage extends installWizardPage {
             $usepdo = false;
             if(substr($driver, -4) == '_pdo') {
                 $ini->setValue('usepdo', true, $profile);
-                $usepdo =true;
+                $usepdo = true;
                 $realdriver = substr($driver, 0, -4);
             }
             else {
                 $ini->removeValue('usepdo', $profile);
                 $realdriver = $driver;
             }
+            $ini->removeValue('dsn', $profile);
 
             if(isset($_POST['persistent'][$profile]) && $_POST['persistent'][$profile] == 'on') {
                 $ini->setValue('persistent', true, $profile);
@@ -144,7 +145,8 @@ class dbprofileWizPage extends installWizardPage {
                 }
 
                 $password = trim($_POST['password'][$profile]);
-                if ($password == '') {
+                $passwordRequired =  (isset($this->config['passwordRequired']) && $this->config['passwordRequired']);
+                if ($password == '' && $passwordRequired) {
                     $errors[] = $this->locales['error.missing.password'];
                 }
                 else {
@@ -152,7 +154,7 @@ class dbprofileWizPage extends installWizardPage {
                      $params['password'] = $password;
                 }
 
-                if ($_POST['passwordconfirm'][$profile] != $password) {
+                if (trim($_POST['passwordconfirm'][$profile]) != $password) {
                     $errors[] = $this->locales['error.invalid.confirm.password'];
                 }
 
@@ -163,12 +165,11 @@ class dbprofileWizPage extends installWizardPage {
                         $ini->setValue('search_path', $search_path, $profile);
                     }
                 }
-
             }
 
             if (!count($errors)) {
                 try {
-                    if ($ini->getValue('usepdo', $profile)) {
+                    if ($usepdo) {
                         $m = 'check_PDO';
                     }
                     else {
@@ -196,19 +197,19 @@ class dbprofileWizPage extends installWizardPage {
     }
 
     protected function loadProfiles () {
-        $file = JELIX_APP_CONFIG_PATH.'dbprofils.ini.php';
+        $file = jApp::configPath('profiles.ini.php');
 
         if (file_exists($file)) {
 
         }
-        elseif (file_exists(JELIX_APP_CONFIG_PATH.'dbprofils.ini.php.dist')) {
-             copy(JELIX_APP_CONFIG_PATH.'dbprofils.ini.php.dist', $file);
+        elseif (file_exists(jApp::configPath('profiles.ini.php.dist'))) {
+             copy(jApp::configPath('profiles.ini.php.dist'), $file);
         }
         else {
             file_put_contents($file, ";<?php die(''); ?>
 ;for security reasons, don't remove or modify the first line
 
-[default]
+[jdb:default]
 driver=mysql
 database=
 host=localhost
@@ -237,7 +238,12 @@ table_prefix=
         );
 
         $profiles = $ini->getSectionList();
+        $dbprofileslist = array();
         foreach($profiles as $profile) {
+            if (strpos($profile,'jdb:') !== 0)
+                continue;
+            $dbprofileslist[] = $profile;
+
             $driver = $ini->getValue('driver', $profile);
             if ($driver == 'pdo') {
                 $dsn = $ini->getValue('dsn', $profile);
@@ -287,7 +293,7 @@ table_prefix=
             $data['errors'][$profile] = array();
         }
 
-        $_SESSION['dbprofiles']['profiles'] = $profiles;
+        $_SESSION['dbprofiles']['profiles'] = $dbprofileslist;
         $_SESSION['dbprofiles']['data'] = $data;
     }
 
@@ -383,7 +389,7 @@ table_prefix=
         if(!function_exists('sqlite_open')) {
             throw new Exception($this->locales['error.extension.sqlite.not.installed']);
         }
-        if ($cnx = @sqlite_open (JELIX_APP_VAR_PATH. 'db/sqlite/'.$params['database'])) {
+        if ($cnx = @sqlite_open (jApp::varPath('db/sqlite/'.$params['database']))) {
             sqlite_close($cnx);
         }
         else {
@@ -415,5 +421,5 @@ table_prefix=
         $pdo = new PDO($dsn, $user, $password, $params);
         $pdo = null;
     }
-    
+
 }

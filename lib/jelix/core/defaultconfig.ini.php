@@ -14,14 +14,12 @@ timeZone =
 pluginsPath = app:plugins/
 modulesPath = lib:jelix-modules/,app:modules/
 
-dbProfils = dbprofils.ini.php
-
-cacheProfiles = cache.ini.php
-
 ; default domain name to use with jfullurl for example.
 ; Let it empty to use $_SERVER['SERVER_NAME'] value instead.
 domainName =
 
+; the locale to fallback when the asked string doesn't exist in the current locale
+fallbackLocale =
 
 ; ---  don't set the following options to on, except if you know what you do
 
@@ -47,6 +45,7 @@ defaultJformsBuilder = html
 
 [responses]
 html = jResponseHtml
+basichtml = jResponseBasicHtml
 redirect = jResponseRedirect
 redirectUrl = jResponseRedirectUrl
 binary = jResponseBinary
@@ -74,6 +73,7 @@ sitemap = jResponseSitemap
 
 [_coreResponses]
 html = jResponseHtml
+basichtml = jResponseBasicHtml
 redirect = jResponseRedirect
 redirectUrl = jResponseRedirectUrl
 binary = jResponseBinary
@@ -100,38 +100,24 @@ htmlauth = jResponseHtml
 sitemap = jResponseSitemap
 
 [jResponseHtml]
+; list of active plugins for jResponseHtml
+plugins =
+
+; path to the minify entry point, relative to basepath
+minifyEntryPoint = minify.php
 ;concatenate and minify CSS and/or JS files :
 minifyCSS = off
 minifyJS = off
-; check all filemtime() of source files to check if minify's cache should be generated again. Should be set to "off" on production servers :
-minifyCheckCacheFiletime = on
-; list of filenames (no path) which shouldn't be minified :
+; list of filenames which shouldn't be minified. Path relative to basePath:
 minifyExcludeCSS = ""
 minifyExcludeJS = "jquery.wymeditor.js"
-; add a unique ID to CSS and/or JS files URLs ( this gives for exemple /file.js?1267704635 ). This ID is actually the filemtime of each served file :
-jsUniqueUrlId = off
-cssUniqueUrlId = off
 
+[debugbar]
+plugins = sqllog,sessiondata,defaultlog
 
 [error_handling]
-messageLogFormat = "%date%\t%url%\n\t[%code%]\t%msg%\t%file%\t%line%\n"
-logFile = error.log
-email = root@localhost
-emailHeaders = "Content-Type: text/plain; charset=UTF-8\nFrom: webmaster@yoursite.com\nX-Mailer: Jelix\nX-Priority: 1 (Highest)\n"
-quietMessage="A technical error has occured. Sorry for this trouble."
-
-showInFirebug = off
-
-; keywords you can use: ECHO, ECHOQUIET, EXIT, LOGFILE, SYSLOG, MAIL, TRACE
-default      = ECHO TRACE EXIT
-error        = ECHO TRACE EXIT
-warning      = ECHO TRACE
-notice       = ECHO
-strict       = ECHO
-deprecated   = ECHO
-; for exceptions, there is always an implicit EXIT by default
-exception    = ECHO TRACE
-
+messageLogFormat = "%date%\t%ip%\t[%code%]\t%msg%\t%file%\t%line%\n\t%url%\n%params%\n%trace%\n\n"
+errorMessage="A technical error has occured (code: %code%). Sorry for this inconvenience."
 
 [compilation]
 checkCacheFiletime  = on
@@ -176,6 +162,16 @@ pathInfoInQueryParameter =
 ; : basePath="/aaa/" )
 basePath = ""
 
+
+; backendBasePath is used when the application is behind a proxy, and when the base path on the frontend
+; server doesn't correspond to the base path on the backend server.
+; you MUST define basePath when you define backendBasePath
+backendBasePath =
+
+; for an app on a simple http server behind an https proxy, the https verification
+; should be disabled
+checkHttpsOnParsing = on
+
 ; this is the url path to the jelix-www content (you can found this content in lib/jelix-www/)
 ; because the jelix-www directory is outside the yourapp/www/ directory, you should create a link to
 ; jelix-www, or copy its content in yourapp/www/ (with a name like 'jelix' for example)
@@ -205,6 +201,7 @@ urlScriptPath=
 urlScriptName=
 urlScriptId=
 urlScriptIdenc=
+documentRoot=
 
 [simple_urlengine_entrypoints]
 ; parameters for the simple url engine. This is the list of entry points
@@ -230,8 +227,35 @@ xmlrpc = on
 jsonrpc = on
 rdf = on
 
-[logfiles]
+[logger]
+; list of loggers for each categories of log messages
+; available loggers : file, syslog, firebug, mail, memory. see plugins for others
+
+; _all category is the category containing loggers executed for any categories
+_all =
+
+; default category is the category used when a given category is not declared here
+default=file
+error= file
+warning=file
+notice=file
+deprecated=
+strict=
+debug=
+
+; log files for categories which have "file"
+[fileLogger]
 default=messages.log
+error=errors.log
+warning=errors.log
+notice=errors.log
+deprecated=errors.log
+strict=errors.log
+debug=debug.log
+
+[mailLogger]
+email = root@localhost
+emailHeaders = "Content-Type: text/plain; charset=UTF-8\nFrom: webmaster@yoursite.com\nX-Mailer: Jelix\nX-Priority: 1 (Highest)\n"
 
 [mailer]
 webmasterEmail = root@localhost
@@ -266,6 +290,8 @@ smtpUsername =
 smtpPassword =
 ; SMTP server timeout in seconds
 smtpTimeout = 10
+
+copyToFiles = off
 
 [acl]
 ; exemple of driver: "db".

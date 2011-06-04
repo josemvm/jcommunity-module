@@ -402,41 +402,21 @@ class jCache {
      * @return jICacheDriver
      */
     protected static function _getDriver($profile) {
+        return jProfiles::getOrStoreInPool('jcache', $profile, array('jCache', '_loadDriver'), true);
+    }
 
-        global $gJConfig;
-
-        //cache drivers list : array of object jICacheDriver
-        static $drivers = array();
-
-        $profile = ($profile==''?'default':$profile);
-        if (isset($drivers[$profile])) {
-            return $drivers[$profile];
+    /**
+     * callback method for jProfiles. internal use.
+     */
+    public static function _loadDriver($profile) {
+        $driver = jApp::loadPlugin($profile['driver'], 'cache', '.cache.php', $profile['driver'].'CacheDriver', $profile);
+        if (is_null($driver))
+            throw new jException('jelix~cache.error.driver.missing',array($profile['_name'], $profile['driver']));
+    
+        if (!$driver instanceof jICacheDriver) {
+            throw new jException('jelix~cache.driver.object.invalid', array($profile['_name'], $profile['driver']));
         }
-
-        $params = self::_getProfile($profile);
-
-        $oDriver = $params['driver'].'CacheDriver';
-
-        if (!class_exists($oDriver,false)) {
-            if (!isset($gJConfig->_pluginsPathList_cache) 
-                || !isset($gJConfig->_pluginsPathList_cache[$params['driver']])
-                || !file_exists($gJConfig->_pluginsPathList_cache[$params['driver']]) ) {
-                throw new jException('jelix~cache.error.driver.missing',array($profile,$params['driver']));
-            }
-            require_once($gJConfig->_pluginsPathList_cache[$params['driver']].$params['driver'].'.cache.php');
-        }
-
-        $params['profile'] = $profile;
-
-        $drv = new $oDriver($params);
-
-        if(!$drv instanceof jICacheDriver){
-            throw new jException('jelix~cache.driver.object.invalid', array($profile, $params['driver']));
-        }
-
-        $drivers[$profile] = $drv;
-
-        return $drv;
+        return $driver;
     }
 
     /**
@@ -449,42 +429,6 @@ class jCache {
         if (!preg_match('/^[a-z0-9_]+$/i',$key) || strlen($key) > 255) {
             throw new jException('jelix~cache.error.invalid.key',$key);
         }
-    }
-
-    /**
-    * load a specific profil from the profile file
-    *
-    * @param string   $name  profil to load.
-    * @return array  profil properties
-    */
-    protected static function _getProfile($name){
-
-        global $gJConfig;
-        static $profiles = null;
-        
-        if ($profiles === null) {
-            $profiles = parse_ini_file(JELIX_APP_CONFIG_PATH.$gJConfig->cacheProfiles, true);
-        }
-        $profile = null;
-
-        if ($name == 'default') {
-            if (isset($profiles['default']) && isset($profiles[$profiles['default']])) {
-                $profile = $profiles[$profiles['default']];
-            }
-            else {
-                throw new jException('jelix~cache.error.profile.missing','default');
-            }
-        }
-        else {
-            if (isset($profiles[$name])) {
-                $profile = $profiles[$name];
-            }
-            else {
-                throw new jException('jelix~cache.error.profile.missing',$name);
-            }
-        }
-
-        return $profile;
     }
 
     /**

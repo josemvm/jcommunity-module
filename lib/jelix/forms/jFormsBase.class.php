@@ -668,15 +668,17 @@ abstract class jFormsBase {
      * @return jFormsBuilderBase
      */
     public function getBuilder($buildertype){
-        global $gJConfig;
-        if($buildertype == '') $buildertype = 'html';
-        if(isset($gJConfig->_pluginsPathList_jforms[$buildertype])){
-            if(isset($this->builders[$buildertype]))
-                return $this->builders[$buildertype];
-            include_once(JELIX_LIB_PATH.'forms/jFormsBuilderBase.class.php');
-            include_once ($gJConfig->_pluginsPathList_jforms[$buildertype].$buildertype.'.jformsbuilder.php');
-            $c = $buildertype.'JformsBuilder';
-            $o = $this->builders[$buildertype] = new $c($this);
+
+        if($buildertype == '')
+            $buildertype = 'html';
+
+        if(isset($this->builders[$buildertype]))
+            return $this->builders[$buildertype];
+
+        include_once(JELIX_LIB_PATH.'forms/jFormsBuilderBase.class.php');
+        $o = jApp::loadPlugin($buildertype, 'jforms', '.jformsbuilder.php', $buildertype.'JformsBuilder', $this);
+        if ($o) {
+            $this->builders[$buildertype] = $o;
             return $o;
         }else{
             throw new jExceptionForms('jelix~formserr.invalid.form.builder', array($buildertype, $this->sel));
@@ -695,7 +697,7 @@ abstract class jFormsBase {
      */
     public function saveFile($controlName, $path='', $alternateName='') {
         if ($path == '') {
-            $path = JELIX_APP_VAR_PATH.'uploads/'.$this->sel.'/';
+            $path = jApp::varPath('uploads/'.$this->sel.'/');
         } else if (substr($path, -1, 1) != '/') {
             $path.='/';
         }
@@ -725,7 +727,7 @@ abstract class jFormsBase {
      */
     public function saveAllFiles($path='') {
         if ($path == '') {
-            $path = JELIX_APP_VAR_PATH.'uploads/'.$this->sel.'/';
+            $path = jApp::varPath('uploads/'.$this->sel.'/');
         } else if (substr($path, -1, 1) != '/') {
             $path.='/';
         }
