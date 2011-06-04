@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://jelix.org/ns/project/1.0">
-
+    <info id="test@jcommunity.jelix.org" name="test">
+        <version>1.0</version>
+        <label lang="en-EN">JCommunity Test</label>
+        <description lang="en-EN">Application to test jCommunity</description>
+        <licence URL="http://www.gnu.org/licenses/gpl.html">GPL</licence>
+        <copyright>2005-2011 Laurent Jouanneau and other contributors</copyright>
+        <creator name="Laurent Jouanneau" email="laurent@jelix.org" active="true" />
+    </info>
+    <dependencies>
+       <jelix minversion="1.1" maxversion="1.1.*" />
+    </dependencies>
+    <directories>
+        <config>var/config</config>
+        <log>var/log</log>
+        <var>var</var>
+        <www>www</www>
+        <temp>../temp/test</temp>
+    </directories>
+    <entrypoints>
+        <entry file="index.php" config="index/config.ini.php" />
+    </entrypoints>
 </project>
