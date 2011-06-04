@@ -20,7 +20,7 @@ class jmessengerCtrl extends jControllerDaoCrud {
 
     function index() {
         $resp = $this->getResponse('redirect');
-        $resp->action = "jmessenger~inbox";
+        $resp->action = "jmessenger~jmessenger:inbox";
         return $resp;
     }
 
@@ -42,7 +42,7 @@ class jmessengerCtrl extends jControllerDaoCrud {
         $form_daorec->isArchived = 0;
         $form_daorec->isReceived = 1;
         $form_daorec->isSend = 1;
-        if ($form_daorec->id_for == 0) 
+        if ($form_daorec->id_for == 0)
             $form_daorec->id_for = $form->getData("answer_to");
     }
 
