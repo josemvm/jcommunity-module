@@ -5,5 +5,5 @@
 installer\.ini\.php$
 ^temp/test/
 \.komodoproject$
-dbprofils\.ini\.php$
+profiles\.ini\.php$
 defaultconfig\.ini\.php$
