@@ -5,7 +5,11 @@
         <tr>
             <th></th>
             <th>{@jmessenger~message.list.discussion@}</th>
-            <th>{@jmessenger~message.list.from@}</th>
+				{if isset($send)}
+                <th>{@jmessenger~message.list.for@}</th>
+				{else}
+				<th>{@jmessenger~message.list.from@}</th>
+				{/if}
             <th>{@jmessenger~message.list.date@}</th>
             <th>{@jmessenger~message.list.actions@}</th>
         </tr>
@@ -18,7 +22,7 @@
         <td>{if isset($send)}
 	    <a href="{jurl 'jcommunity~account:show', array('user'=>$m->loginFor)}">{$m->nicknameFor}</a>
         {else}
-	    <a href="{jurl 'jcommunity~account:show', array('user'=>$m->loginFor)}">{$m->nicknameFrom}</a>
+	    <a href="{jurl 'jcommunity~account:show', array('user'=>$m->loginFrom)}">{$m->nicknameFrom}</a>
         {/if}
         </td>
         <td>
