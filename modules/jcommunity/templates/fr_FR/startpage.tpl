@@ -1,10 +1,10 @@
 <div class="jcommunity-box">
 {ifuserconnected}
-    <p>{$login}, vous êtes identifié.</p>
+    <p>{$user->login|eschtml}, vous êtes identifié.</p>
 
     <p>Vous pouvez :</p>
     <ul>
-        <li><a href="{jurl 'jcommunity~account:show', array('user'=>$login)}">voir votre profil</a></li>
+        <li><a href="{jurl 'jcommunity~account:show', array('user'=>$user->login)}">voir votre profil</a></li>
         <li><a href="{jurl 'jcommunity~login:out'}">vous déconnecter</a></a></li>
     </ul>
 
