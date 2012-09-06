@@ -45,8 +45,14 @@ class soaplogDebugbarPlugin implements jIDebugbarPlugin {
             $info->label = 'no message';
         }
         else {
-            $info->popupContent = '<ul id="jxdb-soaplog" class="jxdb-list">';
+            $c = jLog::getMessagesCount('soap');
+            if ($c > count($messages)) {
+                $info->popupContent .= '<p class="jxdb-msg-warning">There are '.$c.' soap requests. Only '.count($messages).' first of them are shown.</p>';
+            }
+            $info->popupContent .= '<ul id="jxdb-soaplog" class="jxdb-list">';
             foreach($messages as $msg) {
+                if (get_class($msg) != 'jLogSoapMessage')
+                    continue;
                 $info->popupContent .= '<li>
                 <h5><a href="#" onclick="jxdb.toggleDetails(this);return false;"><span>'.htmlspecialchars($msg->getMessage()).'</span></a></h5>
                 <div>';
