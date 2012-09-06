@@ -12,7 +12,7 @@ pre {
 
 
 #header {
-   margin:20px 0 0 190px;  width:730px;
+   margin:20px 0 0 260px;  width:730px;
    padding:15px;
    background-color:#1e92af;
    -moz-border-radius:10px 10px 0 0;
@@ -23,7 +23,7 @@ pre {
  }
 
 #main {clear:both;
-   margin:0 0 0 190px;
+   margin:0 0 0 260px;
    padding:30px 15px 15px 15px;
    max-width:730px;
    color : #002830;
@@ -93,14 +93,14 @@ div.exception p { font-size:0.9em; }
    position:absolute;
    top:0;
    left:0;
-   width:185px;
+   width:250px;
    padding-left:10px;
 }
 
 
 #sidemenu a {color:#0594c8; text-decoration:none;}
 #sidemenu a:hover { text-decoration: underline; }
-#sidemenu h1 { text-align:center; }
+#sidemenu h1 { text-align:center; font-size: 1.2em }
 #sidemenu h1 a {text-decoration:none;}
 #sidemenu h1 a:hover { text-decoration:none; }
 #sidemenu ul { margin:0 0 0 1em;
@@ -121,7 +121,7 @@ div.exception p { font-size:0.9em; }
 
 #footer {
    clear:both;
-   margin:0 0 0 190px;
+   margin:0 0 0 260px;
    padding:15px;
    max-width:728px;
    color : #002830;

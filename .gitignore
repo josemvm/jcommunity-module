@@ -1,0 +1,8 @@
+
+test/var/config/installer.ini.php
+temp/test/*
+test/var/log/*
+test/var/mails/*
+*.komodoproject
+test/var/config/profiles.ini.php
+test/var/config/defaultconfig.ini.php
