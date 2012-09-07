@@ -1,3 +1,4 @@
+
 <h1>{@jmessenger~message.title.details@}</h1>
 {formdatafull $form}
 
