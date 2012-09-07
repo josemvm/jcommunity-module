@@ -82,4 +82,14 @@ class jmessengerCtrl extends jControllerDaoCrud {
             $dao->update($m);
         }
     }
+
+    protected function _afterCreate($form, $id, $resp) {
+        $msg = array();
+        $msg['id'] = $id;
+        $msg['user_id_from'] = jAuth::getUserSession()->id;
+        $msg['user_id_to'] = $form->getData('id_for');
+        $msg['title'] = $form->getData('title');
+        $msg['content'] = $form->getData('content');
+        jEvent::notify('jmessengerMessageSent', array('message'=>$msg));
+    }
 }
