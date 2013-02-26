@@ -4,7 +4,7 @@
 * @subpackage  core_response
 * @author      Baptiste Toinot
 * @contributor Laurent Jouanneau
-* @copyright   2008 Baptiste Toinot, 2011 Laurent Jouanneau
+* @copyright   2008 Baptiste Toinot, 2011-2012 Laurent Jouanneau
 * @link        http://www.jelix.org
 * @licence     GNU Lesser General Public Licence see LICENCE file or http://www.gnu.org/licenses/lgpl.html
 */
@@ -89,6 +89,12 @@ class jResponseSitemap extends jResponse {
      * @return boolean true if generation is ok, else false
      */
     final public function output() {
+        
+        if($this->_outputOnlyHeaders){
+            $this->sendHttpHeaders();
+            return true;
+        }
+        
         $this->_httpHeaders['Content-Type'] = 'application/xml;charset=UTF-8';
 
         if (count($this->urlSitemap)) {
@@ -116,16 +122,16 @@ class jResponseSitemap extends jResponse {
      * @param string $lastmod The date of last modification of the file
      * @param string $changefreq How frequently the page is likely to change
      * @param string $priority The priority of this URL relative to other URLs
-     * @return void
+     * @return boolean true if addition is ok, else false
      */
     public function addUrl($loc, $lastmod = null, $changefreq = null, $priority = null) {
 
         if (isset($loc[2048]) || count($this->urlList) >= $this->maxUrl) {
             return false;
         }
-        global $gJCoord;
+
         $url = new jSitemapUrl();
-        $url->loc = $gJCoord->request->getServerURI() . $loc;
+        $url->loc = jApp::coord()->request->getServerURI() . $loc;
 
         if (($timestamp = strtotime($lastmod))) {
             $url->lastmod = date('c', $timestamp);
@@ -140,28 +146,30 @@ class jResponseSitemap extends jResponse {
         }
 
         $this->urlList[] = $url;
+        return true;
     }
 
     /**
      * add a URL in a sitemap file
      * @param string $loc URL of sitemap file
      * @param string $lastmod The date of last modification of the sitemap file
-     * @return void
+     * @return boolean true if addition is ok, else false
      */
     public function addSitemap($loc, $lastmod = null) {
 
         if (isset($loc[2048]) || count($this->urlSitemap) >= $this->maxSitemap) {
             return false;
         }
-        global $gJCoord;
+
         $sitemap = new jSitemapIndex();
-        $sitemap->loc = $gJCoord->request->getServerURI() . $loc;
+        $sitemap->loc = jApp::coord()->request->getServerURI() . $loc;
 
         if (($timestamp = strtotime($lastmod))) {
             $sitemap->lastmod = date('c', $timestamp);
         }
 
         $this->urlSitemap[] = $sitemap;
+        return true;
     }
 
     /**
@@ -205,12 +213,13 @@ class jResponseSitemap extends jResponse {
      * @return array
      */
     protected function _parseUrlsXml() {
-        global $gJConfig;
 
         $urls = array();
-        $significantFile = $gJConfig->urlengine['significantFile'];
-        $basePath = $gJConfig->urlengine['basePath'];
-        $epExt = ($gJConfig->urlengine['multiview']?$gJConfig->urlengine['entrypointExtension']:'');
+
+        $conf = &jApp::config()->urlengine;
+        $significantFile = $conf['significantFile'];
+        $basePath = $conf['basePath'];
+        $epExt = ($conf['multiview'] ? $conf['entrypointExtension']:'');
 
         $file = jApp::tempPath('compiled/urlsig/' . $significantFile . '.creationinfos.php');
 

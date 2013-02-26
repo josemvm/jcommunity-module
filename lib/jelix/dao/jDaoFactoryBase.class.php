@@ -248,12 +248,14 @@ abstract class jDaoFactoryBase  {
      * save a new record into the database
      * if the dao record has an autoincrement key, its corresponding property is updated
      * @param jDaoRecordBase $record the record to save
+     * @return integer  1 if success (the number of affected rows). False if the query has failed. 
      */
     abstract public function insert ($record);
 
     /**
      * save a modified record into the database
      * @param jDaoRecordBase $record the record to save
+     * @return integer  1 if success (the number of affected rows). False if the query has failed. 
      */
     abstract public function update ($record);
 
@@ -328,7 +330,7 @@ abstract class jDaoFactoryBase  {
      */
     final public function deleteBy ($searchcond){
         if ($searchcond->isEmpty ()){
-            return;
+            return 0;
         }
 
         $query = 'DELETE FROM '.$this->_conn->encloseName($this->_tables[$this->_primaryTable]['realname']).' WHERE ';
