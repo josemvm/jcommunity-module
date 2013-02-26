@@ -30,7 +30,7 @@ auth_required = off
 on_error = 1
 
 ; locale key for the error message when on_error=1
-error_message = "jauth~autherror.notlogged"
+error_message = "jcommunity~login.error.notlogged"
 
 ; action to execute on a missing authentification when on_error=2
 on_error_action = "jcommunity~login:out"
@@ -72,6 +72,16 @@ persistant_duration = 15
 
 ; base path for the cookie. If empty, it uses the basePath value from the main configuration.
 persistant_cookie_path =
+
+;=========== parameters for password hashing
+
+; method of the hash. 0 means old hashing behavior of jAuth
+; (using password_* parameters in drivers ).
+; Prefer to choose 1 which indicates the default hash method (bcrypt).
+password_hash_method = 1
+
+; options for the hash method. list of "name:value" separated by a ";"
+password_hash_options =
 
 ;=========== Parameters for drivers
 

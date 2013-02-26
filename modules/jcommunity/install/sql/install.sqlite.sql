@@ -1,7 +1,7 @@
 CREATE TABLE %%PREFIX%%community_users (
   id INTEGER NOT NULL ,
   login varchar(50) NOT NULL PRIMARY KEY ,
-  password varchar(50) NOT NULL,
+  password varchar(120) NOT NULL,
   email varchar(255) NOT NULL,
   nickname varchar(50) DEFAULT NULL,
   status tinyint(4) NOT NULL default '0',

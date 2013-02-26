@@ -36,10 +36,7 @@ class jcommunityModuleInstaller extends jInstallerModule {
             }
         }
 
-        if (defined('JELIX_APP_CONFIG_PATH')) // for Jelix 1.2 and older
-            $conf = new jIniFileModifier(JELIX_APP_CONFIG_PATH.$authconfig);
-        else
-            $conf = new jIniFileModifier(jApp::configPath($authconfig));
+        $conf = new jIniFileModifier(jApp::configPath($authconfig));
 
         $this->useDbProfile($conf->getValue('profile', 'Db'));
 
@@ -59,9 +56,16 @@ class jcommunityModuleInstaller extends jInstallerModule {
         if ($this->firstDbExec()) {
             $this->execSQLScript('sql/install');
             if ($this->getParameter('defaultuser')) {
+                require_once(JELIX_LIB_PATH.'auth/jAuth.class.php');
+                require_once(JELIX_LIB_PATH.'plugins/auth/db/db.auth.php');
+
+                $confIni = parse_ini_file(jApp::configPath($authconfig), true);
+                $authConfig = jAuth::loadConfig($confIni);
+                $driver = new dbAuthDriver($authConfig['Db']);
+                $passwordHash = $driver->cryptPassword('admin');
                 $cn = $this->dbConnection();
-                $cn->exec("INSERT INTO ".$cn->prefixTable('community_users')." (login, password, email ) VALUES
-                            ('admin', '".sha1('admin')."' , 'admin@localhost.localdomain')");
+                $cn->exec("INSERT INTO ".$cn->prefixTable('community_users')." (login, password, email, nickname, status, create_date) VALUES
+                            ('admin', ".$cn->quote($passwordHash).", 'admin@localhost.localdomain', 'admin', 1, '".date('Y-m-d H:i:s')."')");
             }
         }
     }

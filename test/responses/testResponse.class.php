@@ -24,6 +24,6 @@ class testResponse extends jResponseHtml {
        $this->body->assignIfNone('menu','<p></p>');
        $this->body->appendZone('SIDEBAR','test~sidebar');
        $this->body->assignIfNone('page_title','Application Test for jCommunity');
-       $this->addCSSLink($GLOBALS['gJConfig']->urlengine['basePath'].'design/screen.css');
+       $this->addCSSLink(jApp::config()->urlengine['basePath'].'design/screen.css');
    }
 }

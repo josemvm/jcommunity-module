@@ -17,4 +17,4 @@ class sidebarZone extends jZone {
         $this->_tpl->assignZone('MESSENGER','jmessenger~links');
     }
 }
-?>
+
