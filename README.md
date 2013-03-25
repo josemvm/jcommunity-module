@@ -17,7 +17,7 @@ It provides:
 Installation
 ------------
 
-Current versions work only with Jelix 1.4.
+Current versions work only with Jelix 1.4 and 1.5.
 
 * Extract the content of the downloaded archive.
 * Copy the jcommunity directory in a module repository of your application (in
