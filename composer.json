@@ -3,7 +3,7 @@
     "type": "library",
     "description": "modules to add community features to a web site made with Jelix",
     "keywords": ["authentication", "profile", "messaging", "community"],
-    "homepage": "http://jelix.org",
+    "homepage": "https://github.com/jelix/jcommunity-module/wiki/",
     "license": "GPL-2.0",
     "authors": [
         {

@@ -39,9 +39,9 @@ behaviors.
 Others documentation
 --------------------
 
-On [the project web site](https://github.com/laurentj/jcommunity) :
+On [the project web site](https://github.com/jelix/jcommunity-module) :
 
 
-* [Extending jcommunity](https://github.com/laurentj/jcommunity/wiki/extending_jcommunity)
-* [How to contribute](https://github.com/laurentj/jcommunity/wiki/contribute)
+* [Extending jcommunity](https://github.com/jelix/jcommunity-module/wiki/extending_jcommunity)
+* [How to contribute](https://github.com/jelix/jcommunity-module/wiki/contribute)
 

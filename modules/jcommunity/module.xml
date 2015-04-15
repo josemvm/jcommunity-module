@@ -7,7 +7,7 @@
         <licence URL="http://www.gnu.org/licenses/gpl.html">GPL</licence>
         <copyright>Copyright 2008-2015 jelix.org</copyright>
         <creator name="Laurent Jouanneau" email="laurent@jelix.org"/>
-        <homepageURL>https://github.com/laurentj/jcommunity/</homepageURL>
+        <homepageURL>https://github.com/jelix/jcommunity-module/</homepageURL>
     </info>
     <dependencies>
         <jelix minversion="1.4" maxversion="1.6.*"/>

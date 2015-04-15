@@ -7,7 +7,7 @@
         <license URL="">All right reserved</license>
         <copyright>2009-2015 jelix.org</copyright>
         <creator name="Laurent Jouanneau" email="laurent@xulfr.org"/>
-        <homepageURL>http://jelix.org</homepageURL>
+        <homepageURL>https://github.com/jelix/jcommunity-module/</homepageURL>
     </info>
     <dependencies>
         <jelix minversion="1.4" maxversion="1.6.*"/>

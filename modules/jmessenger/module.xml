@@ -8,7 +8,7 @@
         <copyright>Copyright 2008 Bastien Jaillot, 2012-2015 jelix.org</copyright>
         <creator name="Bastien Jaillot" email="bastnicj@gmail.com"/>
         <contributor name="Laurent Jouanneau" email="laurent@jelix.org"/>
-        <homepageURL>https://github.com/laurentj/jcommunity/</homepageURL>
+        <homepageURL>https://github.com/jelix/jcommunity-module/</homepageURL>
     </info>
     <dependencies>
         <jelix minversion="1.4" maxversion="1.6.*"/>
