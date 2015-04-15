@@ -5,18 +5,18 @@
         <label lang="en-EN">JCommunity Test</label>
         <description lang="en-EN">Application to test jCommunity</description>
         <licence URL="http://www.gnu.org/licenses/gpl.html">GPL</licence>
-        <copyright>2005-2013 Laurent Jouanneau and other contributors</copyright>
+        <copyright>2005-2015 Laurent Jouanneau and other contributors</copyright>
         <creator name="Laurent Jouanneau" email="laurent@jelix.org" active="true"/>
     </info>
     <dependencies>
-       <jelix minversion="1.4" maxversion="1.4.*"/>
+       <jelix minversion="1.4" maxversion="1.6.*"/>
     </dependencies>
     <directories>
         <config>var/config</config>
         <log>var/log</log>
         <var>var</var>
         <www>www</www>
-        <temp>../temp/test</temp>
+        <temp>temp/</temp>
     </directories>
     <entrypoints>
         <entry file="index.php" config="index/config.ini.php"/>

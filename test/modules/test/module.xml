@@ -4,6 +4,6 @@
         <version>1.0</version>
     </info>
     <dependencies>
-        <jelix minversion="1.4" maxversion="1.5.*"/>
+        <jelix minversion="1.4" maxversion="1.6.*"/>
     </dependencies>
 </module>
