@@ -17,19 +17,22 @@ theme=default
 
 [modules]
 jelix.access=2
-jauthdb.access=1
 test.access=2
 jcommunity.access=2
 jmessenger.access=2
 jcommunity.installparam=defaultuser
 
-junittests.access=0
-jWSDL.access=0
+
+jacl2.access=0
 jacl2db.access=0
+jcommunity_phorum.access=0
+
+
 jacldb.access=0
 jauth.access=0
-jcommunity_phorum.access=0
-jacl2.access=1
+jauthdb.access=0
+junittests.access=0
+jWSDL.access=0
 
 [coordplugins]
 auth=auth.coord.ini.php
@@ -37,6 +40,15 @@ auth=auth.coord.ini.php
 [responses]
 html=testResponse
 
+
+[error_handling]
+messageLogFormat="%date%\t[%code%]\t%msg%\t%file%\t%line%\n"
+errorMessage="Une erreur technique est survenue. Désolé pour ce désagrément."
+
+
+[compilation]
+checkCacheFiletime=on
+force=off
 
 [jResponseHtml]
 plugins =debugbar
@@ -74,9 +86,15 @@ simple_urlengine_https=
 index="@classic"
 
 
+[fileLogger]
+default=messages.log
+
 
 [mailer]
 webmasterEmail="root@localhost"
 webmasterName=
 mailerType=file
 
+
+[mailLogger]
+email="root@localhost"

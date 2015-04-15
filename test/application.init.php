@@ -20,4 +20,4 @@ jApp::initPaths(
     //$appPath.'var/config/',
     //$appPath.'scripts/'
 );
-jApp::setTempBasePath(realpath($appPath.'../temp/test/').'/');
+jApp::setTempBasePath(realpath($appPath.'temp/').'/');

@@ -6,10 +6,11 @@
 default=test
 
 [jdb:test]
-;driver="mysql"
-;database="jelix"
-;host= "localhost"
-;user= "root"
-;password=
-;persistent= on
-;force_encoding = on
+driver="mysql"
+database="jcommunity"
+host= "localhost"
+user= "test_user"
+password=jelix
+persistent= on
+orce_encoding = on
+
