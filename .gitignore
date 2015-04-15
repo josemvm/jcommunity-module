@@ -5,7 +5,6 @@ test/var/log/*
 test/var/mails/*
 *.komodoproject
 test/var/config/profiles.ini.php
-test/var/config/defaultconfig.ini.php
 vendor/*
 .vagrant
 composer.lock
