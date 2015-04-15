@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns="http://jelix.org/ns/module/1.0">
     <info id="jcommunity_phorum@jelix.org" name="jcommunity_phorum" createdate="2009-05-25">
-        <version>0.1</version>
+        <version>1.0</version>
         <label lang="fr_FR">jcommunity_phorum</label>
         <description lang="fr_FR"/>
         <license URL="">All right reserved</license>

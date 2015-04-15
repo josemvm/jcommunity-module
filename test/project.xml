@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://jelix.org/ns/project/1.0">
     <info id="test@jcommunity.jelix.org" name="test">
-        <version>1.1</version>
+        <version>1.2</version>
         <label lang="en-EN">JCommunity Test</label>
         <description lang="en-EN">Application to test jCommunity</description>
         <licence URL="http://www.gnu.org/licenses/gpl.html">GPL</licence>

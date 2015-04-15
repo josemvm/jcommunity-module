@@ -1,8 +1,8 @@
 {
-    "name": "jelix/jcommunity",
+    "name": "jelix/jcommunity-module",
     "type": "library",
     "description": "modules to add community features to a web site made with Jelix",
-    "keywords": ["authentication", "profile", "messaging"],
+    "keywords": ["authentication", "profile", "messaging", "community"],
     "homepage": "http://jelix.org",
     "license": "GPL-2.0",
     "authors": [
@@ -17,7 +17,7 @@
     "require-dev" : {
     },
     "archive": {
-        "exclude": ["/tests"]
+        "exclude": ["/test", "/lib"]
     },
     "replace": {
     },
@@ -25,5 +25,5 @@
         "psr-4": {  },
         "classmap": []
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "stable"
 }
