@@ -19,29 +19,15 @@ Installation
 
 Current version works only with Jelix 1.4 to 1.6.
 
-* Extract the content of the downloaded archive.
-* Copy the jcommunity directory in a module repository of your application (in
-  yourapp/modules for example).
-* install the jcommunity module with the command installmodule in your application:
-    `php cmd.php installmodule jcommunity`
-* You can change the start action in index/config.ini.php like this:
-
-```
-      startModule=jcommunity
-      startAction="login:index"
-```
-
-In your application, you should **not** use anything from the jauthdb and jauth modules, but
-only from jcommunity, since it provides all needed things, with some different
-behaviors.
+See INSTALL.md or [the wiki](https://github.com/jelix/jcommunity-module/wiki/installation)
 
 
 Others documentation
 --------------------
 
-On [the project web site](https://github.com/jelix/jcommunity-module) :
+On [the project web site](https://github.com/jelix/jcommunity-module/wiki/) :
 
-
+* [Installation](https://github.com/jelix/jcommunity-module/wiki/installation)
 * [Extending jcommunity](https://github.com/jelix/jcommunity-module/wiki/extending_jcommunity)
 * [How to contribute](https://github.com/jelix/jcommunity-module/wiki/contribute)
 
