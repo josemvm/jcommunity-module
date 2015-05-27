@@ -1,0 +1,21 @@
+{
+    "name": "jelix/jcommunity-test-app",
+    "type": "project",
+    "description": "app to test jcommunity",
+    "keywords": [],
+    "license": "GPL-2.0",
+    "authors": [
+        {
+            "name": "Laurent Jouanneau",
+            "email": "laurent@jelix.org"
+        }
+    ],
+    "require": {
+        "php": ">=5.3",
+        "jelix/jelix": "dev-jelix-1.7.x"
+    },
+    "require-dev" : {
+        
+    },
+    "minimum-stability": "dev"
+}

@@ -9,8 +9,9 @@
 * @licence  http://www.gnu.org/licenses/gpl.html GNU General Public Licence, see LICENCE file
 */
 
-$appPath = dirname (__FILE__).'/';
-require ($appPath.'../lib/jelix/init.php');
+$appPath = __DIR__.'/';
+require ($appPath.'vendor/autoload.php');
+require ($appPath.'vendor/jelix_app_path.php');
 
 jApp::initPaths(
     $appPath
@@ -21,3 +22,8 @@ jApp::initPaths(
     //$appPath.'scripts/'
 );
 jApp::setTempBasePath(realpath($appPath.'temp/').'/');
+
+jApp::declareModulesDir(array(
+                        __DIR__.'/modules/',
+                        __DIR__.'/../modules/'
+                    ));

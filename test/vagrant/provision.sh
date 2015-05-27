@@ -10,9 +10,7 @@ source $VAGRANTDIR/jelixapp/system.sh
 
 initsystem
 
-resetComposer $ROOTDIR
-
-#resetComposer $APPDIR
+resetComposer $APPDIR
 
 source $VAGRANTDIR/reset_app.sh
 

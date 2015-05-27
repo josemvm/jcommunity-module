@@ -6,7 +6,7 @@
 default=test
 
 [jdb:test]
-driver="mysql"
+driver="mysqli"
 database="jcommunity"
 host= "localhost"
 user= "test_user"
