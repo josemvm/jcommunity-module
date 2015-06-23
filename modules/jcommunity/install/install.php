@@ -15,7 +15,7 @@ class jcommunityModuleInstaller extends jInstallerModule {
         $authconfig = $this->config->getValue('auth','coordplugins');
         $authconfigMaster = $this->config->getValue('auth','coordplugins', null, true);
         $forWS = (in_array($this->entryPoint->type, array('json', 'jsonrpc', 'soap', 'xmlrpc')));
-
+        $createdConfFile = false;
         if (!$authconfig || ($forWS && $authconfig == $authconfigMaster)) {
             //if ($this->entryPoint->type == 'cmdline') {
             //    return;
@@ -33,29 +33,56 @@ class jcommunityModuleInstaller extends jInstallerModule {
                 // no configuration, let's install the plugin for the entry point
                 $this->config->setValue('auth', $authconfig, 'coordplugins');
                 $this->copyFile('var/config/'.$pluginIni, 'epconfig:'.$pluginIni);
+                $createdConfFile = true;
             }
         }
 
         $conf = new jIniFileModifier(jApp::configPath($authconfig));
+        $usedStandardDao = ($conf->getValue('dao', 'Db') == 'jauthdb~jelixuser');
 
         $this->useDbProfile($conf->getValue('profile', 'Db'));
+
+        if ($createdConfFile) {
+            mt_srand();
+            $conf->setValue('persistant_crypt_key', sha1("jelix".time().mt_rand()));
+            $conf->save();
+        }
 
         if ($this->firstExec($authconfig) && $this->getParameter('rewriteconfig')) {
             $conf->setValue('driver', 'Db');
             $conf->setValue('dao','jcommunity~user', 'Db');
+            $conf->setValue('form','jcommunity~account_admin', 'Db');
             $conf->setValue('error_message', 'jcommunity~login.error.notlogged');
             $conf->setValue('on_error_action', 'jcommunity~login:out');
             $conf->setValue('bad_ip_action', 'jcommunity~login:out');
-            $conf->setValue('after_login', 'jcommunity~account:show');
             $conf->setValue('after_logout', 'jcommunity~login:index');
             $conf->setValue('enable_after_login_override', 'on');
             $conf->setValue('enable_after_logout_override', 'on');
+            $conf->setValue('after_login', 'jcommunity~account:show');
             $conf->save();
         }
 
-        if ($this->firstDbExec()) {
+        if ($this->getParameter('masteradmin')) {
+            $conf->setValue('after_login', 'master_admin~default:index');
+            $conf->save();
+            $this->config->setValue('loginResponse', 'htmlauth', 'jcommunity');
+        }
+
+        if ($this->firstDbExec() && !$this->getParameter('notjcommunitytable')) {
+
+            $conf->setValue('dao','jcommunity~user', 'Db');
+            $conf->setValue('form','jcommunity~account_admin', 'Db');
+            $conf->save();
+
             $this->execSQLScript('sql/install');
-            if ($this->getParameter('defaultuser')) {
+            $cn = $this->dbConnection();
+            if ($usedStandardDao && $this->getParameter('migratejauthdbusers')) {
+                $cn->exec("INSERT INTO ".$cn->prefixTable('community_users')."
+                            (login, password, email, nickname, status, create_date)
+                         SELECT usr_login, usr_password, usr_email, usr_login, 1, '".date('Y-m-d H:i:s')."'
+                         FROM ".$cn->prefixTable('jlx_user'));
+            }
+            else if ($this->getParameter('defaultuser')) {
                 require_once(JELIX_LIB_PATH.'auth/jAuth.class.php');
                 require_once(JELIX_LIB_PATH.'plugins/auth/db/db.auth.php');
 
@@ -63,7 +90,6 @@ class jcommunityModuleInstaller extends jInstallerModule {
                 $authConfig = jAuth::loadConfig($confIni);
                 $driver = new dbAuthDriver($authConfig['Db']);
                 $passwordHash = $driver->cryptPassword('admin');
-                $cn = $this->dbConnection();
                 $cn->exec("INSERT INTO ".$cn->prefixTable('community_users')." (login, password, email, nickname, status, create_date) VALUES
                             ('admin', ".$cn->quote($passwordHash).", 'admin@localhost.localdomain', 'admin', 1, '".date('Y-m-d H:i:s')."')");
             }

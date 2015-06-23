@@ -101,7 +101,7 @@ password_crypt_function = sha1
 ;password_salt = "here_your_salt"
 
 ; name of the form for the jauthdb_admin module
-form = ""
+form = "jcommunity~account_admin"
 
 ; path of the directory where to store files uploaded by the form (jauthdb_admin module)
 ; should be related to the var directory of the application
