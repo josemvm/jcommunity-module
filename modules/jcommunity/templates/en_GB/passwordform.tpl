@@ -12,4 +12,5 @@ and with the email you have set in your profil.</p>
 <p>An email will be sent with a key to allow you to choose a new password.</p>
 <p>{formsubmit}</p>
 {/form}
+<p><a href="{jurl 'jcommunity~login:index'}">Cancel and return to the login form</a></p>
 </div>

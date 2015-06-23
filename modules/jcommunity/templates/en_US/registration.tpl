@@ -14,4 +14,5 @@
 you could identified yourself on the site.</p>
 <p>{formsubmit}</p>
 {/form}
+<p><a href="{jurl 'jcommunity~login:index'}">Cancel and return to the login form</a></p>
 </div>

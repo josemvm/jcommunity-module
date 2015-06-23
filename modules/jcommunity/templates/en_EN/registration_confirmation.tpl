@@ -18,4 +18,5 @@ to activate your account.</p>
 </fieldset>
 <p>{formsubmit}</p>
 {/form}
+<p><a href="{jurl 'jcommunity~login:index'}">Cancel and return to the login form</a></p>
 </div>

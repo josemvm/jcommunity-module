@@ -1,5 +1,5 @@
 <div class="jcommunity-box jcommunity-login">
-<h1>Authentification</h1>
+<h1>Authentication</h1>
 {ifuserconnected}
 
     {$login}, you are connected.
