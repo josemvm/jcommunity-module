@@ -19,11 +19,12 @@ class loginZone extends jZone {
             $this->_tpl->assign('login',jAuth::getUserSession ()->login);
         }
         else {
-            $conf = jApp::coord()->getPlugin('auth')->config;
-            $this->_tpl->assign('persistance_ok',$conf['persistant_enable']);
+            $conf = jAuth::loadConfig();
+            $this->_tpl->assign('persistance_ok', jAuth::isPersistant());
             $form = jForms::get("jcommunity~login");
-            if (!$form)
+            if (!$form) {
                 $form = jForms::create("jcommunity~login");
+            }
             $this->_tpl->assign('form',$form);
 
             if ($conf['enable_after_login_override']) {
@@ -40,7 +41,6 @@ class loginZone extends jZone {
                     }
                 }
                 else {
-                    
                     //(empty($_SERVER['HTTPS'])?'http':'https').'://'.$_SERVER["HTTP_HOST"].
                     $url = $req->urlScript.$req->urlPathInfo;
                     if(!empty($_SERVER['QUERY_STRING']))
