@@ -17,6 +17,15 @@ class passwordCtrl extends jController {
       '*'=>array('auth.required'=>false)
     );
 
+    protected function _getjCommunityResponse() {
+        $response = 'html';
+        if (isset(jApp::config()->jcommunity)) {
+            $conf = jApp::config()->jcommunity;
+            $response = (isset($conf['loginResponse'])?$conf['loginResponse']:'html');
+        }
+        return $this->getResponse($response);
+    }
+
     /**
     * form to retrieve a lost password
     */
@@ -24,7 +33,7 @@ class passwordCtrl extends jController {
         if(jAuth::isConnected())
             return $this->noaccess();
 
-        $rep = $this->getResponse('html');
+        $rep = $this->_getjCommunityResponse();
         $rep->title = jLocale::get('password.forgotten.password');
         $rep->body->assignZone('MAIN','password');
         return $rep;
@@ -93,7 +102,7 @@ class passwordCtrl extends jController {
         if(jAuth::isConnected())
             return $this->noaccess();
 
-        $rep = $this->getResponse('html');
+        $rep = $this->_getjCommunityResponse();
         $form = jForms::get('confirmation');
         if($form == null){
             $form = jForms::create('confirmation');
@@ -170,7 +179,7 @@ class passwordCtrl extends jController {
     * Page which confirm that the account is activated
     */
     function confirmok() {
-        $rep = $this->getResponse('html');
+        $rep = $this->_getjCommunityResponse();
         $tpl = new jTpl();
         $tpl->assign('status',JCOMMUNITY_STATUS_NEW);
         $rep->body->assign('MAIN',$tpl->fetch('password_ok'));
@@ -178,7 +187,7 @@ class passwordCtrl extends jController {
     }
 
     protected function noaccess() {
-        $rep = $this->getResponse('html');
+        $rep = $this->_getjCommunityResponse();
         $tpl = new jTpl();
         $rep->body->assign('MAIN',$tpl->fetch('no_access'));
         return $rep;

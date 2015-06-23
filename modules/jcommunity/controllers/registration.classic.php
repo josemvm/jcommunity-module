@@ -17,14 +17,24 @@ class registrationCtrl extends jController {
       '*'=>array('auth.required'=>false)
     );
 
+    protected function _getjCommunityResponse() {
+        $response = 'html';
+        if (isset(jApp::config()->jcommunity)) {
+            $conf = jApp::config()->jcommunity;
+            $response = (isset($conf['loginResponse'])?$conf['loginResponse']:'html');
+        }
+        return $this->getResponse($response);
+    }
+
     /**
     * registration form
     */
     function index() {
-        if(jAuth::isConnected())
+        if(jAuth::isConnected()) {
             return $this->noaccess();
+        }
 
-        $rep = $this->getResponse('html');
+        $rep = $this->_getjCommunityResponse();
         $rep->title = jLocale::get('register.registration.title');
         $rep->body->assignZone('MAIN','registration');
         return $rep;
@@ -35,8 +45,9 @@ class registrationCtrl extends jController {
     * a key to activate the account
     */
     function save() {
-        if(jAuth::isConnected())
+        if(jAuth::isConnected()) {
             return $this->noaccess();
+        }
 
         $rep= $this->getResponse("redirect");
         $rep->action = "registration:index";
@@ -119,7 +130,7 @@ class registrationCtrl extends jController {
         if(jAuth::isConnected())
             return $this->noaccess();
 
-        $rep = $this->getResponse('html');
+        $rep = $this->_getjCommunityResponse();
         $form = jForms::get('confirmation');
         if($form == null){
             $form = jForms::create('confirmation');
@@ -191,7 +202,7 @@ class registrationCtrl extends jController {
     * Page which confirm that the account is activated
     */
     function confirmok() {
-        $rep = $this->getResponse('html');
+        $rep = $this->_getjCommunityResponse();
         $tpl = new jTpl();
         $tpl->assign('already',false);
         $rep->body->assign('MAIN',$tpl->fetch('registration_ok'));
@@ -199,7 +210,7 @@ class registrationCtrl extends jController {
     }
 
     protected function noaccess() {
-        $rep = $this->getResponse('html');
+        $rep = $this->_getjCommunityResponse();
         $tpl = new jTpl();
         $rep->body->assign('MAIN',$tpl->fetch('no_access'));
         return $rep;

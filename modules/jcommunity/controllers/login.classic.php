@@ -17,7 +17,13 @@ class loginCtrl extends jController {
     );
 
     function index() {
-        $rep = $this->getResponse('html');
+        $response = 'html';
+        if (isset(jApp::config()->jcommunity)) {
+            $conf = jApp::config()->jcommunity;
+            $response = (isset($conf['loginResponse'])?$conf['loginResponse']:'html');
+        }
+
+        $rep = $this->getResponse($response);
         $rep->title = jLocale::get('login.login.title');
         $rep->body->assignZone('MAIN','jcommunity~login', array('as_main_content'=>true));
         return $rep;
