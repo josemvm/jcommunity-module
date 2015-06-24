@@ -14,8 +14,8 @@
     <p>Vous pouvez :</p>
     <ul>
         <li><a href="{jurl 'jcommunity~login:index'}">Vous identifier</a></li>
-        <li><a href="{jurl 'jcommunity~registration:index'}">Créer un compte</a></li>
-        <li><a href="{jurl 'jcommunity~password:index'}">Récupérer un mot de passe</a>  si vous ne vous souvenez plus du votre.</li>
+        {if $canRegister}<li><a href="{jurl 'jcommunity~registration:index'}">Créer un compte</a></li>{/if}
+        {if $canResetPassword}<li><a href="{jurl 'jcommunity~password:index'}">Récupérer un mot de passe</a>  si vous ne vous souvenez plus du votre.</li>{/if}
     </ul>
 {/ifuserconnected}
 

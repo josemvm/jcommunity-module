@@ -19,6 +19,9 @@ class defaultCtrl extends jController {
         if (jAuth::isConnected()) {
             $tpl->assign('user', jAuth::getUserSession());
         }
+        $config = new \Jelix\JCommunity\Config();
+        $tpl->assign('canRegister', $config->isRegistrationEnabled());
+        $tpl->assign('canResetPassword', $config->isResetPasswordEnabled());
         $rep->body->assign('MAIN', $tpl->fetch('startpage'));
         return $rep;
     }

@@ -11,27 +11,21 @@
 
 include(dirname(__FILE__).'/../classes/defines.php');
 
-class registrationCtrl extends jController {
+class registrationCtrl extends \Jelix\JCommunity\AbstractController {
 
     public $pluginParams = array(
       '*'=>array('auth.required'=>false)
     );
 
-    protected function _getjCommunityResponse() {
-        $response = 'html';
-        if (isset(jApp::config()->jcommunity)) {
-            $conf = jApp::config()->jcommunity;
-            $response = (isset($conf['loginResponse'])?$conf['loginResponse']:'html');
-        }
-        return $this->getResponse($response);
-    }
+    protected $configMethodCheck = 'isRegistrationEnabled';
 
     /**
     * registration form
     */
     function index() {
-        if(jAuth::isConnected()) {
-            return $this->noaccess();
+        $repError = $this->_check();
+        if($repError) {
+            return $repError;
         }
 
         $rep = $this->_getjCommunityResponse();
@@ -45,8 +39,9 @@ class registrationCtrl extends jController {
     * a key to activate the account
     */
     function save() {
-        if(jAuth::isConnected()) {
-            return $this->noaccess();
+        $repError = $this->_check();
+        if($repError) {
+            return $repError;
         }
 
         $rep= $this->getResponse("redirect");
@@ -127,8 +122,10 @@ class registrationCtrl extends jController {
     * to activate the account
     */
     function confirmform() {
-        if(jAuth::isConnected())
-            return $this->noaccess();
+        $repError = $this->_check();
+        if($repError) {
+            return $repError;
+        }
 
         $rep = $this->_getjCommunityResponse();
         $form = jForms::get('confirmation');
@@ -148,8 +145,10 @@ class registrationCtrl extends jController {
     * activate an account. the key should be given as a parameter
     */
     function confirm() {
-        if(jAuth::isConnected())
-            return $this->noaccess();
+        $repError = $this->_check();
+        if($repError) {
+            return $repError;
+        }
 
         $rep= $this->getResponse("redirect");
         $rep->action="registration:confirmform";
@@ -202,17 +201,15 @@ class registrationCtrl extends jController {
     * Page which confirm that the account is activated
     */
     function confirmok() {
-        $rep = $this->_getjCommunityResponse();
+        // jcommunity response can be a single page without menu etc..
+        // so we retrieve the standard response to be sure that the user have links
+        // to navigate into the web site
+        $rep = $this->getResponse('html');
         $tpl = new jTpl();
         $tpl->assign('already',false);
         $rep->body->assign('MAIN',$tpl->fetch('registration_ok'));
         return $rep;
     }
 
-    protected function noaccess() {
-        $rep = $this->_getjCommunityResponse();
-        $tpl = new jTpl();
-        $rep->body->assign('MAIN',$tpl->fetch('no_access'));
-        return $rep;
-    }
+
 }

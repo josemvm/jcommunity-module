@@ -24,8 +24,9 @@
     {/form}
 
      <div class="loginbox-links">
-        (<a href="{jurl 'jcommunity~registration:index'}">Register</a>, 
-        <a href="{jurl 'jcommunity~password:index'}">Forgotten password</a>)
+        {if $canRegister}<a href="{jurl 'jcommunity~registration:index'}" class="loginbox-links-create">Create an account</a>{/if}
+        {if $canResetPassword}{if $canRegister}<span class="loginbox-links-separator"> - </span>{/if}
+        <a href="{jurl 'jcommunity~password:index'}" class="loginbox-links-resetpass">I forgot my password</a>{/if}
      </div>
 
 {/ifuserconnected}

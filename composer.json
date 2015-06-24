@@ -14,16 +14,8 @@
     "require": {
         "php": ">=5.3"
     },
-    "require-dev" : {
-    },
     "archive": {
         "exclude": ["/test"]
-    },
-    "replace": {
-    },
-    "autoload": {
-        "psr-4": {  },
-        "classmap": []
     },
     "extra": {
         "jelix" : {

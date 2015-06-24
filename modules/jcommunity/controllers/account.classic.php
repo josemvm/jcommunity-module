@@ -177,7 +177,7 @@ class accountCtrl extends jController {
         $user = $this->param('user');
         $rep = $this->getResponse('redirect');
         $rep->action = 'jcommunity~account:show';
-        $rep->params=array('user'=>$user);
+        $rep->params = array('user'=>$user);
 
         if($user == '' || !jAuth::isConnected() || jAuth::getUserSession()->login != $user) {
             return $rep;

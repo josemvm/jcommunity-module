@@ -11,27 +11,22 @@
 
 include(dirname(__FILE__).'/../classes/defines.php');
 
-class passwordCtrl extends jController {
+class passwordCtrl extends \Jelix\JCommunity\AbstractController {
 
     public $pluginParams = array(
       '*'=>array('auth.required'=>false)
     );
 
-    protected function _getjCommunityResponse() {
-        $response = 'html';
-        if (isset(jApp::config()->jcommunity)) {
-            $conf = jApp::config()->jcommunity;
-            $response = (isset($conf['loginResponse'])?$conf['loginResponse']:'html');
-        }
-        return $this->getResponse($response);
-    }
+    protected $configMethodCheck = 'isResetPasswordEnabled';
 
     /**
     * form to retrieve a lost password
     */
     function index() {
-        if(jAuth::isConnected())
-            return $this->noaccess();
+        $repError = $this->_check();
+        if($repError) {
+            return $repError;
+        }
 
         $rep = $this->_getjCommunityResponse();
         $rep->title = jLocale::get('password.forgotten.password');
@@ -43,8 +38,10 @@ class passwordCtrl extends jController {
     * send a new password 
     */
     function send() {
-        if(jAuth::isConnected())
-            return $this->noaccess();
+        $repError = $this->_check();
+        if($repError) {
+            return $repError;
+        }
 
         $rep= $this->getResponse("redirect");
         $rep->action="password:index";
@@ -99,8 +96,10 @@ class passwordCtrl extends jController {
     * to activate the new password
     */
     function confirmform() {
-        if(jAuth::isConnected())
-            return $this->noaccess();
+        $repError = $this->_check();
+        if($repError) {
+            return $repError;
+        }
 
         $rep = $this->_getjCommunityResponse();
         $form = jForms::get('confirmation');
@@ -117,8 +116,10 @@ class passwordCtrl extends jController {
     * activate a new password. the key should be given as a parameter
     */
     function confirm() {
-        if(jAuth::isConnected())
-            return $this->noaccess();
+        $repError = $this->_check();
+        if($repError) {
+            return $repError;
+        }
 
         $rep= $this->getResponse("redirect");
         $rep->action="password:confirmform";
@@ -179,17 +180,13 @@ class passwordCtrl extends jController {
     * Page which confirm that the account is activated
     */
     function confirmok() {
-        $rep = $this->_getjCommunityResponse();
+        // jcommunity response can be a single page without menu etc..
+        // so we retrieve the standard response to be sure that the user have links
+        // to navigate into the web site
+        $rep = $this->getResponse('html');
         $tpl = new jTpl();
         $tpl->assign('status',JCOMMUNITY_STATUS_NEW);
         $rep->body->assign('MAIN',$tpl->fetch('password_ok'));
-        return $rep;
-    }
-
-    protected function noaccess() {
-        $rep = $this->_getjCommunityResponse();
-        $tpl = new jTpl();
-        $rep->body->assign('MAIN',$tpl->fetch('no_access'));
         return $rep;
     }
 }

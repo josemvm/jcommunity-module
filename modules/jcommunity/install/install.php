@@ -94,5 +94,22 @@ class jcommunityModuleInstaller extends jInstallerModule {
                             ('admin', ".$cn->quote($passwordHash).", 'admin@localhost.localdomain', 'admin', 1, '".date('Y-m-d H:i:s')."')");
             }
         }
+
+        if ($this->firstExec('acl2') && class_exists('jAcl2DbManager')) {
+            jAcl2DbManager::addSubjectGroup('jcommunity.admin', 'jcommunity~prefs.admin.jcommunity');
+            jAcl2DbManager::addSubject('jcommunity.prefs.change', 'jcommunity~prefs.admin.prefs.change', 'jprefs.prefs.management');
+            jAcl2DbManager::addRight('admins', 'jcommunity.prefs.change'); // for admin group
+        }
+
+        if ($this->firstExec('preferences')) {
+            $prefIni = new jIniFileModifier(__DIR__.'/prefs.ini');
+            $prefFile = jApp::configPath('preferences.ini.php');
+            if (file_exists($prefFile)) {
+                $mainPref = new jIniFileModifier($prefFile);
+                //import this way to not erase changed value.
+                $prefIni->import($mainPref);
+            }
+            $prefIni->saveAs($prefFile);
+        }
     }
 }
