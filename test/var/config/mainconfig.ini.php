@@ -22,11 +22,8 @@ jcommunity.access=2
 jmessenger.access=2
 jcommunity.installparam=defaultuser
 
-
 jacl2.access=0
 jacl2db.access=0
-jcommunity_phorum.access=0
-
 
 jacldb.access=0
 jauth.access=0
