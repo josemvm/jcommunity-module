@@ -11,7 +11,14 @@
 
 class jcommunityModuleInstaller extends jInstallerModule {
 
+    protected static $key = null;
+
     function install() {
+
+        if (self::$key === null) {
+            self::$key = jAuth::getRandomPassword(30, true);
+        }
+
         $authconfig = $this->config->getValue('auth','coordplugins');
         $authconfigMaster = $this->config->getValue('auth','coordplugins', null, true);
         $forWS = (in_array($this->entryPoint->type, array('json', 'jsonrpc', 'soap', 'xmlrpc')));
@@ -42,10 +49,10 @@ class jcommunityModuleInstaller extends jInstallerModule {
 
         $this->useDbProfile($conf->getValue('profile', 'Db'));
 
-        if ($createdConfFile) {
-            mt_srand();
-            $conf->setValue('persistant_crypt_key', sha1("jelix".time().mt_rand()));
-            $conf->save();
+        $localConfigIni = $this->entryPoint->localConfigIni;
+        $key = $localConfigIni->getValue('persistant_crypt_key', 'coordplugin_auth');
+        if ($key === 'exampleOfCryptKey' || $key == '') {
+            $localConfigIni->getMaster()->setValue('persistant_crypt_key', self::$key, 'coordplugin_auth');
         }
 
         if ($this->firstExec($authconfig) && $this->getParameter('rewriteconfig')) {
