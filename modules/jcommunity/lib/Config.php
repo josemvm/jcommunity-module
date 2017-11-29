@@ -19,13 +19,14 @@ class Config {
     /**
      */
     function __construct() {
-        $config = (isset(\jApp::config()->jcommunity)?\jApp::config()->jcommunity:null);
-        if ($config) {
-            if (isset($config['loginResponse'])) {
-                $this->responseType = $config['loginResponse'];
-            }
+        $config = (isset(\jApp::config()->jcommunity)?\jApp::config()->jcommunity:array());
+        if (isset($config['loginResponse'])) {
+            $this->responseType = $config['loginResponse'];
         }
-        if (class_exists('jPref')) {
+
+        if ((!isset($config['disableJPref']) || $config['disableJPref'] == true ) &&
+            class_exists('jPref')
+        ) {
             $pref = \jPref::get('jcommunity_registrationEnabled');
             if ($pref !== null) {
                 $this->registrationEnabled = $pref;
@@ -35,7 +36,7 @@ class Config {
                 $this->resetPasswordEnabled = $pref;
             }
         }
-        else if ($config) {
+        else {
             if (isset($config['registrationEnabled'])) {
                 $this->registrationEnabled = !!$config['registrationEnabled'];
             }

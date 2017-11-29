@@ -102,14 +102,16 @@ class jcommunityModuleInstaller extends jInstallerModule {
         }
 
         if ($this->firstExec('preferences')) {
-            $prefIni = new jIniFileModifier(__DIR__.'/prefs.ini');
-            $prefFile = jApp::configPath('preferences.ini.php');
-            if (file_exists($prefFile)) {
-                $mainPref = new jIniFileModifier($prefFile);
-                //import this way to not erase changed value.
-                $prefIni->import($mainPref);
+            if (!$this->config->getValue('disableJPref', 'jcommunity')) {
+                $prefIni = new jIniFileModifier(__DIR__.'/prefs.ini');
+                $prefFile = jApp::configPath('preferences.ini.php');
+                if (file_exists($prefFile)) {
+                    $mainPref = new jIniFileModifier($prefFile);
+                    //import this way to not erase changed value.
+                    $prefIni->import($mainPref);
+                }
+                $prefIni->saveAs($prefFile);
             }
-            $prefIni->saveAs($prefFile);
         }
     }
 }

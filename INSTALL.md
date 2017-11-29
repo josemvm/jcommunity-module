@@ -128,12 +128,14 @@ application, or by jPref.
 
 You should add a `jcommunity` section, and you can set these parameters:
 
-- `loginresponse': the alias of the response in the jcommunity controller
+- `loginResponse`: the alias of the response in the jcommunity controller
   to display the login form. By default: `html`.
 - `registrationEnabled`: indicates if the registration feature is enabled
   (`on`) or not (`off`). By default: `on`
 - `resetPasswordEnabled`: indicates if the reset password feature is enabled
   (`on`) or not (`off`). By default: `on`
+- `disableJPref`: when `on`, indicates to not use jPref (see below) to store 
+  "registrationEnabled" and "resetPasswordEnabled" preferences. By default: `off`.
 
 ex:
 
@@ -151,6 +153,8 @@ Using jPref allows to the admin user to change some settings (registration
 and reset password) directly from the jpref_admin interface. If jPref is activated,
 settings `registrationEnabled` and `resetPasswordEnabled` in the
 configuration are ignored.
+
+You can disable the use of jPref with the option `disableJPref`. See above.
 
 
 
