@@ -1,7 +1,7 @@
 Installation
 ============
 
-Latest jCommunity version works only with Jelix 1.4 and higher.
+Latest jCommunity version works only with Jelix 1.6 and higher.
 
 
 Get the module from a zip
