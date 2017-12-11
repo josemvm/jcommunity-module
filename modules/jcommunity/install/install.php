@@ -3,8 +3,8 @@
 * @package     jcommunity
 * @author      Laurent Jouanneau
 * @contributor
-* @copyright   2010 Laurent Jouanneau
- * @link      http://bitbucket.org/laurentj/jcommunity
+* @copyright   2010-2017 Laurent Jouanneau
+ * @link      https://github.com/laurentj/jcommunity
  * @license  http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public Licence, see LICENCE file
 */
 
@@ -18,6 +18,8 @@ class jcommunityModuleInstaller extends jInstallerModule {
         if (self::$key === null) {
             self::$key = jAuth::getRandomPassword(30, true);
         }
+
+        $isJelix17 = method_exists('jApp', 'appConfigPath');
 
         $authconfig = $this->config->getValue('auth','coordplugins');
         $authconfigMaster = $this->config->getValue('auth','coordplugins', null, true);
@@ -44,7 +46,15 @@ class jcommunityModuleInstaller extends jInstallerModule {
             }
         }
 
-        $conf = new jIniFileModifier(jApp::configPath($authconfig));
+        if ($isJelix17) {
+            $confPath = jApp::appConfigPath($authconfig);
+            $conf = new \Jelix\IniFile\IniModifier($confPath);
+        }
+        else {
+            $confPath = jApp::configPath($authconfig);
+            $conf = new jIniFileModifier($confPath);
+        }
+
         $usedStandardDao = ($conf->getValue('dao', 'Db') == 'jauthdb~jelixuser');
 
         $this->useDbProfile($conf->getValue('profile', 'Db'));
@@ -93,7 +103,7 @@ class jcommunityModuleInstaller extends jInstallerModule {
                 require_once(JELIX_LIB_PATH.'auth/jAuth.class.php');
                 require_once(JELIX_LIB_PATH.'plugins/auth/db/db.auth.php');
 
-                $confIni = parse_ini_file(jApp::configPath($authconfig), true);
+                $confIni = parse_ini_file($confPath, true);
                 $authConfig = jAuth::loadConfig($confIni);
                 $driver = new dbAuthDriver($authConfig['Db']);
                 $passwordHash = $driver->cryptPassword('admin');
@@ -110,12 +120,23 @@ class jcommunityModuleInstaller extends jInstallerModule {
 
         if ($this->firstExec('preferences')) {
             if (!$this->config->getValue('disableJPref', 'jcommunity')) {
-                $prefIni = new jIniFileModifier(__DIR__.'/prefs.ini');
-                $prefFile = jApp::configPath('preferences.ini.php');
-                if (file_exists($prefFile)) {
-                    $mainPref = new jIniFileModifier($prefFile);
-                    //import this way to not erase changed value.
-                    $prefIni->import($mainPref);
+                if ($isJelix17) {
+                    $prefIni = new \Jelix\IniFile\IniModifier(__DIR__.'/prefs.ini');
+                    $prefFile = jApp::appConfigPath('preferences.ini.php');
+                    if (file_exists($prefFile)) {
+                        $mainPref = new \Jelix\IniFile\IniModifier($prefFile);
+                        //import this way to not erase changed value.
+                        $prefIni->import($mainPref);
+                    }
+                }
+                else {
+                    $prefIni = new jIniFileModifier(__DIR__.'/prefs.ini');
+                    $prefFile = jApp::configPath('preferences.ini.php');
+                    if (file_exists($prefFile)) {
+                        $mainPref = new jIniFileModifier($prefFile);
+                        //import this way to not erase changed value.
+                        $prefIni->import($mainPref);
+                    }
                 }
                 $prefIni->saveAs($prefFile);
             }

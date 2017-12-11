@@ -8,6 +8,7 @@ test/var/mails/*
 !test/var/mails/.dummy
 *.komodoproject
 test/var/config/profiles.ini.php
+test/var/config/localconfig.ini.php
 test/vendor/*
 vendor/*
 .vagrant

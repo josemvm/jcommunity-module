@@ -9,7 +9,7 @@
         <creator name="Laurent Jouanneau" email="laurent@jelix.org" active="true"/>
     </info>
     <dependencies>
-       <jelix minversion="1.4" maxversion="1.6.*"/>
+       <jelix minversion="1.4" maxversion="1.7.*"/>
     </dependencies>
     <directories>
         <config>var/config</config>

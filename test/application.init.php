@@ -11,7 +11,6 @@
 
 $appPath = __DIR__.'/';
 require ($appPath.'vendor/autoload.php');
-require ($appPath.'vendor/jelix_app_path.php');
 
 jApp::initPaths(
     $appPath
@@ -22,6 +21,8 @@ jApp::initPaths(
     //$appPath.'scripts/'
 );
 jApp::setTempBasePath(realpath($appPath.'temp/').'/');
+
+require ($appPath.'vendor/jelix_app_path.php');
 
 jApp::declareModulesDir(array(
                         __DIR__.'/modules/',

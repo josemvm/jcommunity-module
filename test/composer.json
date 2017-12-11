@@ -11,11 +11,11 @@
         }
     ],
     "require": {
-        "php": ">=5.3",
+        "php": ">=5.6",
         "jelix/jelix": "dev-jelix-1.7.x"
     },
     "require-dev" : {
         
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "stable"
 }

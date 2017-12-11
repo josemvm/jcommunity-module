@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <urls xmlns="http://jelix.org/ns/urls/1.0">
     <classicentrypoint name="index" default="true" optionalTrailingSlash="true">
-        <url pathinfo="/" module="test" action="default:index" />
-        <url pathinfo="/auth" module="jcommunity" include="urls_auth.xml" />
+        <url pathinfo="/" module="test" action="default:index"/>
+        <url pathinfo="/auth" module="jcommunity" include="urls_auth.xml"/>
         <url pathinfo="/users" module="jcommunity" include="urls_account.xml"/>
         <url pathinfo="/registration" module="jcommunity" include="urls_registration.xml"/>
-        <url pathinfo="/messenger" module="jmessenger" include="urls.xml" />
+        <url pathinfo="/messenger" module="jmessenger" include="urls.xml"/>
     </classicentrypoint>
 </urls>
