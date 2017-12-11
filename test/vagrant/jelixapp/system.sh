@@ -1,5 +1,17 @@
 #!/bin/bash
 
+DISTRO=""
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    if [ "$VERSION_ID" = "8" ]; then
+        DISTRO="jessie"
+    else
+        if [ "$VERSION_ID" = "9" ]; then
+            DISTRO="stretch"
+        fi
+    fi
+fi
+
 function initsystem () {
     # create hostname
     HOST=`grep $APPHOSTNAME /etc/hosts`
@@ -8,74 +20,93 @@ function initsystem () {
     fi
     hostname $APPHOSTNAME
     echo "$APPHOSTNAME" > /etc/hostname
-    
+
     # local time
     echo "Europe/Paris" > /etc/timezone
     cp /usr/share/zoneinfo/Europe/Paris /etc/localtime
     locale-gen fr_FR.UTF-8
     update-locale LC_ALL=fr_FR.UTF-8
-    
-    # activate multiverse repository to have libapache2-mod-fastcgi
-    sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list
-    
+
     # install all packages
+    apt-get install -y software-properties-common apt-transport-https
+
+    if [ "$DISTRO" == "stretch" ]; then
+        apt-get install -y dirmngr
+    fi
+
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys AC0E47584A7A714D
+    echo "deb https://packages.sury.org/php $DISTRO main" > /etc/apt/sources.list.d/sury_php.list
+
+    if [ "$DISTRO" == "stretch" ]; then
+        if [ ! -f "/etc/apt/sources.list.d/mysql.list" ]; then
+            echo -e "deb http://repo.mysql.com/apt/debian/ stretch mysql-$MYSQL_VERSION\ndeb-src http://repo.mysql.com/apt/debian/ stretch mysql-$MYSQL_VERSION" > /etc/apt/sources.list.d/mysql.list
+            wget -O /tmp/RPM-GPG-KEY-mysql https://repo.mysql.com/RPM-GPG-KEY-mysql
+            apt-key add /tmp/RPM-GPG-KEY-mysql
+        fi
+    fi
+
     apt-get update
     apt-get -y upgrade
     apt-get -y install debconf-utils
     export DEBIAN_FRONTEND=noninteractive
-    echo "mysql-server-5.5 mysql-server/root_password password jelix" | debconf-set-selections
-    echo "mysql-server-5.5 mysql-server/root_password_again password jelix" | debconf-set-selections
-    echo "phpmyadmin phpmyadmin/dbconfig-install boolean true" | debconf-set-selections
-    echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2" | debconf-set-selections
-    echo "phpmyadmin phpmyadmin/mysql/admin-pass password jelix" | debconf-set-selections
-    echo "phpmyadmin phpmyadmin/app-password-confirm password jelix" | debconf-set-selections
-    echo "phpmyadmin phpmyadmin/mysql/app-pass password jelix" | debconf-set-selections
-    echo "phpmyadmin phpmyadmin/password-confirm password jelix" | debconf-set-selections
-    echo "phpmyadmin phpmyadmin/setup-password password jelix" | debconf-set-selections
-    
-    apt-get -y install apache2 libapache2-mod-fastcgi apache2-mpm-worker php5-fpm php5-cli php5-curl php5-gd php5-intl php5-mcrypt php5-memcache php5-memcached php5-mysql php5-pgsql php5-sqlite
+    echo "mysql-server-$MYSQL_VERSION mysql-community-server/root_password password jelix" | debconf-set-selections
+    echo "mysql-server-$MYSQL_VERSION mysql-community-server/root_password_again password jelix" | debconf-set-selections
+    echo "mysql-community-server mysql-community-server/root_password password jelix" | debconf-set-selections
+    echo "mysql-community-server mysql-community-server/root_password_again password jelix" | debconf-set-selections
+
+    apt-get -y install nginx
+    apt-get -y install  php${PHP_VERSION}-fpm \
+                        php${PHP_VERSION}-cli \
+                        php${PHP_VERSION}-curl \
+                        php${PHP_VERSION}-gd \
+                        php${PHP_VERSION}-intl \
+                        php${PHP_VERSION}-ldap \
+                        php${PHP_VERSION}-mysql \
+                        php${PHP_VERSION}-pgsql \
+                        php${PHP_VERSION}-sqlite3 \
+                        php${PHP_VERSION}-soap \
+                        php${PHP_VERSION}-dba \
+                        php${PHP_VERSION}-xml \
+                        php${PHP_VERSION}-mbstring \
+                        php-memcache \
+                        php-memcached \
+                        php-redis
+
     apt-get -y install mysql-server mysql-client
-    apt-get -y install git phpmyadmin
-    
+    apt-get -y install git vim unzip curl
+
     # create a database into mysql + users
     if [ ! -d /var/lib/mysql/$APPNAME/ ]; then
         echo "setting mysql database.."
         mysql -u root -pjelix -e "CREATE DATABASE IF NOT EXISTS $APPNAME CHARACTER SET utf8;CREATE USER test_user IDENTIFIED BY 'jelix';GRANT ALL ON $APPNAME.* TO test_user;FLUSH PRIVILEGES;"
     fi
-    
+
     # install default vhost for apache
-    cp $VAGRANTDIR/jelixapp/app.conf /etc/apache2/sites-available/$APPNAME.conf
-    
-    sed -i -- s/__APPHOSTNAME__/$APPHOSTNAME/g /etc/apache2/sites-available/$APPNAME.conf
-    sed -i -- "s/__ALIAS_APPHOSTNAME2__/ServerAlias $APPHOSTNAME2/g" /etc/apache2/sites-available/$APPNAME.conf
-    sed -i -- "s!__APPDIR__!$APPDIR!g" /etc/apache2/sites-available/$APPNAME.conf
-    sed -i -- "s!__ROOTDIR__!$ROOTDIR!g" /etc/apache2/sites-available/$APPNAME.conf
-    sed -i -- s/__APPNAME__/$APPNAME/g /etc/apache2/sites-available/$APPNAME.conf
-    
-    if [ ! -f /etc/apache2/sites-enabled/010-$APPNAME.conf ]; then
-        ln -s /etc/apache2/sites-available/$APPNAME.conf /etc/apache2/sites-enabled/010-$APPNAME.conf
+    cp $VAGRANTDIR/jelixapp/vhost /etc/nginx/sites-available/$APPNAME.conf
+    sed -i -- s/__APPHOSTNAME__/$APPHOSTNAME/g /etc/nginx/sites-available/$APPNAME.conf
+    sed -i -- s/__APPHOSTNAME2__/$APPHOSTNAME2/g /etc/nginx/sites-available/$APPNAME.conf
+    sed -i -- "s!__APPDIR__!$APPDIR!g" /etc/nginx/sites-available/$APPNAME.conf
+    sed -i -- "s!__ROOTDIR__!$ROOTDIR!g" /etc/nginx/sites-available/$APPNAME.conf
+    sed -i -- s/__APPNAME__/$APPNAME/g /etc/nginx/sites-available/$APPNAME.conf
+    sed -i -- s/__FPM_SOCK__/$FPM_SOCK/g /etc/nginx/sites-available/$APPNAME.conf
+
+    if [ ! -f /etc/nginx/sites-enabled/010-$APPNAME.conf ]; then
+        ln -s /etc/nginx/sites-available/$APPNAME.conf /etc/nginx/sites-enabled/010-$APPNAME.conf
     fi
-    if [ -f "/etc/apache2/sites-enabled/000-default.conf" ]; then
-        rm -f "/etc/apache2/sites-enabled/000-default.conf"
+    if [ -f "/etc/nginx/sites-enabled/default" ]; then
+        rm -f "/etc/nginx/sites-enabled/default"
     fi
-    
-    cp $VAGRANTDIR/jelixapp/php5_fpm.conf /etc/apache2/conf-available/
-    # to avoid bug https://github.com/mitchellh/vagrant/issues/351
-    echo "EnableSendfile Off" > /etc/apache2/conf-available/sendfileoff.conf
-    
-    a2enconf php5_fpm sendfileoff
-    a2enmod actions alias fastcgi rewrite
-    
-    sed -i "/^user = www-data/c\user = vagrant" /etc/php5/fpm/pool.d/www.conf
-    sed -i "/^group = www-data/c\group = vagrant" /etc/php5/fpm/pool.d/www.conf
-    sed -i "/display_errors = Off/c\display_errors = On" /etc/php5/fpm/php.ini
-    sed -i "/display_errors = Off/c\display_errors = On" /etc/php5/cli/php.ini
-    
-    service php5-fpm restart
-    
-    # restart apache
-    service apache2 reload
-    
+
+    sed -i "/^user = www-data/c\user = vagrant" /etc/php/$PHP_VERSION/fpm/pool.d/www.conf
+    sed -i "/^group = www-data/c\group = vagrant" /etc/php/$PHP_VERSION/fpm/pool.d/www.conf
+    sed -i "/display_errors = Off/c\display_errors = On" /etc/php/$PHP_VERSION/fpm/php.ini
+    sed -i "/display_errors = Off/c\display_errors = On" /etc/php/$PHP_VERSION/cli/php.ini
+
+    service php${PHP_VERSION}-fpm restart
+
+    # restart nginx
+    service nginx reload
+
     echo "Install composer.."
     if [ ! -f /usr/local/bin/composer ]; then
         curl -sS https://getcomposer.org/installer | php
@@ -122,11 +153,12 @@ function resetJelixInstall() {
     if [ -f $appdir/var/config/installer.ini.php ]; then
         rm -f $appdir/var/config/installer.ini.php
     fi
+    resetJelixTemp $appdir
 }
 
 function runComposer() {
     cd $1
-    composer install
+    su -c "composer install" vagrant
 }
 
 function resetComposer() {
@@ -134,7 +166,7 @@ function resetComposer() {
     if [ -f composer.lock ]; then
         rm -f composer.lock
     fi
-    composer install
+    su -c "composer install" vagrant
 }
 
 function initapp() {

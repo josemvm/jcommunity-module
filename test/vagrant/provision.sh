@@ -1,5 +1,8 @@
 #!/bin/bash
 ROOTDIR="/jelixapp"
+MYSQL_VERSION="5.7"
+PHP_VERSION="5.6"
+FPM_SOCK="php\\/php5.6-fpm.sock"
 APPNAME="jcommunity"
 APPDIR="$ROOTDIR/test"
 VAGRANTDIR="$APPDIR/vagrant"
