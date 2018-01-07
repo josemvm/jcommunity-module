@@ -27,7 +27,7 @@ auth_required=off
 ; What to do if an authentification is required but the user is not authentificated
 ; 1 = generate an error. This value should be set for web services (xmlrpc, jsonrpc...)
 ; 2 = redirect to an action
-on_error=1
+on_error=2
 
 ; locale key for the error message when on_error=1
 error_message="jcommunity~login.error.notlogged"

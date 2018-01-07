@@ -55,10 +55,6 @@ class jcommunityModuleInstaller extends jInstallerModule {
             $conf = new jIniFileModifier($confPath);
         }
 
-        $usedStandardDao = ($conf->getValue('dao', 'Db') == 'jauthdb~jelixuser');
-
-        $this->useDbProfile($conf->getValue('profile', 'Db'));
-
         $localConfigIni = $this->entryPoint->localConfigIni;
         $key = $localConfigIni->getValue('persistant_crypt_key', 'coordplugin_auth');
         if ($key === 'exampleOfCryptKey' || $key == '') {
@@ -85,6 +81,10 @@ class jcommunityModuleInstaller extends jInstallerModule {
             $this->config->setValue('loginResponse', 'htmlauth', 'jcommunity');
         }
 
+        $usedStandardDao = ($conf->getValue('dao', 'Db') == 'jauthdb~jelixuser');
+        $dbProfile = $conf->getValue('profile', 'Db');
+        $this->useDbProfile($dbProfile);
+
         if ($this->firstDbExec() && !$this->getParameter('notjcommunitytable')) {
 
             $conf->setValue('dao','jcommunity~user', 'Db');
@@ -107,8 +107,14 @@ class jcommunityModuleInstaller extends jInstallerModule {
                 $authConfig = jAuth::loadConfig($confIni);
                 $driver = new dbAuthDriver($authConfig['Db']);
                 $passwordHash = $driver->cryptPassword('admin');
-                $cn->exec("INSERT INTO ".$cn->prefixTable('community_users')." (login, password, email, nickname, status, create_date) VALUES
-                            ('admin', ".$cn->quote($passwordHash).", 'admin@localhost.localdomain', 'admin', 1, '".date('Y-m-d H:i:s')."')");
+
+                $daoSelector = $conf->getValue('dao', 'Db');
+                $user = jDao::createRecord($daoSelector, $dbProfile);
+                $user->login = $user->nickname = 'admin';
+                $user->password = $passwordHash;
+                $user->email = 'admin@localhost.localdomain';
+                $user->status = 1;
+                jDao::get($daoSelector, $dbProfile)->insert($user);
             }
         }
 
