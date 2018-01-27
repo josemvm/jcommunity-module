@@ -133,7 +133,7 @@ class jcommunityModuleInstaller extends jInstallerModule {
                     $passwordHash = $driver->cryptPassword('admin');
 
                     $user = jDao::createRecord($daoSelector, $dbProfile);
-                    $user->login = $user->nickname = 'admin';
+                    $user->nickname = $user->login = 'admin';
                     $user->password = $passwordHash;
                     $user->email = 'admin@localhost.localdomain';
                     $user->status = 1;
@@ -184,8 +184,7 @@ class jcommunityModuleInstaller extends jInstallerModule {
 
         $cn = $this->dbConnection();
         $targetFields = array();
-        $properties = array('login', 'password', 'status', 'email',
-            'nickname', 'create_date');
+        $properties = array('login', 'password', 'status', 'email', 'create_date');
         $daoProperties = $dao->getProperties();
         foreach($properties as $name) {
             if (!isset($daoProperties[$name])) {
@@ -199,9 +198,14 @@ class jcommunityModuleInstaller extends jInstallerModule {
             $cn->encloseName('usr_login'),
             $cn->encloseName('usr_password'),
             '1',
-            $cn->encloseName('usr_email'),
-            $cn->encloseName('usr_login')
+            $cn->encloseName('usr_email')
         );
+
+        if (isset($daoProperties['nickname'])) {
+            $sourceFields[] = $cn->encloseName('usr_login');
+            $targetFields[] = $cn->encloseName($daoProperties['nickname']['fieldName']);
+        }
+
         $oldTable = $cn->schema()->getTable('jlx_user');
         $colCreateDate = $oldTable->getColumn('create_date');
         if ($colCreateDate) {

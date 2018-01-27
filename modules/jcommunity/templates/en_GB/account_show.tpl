@@ -4,7 +4,7 @@
 <table>
 <tr>
     <td>Login</td> <td>{$user->login|eschtml}</td>
-    <td>Displayed name</td> <td>{$user->nickname|eschtml}</td>
+    {if isset($user->nickname)}<td>Displayed name</td> <td>{$user->nickname|eschtml}</td>{/if}
 </tr>
 {ifuserconnected}
 <tr>

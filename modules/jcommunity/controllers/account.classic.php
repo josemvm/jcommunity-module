@@ -119,6 +119,7 @@ class accountCtrl extends jController {
 
     function save() {
         $user = $this->param('user');
+        $config = new \Jelix\JCommunity\Config();
 
         $rep = $this->getResponse('redirect');
         $rep->action = 'jcommunity~account:show';
@@ -136,7 +137,11 @@ class accountCtrl extends jController {
         $form->initFromRequest();
         $form->check();
         $accountFact = jDao::get($this->getDaoName(), $this->getProfileName());
-        if($accountFact->verifyNickname($user, $form->getData('nickname'))){
+
+        if ($config->verifyNickname() &&
+            $form->getControl('nickname') !== null &&
+            $accountFact->verifyNickname($user, $form->getData('nickname'))
+        ) {
             $form->setErrorOn('nickname', jLocale::get('account.error.dup.nickname'));
         }
 

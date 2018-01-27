@@ -16,12 +16,18 @@ class Config {
 
     protected $resetPasswordEnabled = true;
 
+    protected $verifyNickname = true;
+
     /**
      */
     function __construct() {
         $config = (isset(\jApp::config()->jcommunity)?\jApp::config()->jcommunity:array());
         if (isset($config['loginResponse'])) {
             $this->responseType = $config['loginResponse'];
+        }
+
+        if (isset($config['verifyNickname'])) {
+            $this->verifyNickname = $config['verifyNickname'];
         }
 
         if ((!isset($config['disableJPref']) || $config['disableJPref'] == true ) &&
@@ -57,4 +63,10 @@ class Config {
     function isResetPasswordEnabled() {
         return $this->resetPasswordEnabled;
     }
+
+    function verifyNickname() {
+        return $this->verifyNickname;
+    }
+
+
 }
