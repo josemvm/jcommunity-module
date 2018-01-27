@@ -45,16 +45,16 @@ bad_ip_action="jcommunity~login:out"
 on_error_sleep=3
 
 ; action to redirect after the login
-after_login="test~default:index"
+after_login="jcommunity~account:show"
 
 ; action to redirect after a logout
-after_logout="test~default:index"
+after_logout="jcommunity~login:index"
 
 ; says if after_login can be overloaded by a "auth_url_return" parameter in the url/form for the login
-enable_after_login_override=off
+enable_after_login_override=on
 
 ; says if after_logout can be overloaded by a "auth_url_return" parameter in the url/form for the login
-enable_after_logout_override=off
+enable_after_logout_override=on
 
 ;============ Parameters for the persistance of the authentification
 
