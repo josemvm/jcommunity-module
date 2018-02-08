@@ -1,17 +1,15 @@
 Hello,
 
-You have asked a new password on http://{$server}.
+You requested a password reset for your account {$user->login}
+on the web site {$domain_name}.
 
-If you really want to change it, you should confirm by filling the form displayed after
-your request. In this form, indicate your login "{$login}" and this key: {$key}
+If you really want to change it, you should click on the following link:
 
-(the form is available at this page if you loose the page:
-http://{$server}{jurl 'jcommunity~password:confirmform'} )
+{$confirmation_link}
 
-In the form, you will also indicate a new password for your account. You can choose any
-password. Here is an example you can use {$pass}.
+You could then set a new password for your account. The link is valid 48h.
 
-If you don't want to confirm, ignore this mail, and your
-password won't be changed.
+If you don't want to confirm, ignore this mail, and your password won't be
+changed.
 
-See you soon on {$server} !
+See you soon on {$domain_name}!

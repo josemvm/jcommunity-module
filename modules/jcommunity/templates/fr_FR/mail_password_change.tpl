@@ -1,20 +1,16 @@
 Bonjour,
 
-Vous venez de demander un nouveau mot de passe sur le site http://{$server}.
+Vous venez de demander une réinitialisation du mot de passe
+de votre compte {$user->login} sur le site {$domain_name}.
 
-Si vous voulez confirmer ce changement, remplissez le formulaire 
-qui s'est affiché aprés votre demande, en indiquant votre login  "{$login}"
-et la clé d'activation suivante : {$key}.
+Si vous voulez confirmer ce changement, cliquez sur le lien
+suivant :
 
-(Le formulaire est disponible à cette adresse si vous avez perdu la page :
-http://{$server}{jurl 'jcommunity~password:confirmform'})
+{$confirmation_link}
 
-Vous devez aussi indiquer sur ce formulaire un nouveau mot de passe
-de votre choix.
-Voici une proposition de mot de passe: {$pass}
+Vous pourrez alors changer le mot de passe. Ce lien est valide 48h.
 
-Si vous ne voulez pas confirmer, ignorez ce mail,
-et votre ancien mot de passe sera toujours valide.
+Si cette demande de réinitialisation est une erreur, ignorez ce mail,
+et votre mot de passe actuel sera toujours valide.
 
-
-À bientôt sur {$server}.
+À bientôt sur {$domain_name}.

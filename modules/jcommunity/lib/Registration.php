@@ -91,6 +91,9 @@ class Registration
         if ($user->keyactivate == '' || $key != $user->keyactivate) {
             return self::CONFIRMATION_BAD_KEY;
         }
+
+        // FIXME verify the date of the request to not accept a confirmation after X days
+
         $user->status = Account::STATUS_VALID;
         \jEvent::notify('jcommunity_registration_confirm', array('user' => $user));
         \jAuth::updateUser($user);

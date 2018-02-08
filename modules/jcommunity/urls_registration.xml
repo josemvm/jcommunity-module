@@ -7,7 +7,8 @@
 
     <url pathinfo="/password"           action="password:index" />
     <url pathinfo="/password/send"      action="password:send"/>
-    <url pathinfo="/password/confirm"   action="password:confirm"/>
-    <url pathinfo="/password/confirmform"  action="password:confirmform"/>
-    <url pathinfo="/password/confirmok"  action="password:confirmok"/>
+    <url pathinfo="/password/sent"      action="password:sent"/>
+    <url pathinfo="/password/resetform" action="password:resetform"/>
+    <url pathinfo="/password/save"      action="password:save"/>
+    <url pathinfo="/password/changed"   action="password:changed"/>
 </suburls>
