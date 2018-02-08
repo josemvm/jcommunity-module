@@ -1,0 +1,5 @@
+
+forceHTTPPort=8024
+[jcommunity]
+registrationEnabled=on
+resetPasswordEnabled=on
