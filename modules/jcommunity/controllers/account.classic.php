@@ -4,12 +4,11 @@
 * @subpackage   
 * @author       Laurent Jouanneau <laurent@xulfr.org>
 * @contributor
-* @copyright    2008 Laurent Jouanneau
+* @copyright    2008-2018 Laurent Jouanneau
 * @link         http://jelix.org
 * @licence      http://www.gnu.org/licenses/gpl.html GNU General Public Licence, see LICENCE file
 */
 
-include(dirname(__FILE__).'/../classes/defines.php');
 
 class accountCtrl extends jController {
 
@@ -43,7 +42,7 @@ class accountCtrl extends jController {
         $users = jDao::get($this->getDaoName(), $this->getProfileName());
 
         $user = $users->getByLogin($this->param('user'));
-        if(!$user || $user->status < JCOMMUNITY_STATUS_VALID) {
+        if(!$user || $user->status < \Jelix\JCommunity\Account::STATUS_VALID) {
             $rep->body->assign('MAIN',$tpl->fetch('account_unknow'));
             return $rep;
         }

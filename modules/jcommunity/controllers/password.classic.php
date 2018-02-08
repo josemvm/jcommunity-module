@@ -4,12 +4,10 @@
 * @subpackage
 * @author       Laurent Jouanneau <laurent@xulfr.org>
 * @contributor
-* @copyright    2007-2008 Laurent Jouanneau
+* @copyright    2007-2018 Laurent Jouanneau
 * @link         http://jelix.org
 * @licence      http://www.gnu.org/licenses/gpl.html GNU General Public Licence, see LICENCE file
 */
-
-include(dirname(__FILE__).'/../classes/defines.php');
 
 class passwordCtrl extends \Jelix\JCommunity\AbstractController {
 
@@ -66,7 +64,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController {
         $pass = jAuth::getRandomPassword(8);
         $key = substr(md5($login.'-'.$pass),1,10);
 
-        $user->status = JCOMMUNITY_STATUS_PWD_CHANGED;
+        $user->status = \Jelix\JCommunity\Account::STATUS_PWD_CHANGED;
         $user->request_date = date('Y-m-d H:i:s');
         $user->keyactivate = $key;
         jAuth::updateUser($user);
@@ -143,11 +141,11 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController {
             return $rep;
         }
 
-        if ($user->status != JCOMMUNITY_STATUS_PWD_CHANGED) {
+        if ($user->status != \Jelix\JCommunity\Account::STATUS_PWD_CHANGED) {
             jForms::destroy('confirmation');
             $rep = $this->getResponse('html');
             $tpl = new jTpl();
-            $tpl->assign('status',JCOMMUNITY_STATUS_VALID);
+            $tpl->assign('status',\Jelix\JCommunity\Account::STATUS_VALID);
             $rep->body->assign('MAIN',$tpl->fetch('password_ok'));
             return $rep;
         }
@@ -156,7 +154,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController {
             jForms::destroy('confirmation');
             $rep = $this->getResponse('html');
             $tpl = new jTpl();
-            $tpl->assign('status',JCOMMUNITY_STATUS_MAIL_CHANGED);
+            $tpl->assign('status',\Jelix\JCommunity\Account::STATUS_MAIL_CHANGED);
             $rep->body->assign('MAIN',$tpl->fetch('password_ok'));
             return $rep;
         }
@@ -167,7 +165,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController {
         }
 
         $passwd = $form->getData('conf_password');
-        $user->status = JCOMMUNITY_STATUS_VALID;
+        $user->status = \Jelix\JCommunity\Account::STATUS_VALID;
         jAuth::updateUser($user);
         jAuth::changePassword($login, $passwd);
         jAuth::login($login, $passwd);
@@ -185,7 +183,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController {
         // to navigate into the web site
         $rep = $this->getResponse('html');
         $tpl = new jTpl();
-        $tpl->assign('status',JCOMMUNITY_STATUS_NEW);
+        $tpl->assign('status', \Jelix\JCommunity\Account::STATUS_NEW);
         $rep->body->assign('MAIN',$tpl->fetch('password_ok'));
         return $rep;
     }
