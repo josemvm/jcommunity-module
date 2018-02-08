@@ -54,12 +54,12 @@ class registrationCtrl extends \Jelix\JCommunity\AbstractController {
         jEvent::notify('jcommunity_registration_init_form', array('form'=>$form) );
 
         $form->initFromRequest();
-        if(!$form->check()){
+        if (!$form->check()) {
             return $rep;
         }
 
         $login = $form->getData('reg_login');
-        if(jAuth::getUser($login)){
+        if (jAuth::getUser($login)) {
             $form->setErrorOn('reg_login',jLocale::get('register.form.login.exists'));
             return $rep;
         }
@@ -69,9 +69,7 @@ class registrationCtrl extends \Jelix\JCommunity\AbstractController {
 
         $user = jAuth::createUserObject($login,$pass);
         $user->email = $form->getData('reg_email');
-        if ($form->getControl('nickname') !== null) {
-            $user->nickname = $login;
-        }
+
         $user->status = JCOMMUNITY_STATUS_NEW;
         $user->request_date = date('Y-m-d H:i:s');
         $user->keyactivate = $key;
