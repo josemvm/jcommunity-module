@@ -91,7 +91,7 @@ password_hash_options=
 dao="jcommunity~user"
 
 ; profil to use for jDb 
-profil=
+profile=
 
 ; name of the php function to crypt the password in the database
 password_crypt_function=md5

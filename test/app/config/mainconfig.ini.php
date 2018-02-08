@@ -9,9 +9,6 @@ availableLocales = "fr_FR"
 ; see http://www.php.net/manual/en/timezones.php for supported values
 timeZone="Europe/Paris"
 
-pluginsPath=
-modulesPath="lib:jelix-modules/,app:modules/,app:../modules/"
-
 theme=default
 
 
@@ -51,8 +48,6 @@ force=off
 plugins =debugbar
 
 [urlengine]
-; name of url engine :  "simple" or "significant"
-engine=significant
 
 ; enable the parsing of the url. Set it to off if the url is already parsed by another program
 ; (like mod_rewrite in apache), if the rewrite of the url corresponds to a simple url, and if
