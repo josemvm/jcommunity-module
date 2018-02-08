@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<forms xmlns="http://jelix.org/ns/forms/1.0">
+<form xmlns="http://jelix.org/ns/forms/1.1">
 <!--
 @package      jcommunity
 @subpackage
@@ -19,14 +19,14 @@
        <hint locale="register.form.confirm.key.hint" />
    </input>
 
-   <secret ref="conf_password"  required="true">
-       <label locale="register.form.confirm.password.label"/>
-       <hint locale="register.form.confirm.password.hint"/>
-       <confirm locale="register.form.confirm.password2.label" />
+   <secret ref="conf_password"  required="true" minlength="8" maxlength="120">
+       <label locale="password.form.confirm.password.label"/>
+       <hint locale="password.form.confirm.password.hint"/>
+       <confirm locale="password.form.confirm.password2.label" />
    </secret>
 
    <submit ref="conf_submit">
        <label locale="register.form.confirm.activate.label"/>
    </submit>
    
-</forms>
+</form>
