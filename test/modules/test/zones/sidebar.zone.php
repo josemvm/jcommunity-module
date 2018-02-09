@@ -13,7 +13,7 @@ class sidebarZone extends jZone {
 
     
     protected function _prepareTpl(){
-        $this->_tpl->assignZone('LOGIN','jcommunity~login');
+        $this->_tpl->assignZone('LOGIN','jcommunity~status');
         $this->_tpl->assignZone('MESSENGER','jmessenger~links');
     }
 }
