@@ -13,6 +13,7 @@ class accountCtrl extends jController
     public $pluginParams = array(
       '*' => array('auth.required' => true),
       'show' => array('auth.required' => false),
+      'destroydone' => array('auth.required' => false),
     );
 
     protected function getDaoName()
@@ -230,6 +231,7 @@ class accountCtrl extends jController
     public function dodestroy()
     {
         $login = $this->param('user');
+        $password = $this->param('conf_password');
         $rep = $this->getResponse('redirect');
         $rep->action = 'jcommunity~account:show';
         $rep->params = array('user' => $login);
@@ -238,17 +240,47 @@ class accountCtrl extends jController
             return $rep;
         }
 
-        $rep = $this->getResponse('html');
+        $rep->action = 'jcommunity~account:destroydone';
         $tpl = new jTpl();
         $tpl->assign('username', $login);
 
-        if (jAuth::removeUser($login)) {
-            jAuth::logout();
-            $rep->body->assign('MAIN', $tpl->fetch('account_destroy_done'));
+        if (jAuth::verifyPassword($login, $password)) {
+            if (jAuth::removeUser($login)) {
+                jAuth::logout();
+            } else {
+                $rep->params['error'] = 'notremoved';
+            }
         } else {
-            $rep->body->assign('MAIN', $tpl->fetch('account_destroy_cancel'));
+            $rep->params['error'] = 'badpassword';
         }
 
+        return $rep;
+    }
+
+    public function destroydone()
+    {
+        $rep = $this->getResponse('html');
+        $tpl = new jTpl();
+
+        $login = $this->param('user');
+        $error = $this->param('error');
+
+        if (jAuth::isConnected()) {
+            if (jAuth::getUserSession()->login == $login) {
+                if (jAuth::getUser($login)) {
+                    $error = 'notremoved';
+                }
+                else {
+                    $error = 'nologout';
+                }
+            }
+            else {
+                $error = 'wronguser';
+            }
+        }
+
+        $tpl->assign('error', $error);
+        $rep->body->assign('MAIN', $tpl->fetch('account_destroy_done'));
         return $rep;
     }
 }
