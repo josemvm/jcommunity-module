@@ -19,6 +19,8 @@ class Config
 
     protected $verifyNickname = true;
 
+    protected $publicProperties = array('login', 'nickname', 'create_date');
+
     /**
      */
     public function __construct()
@@ -30,6 +32,15 @@ class Config
 
         if (isset($config['verifyNickname'])) {
             $this->verifyNickname = $config['verifyNickname'];
+        }
+
+        if (isset($config['publicProperties'])) {
+            if (!is_array($config['publicProperties'])) {
+                $this->publicProperties = preg_split('/\s*,\s*/', trim($config['publicProperties']));
+            }
+            else {
+                $this->publicProperties = $config['publicProperties'];
+            }
         }
 
         if ((!isset($config['disableJPref']) || $config['disableJPref'] == true) &&
@@ -71,5 +82,10 @@ class Config
     public function verifyNickname()
     {
         return $this->verifyNickname;
+    }
+
+    public function getPublicUserProperties()
+    {
+        return $this->publicProperties;
     }
 }
