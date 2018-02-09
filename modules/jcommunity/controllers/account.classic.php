@@ -35,6 +35,19 @@ class accountCtrl extends jController
         return $plugin->config['Db']['profile'];
     }
 
+    protected function getAccountForm()
+    {
+        $plugin = jApp::coord()->getPlugin('auth');
+        if ($plugin === null) {
+            throw new jException('jelix~auth.error.plugin.missing');
+        }
+
+        if (isset($plugin->config['Db']['userform'])) {
+            return $plugin->config['Db']['userform'];
+        }
+        return 'jcommunity~account';
+    }
+
     /**
      * show informations about a user.
      */
@@ -49,7 +62,7 @@ class accountCtrl extends jController
 
         $config = new \Jelix\JCommunity\Config();
         try {
-            $form = jForms::create('account', $login);
+            $form = jForms::create($this->getAccountForm(), $login);
             $user = $form->initFromDao($this->getDaoName(), $login, $this->getProfileName());
         } catch (Exception $e) {
             $rep->body->assign('MAIN', $tpl->fetch('account_unknown'));
@@ -78,24 +91,24 @@ class accountCtrl extends jController
         ));
 
         $rep->body->assign('MAIN', $tpl->fetch('account_show'));
-
+        jForms::destroy($this->getAccountForm(), $login);
         return $rep;
     }
 
     public function prepareEdit()
     {
-        $user = $this->param('user');
+        $login = $this->param('user');
         $rep = $this->getResponse('redirect');
         $rep->action = 'jcommunity~account:show';
-        $rep->params = array('user' => $user);
+        $rep->params = array('user' => $login);
 
-        if (!jAuth::isConnected() || jAuth::getUserSession()->login != $user) {
+        if (!jAuth::isConnected() || jAuth::getUserSession()->login != $login) {
             return $rep;
         }
 
-        $form = jForms::create('account', $this->param('user'));
+        $form = jForms::create($this->getAccountForm(), $login);
 
-        jEvent::notify('jcommunity_init_edit_form_account', array('login' => $user, 'form' => $form));
+        jEvent::notify('jcommunity_init_edit_form_account', array('login' => $login, 'form' => $form));
 
         try {
             $form->initFromDao($this->getDaoName(), null, $this->getProfileName());
@@ -103,7 +116,7 @@ class accountCtrl extends jController
             return $rep;
         }
 
-        jEvent::notify('jcommunity_prepare_edit_account', array('login' => $user, 'form' => $form));
+        jEvent::notify('jcommunity_prepare_edit_account', array('login' => $login, 'form' => $form));
 
         $rep->action = 'jcommunity~account:edit';
 
@@ -112,33 +125,33 @@ class accountCtrl extends jController
 
     public function edit()
     {
-        $user = $this->param('user');
-        if ($user == '' || !jAuth::isConnected() || jAuth::getUserSession()->login != $user) {
+        $login = $this->param('user');
+        if ($login == '' || !jAuth::isConnected() || jAuth::getUserSession()->login != $login) {
             $rep = $this->getResponse('redirect');
             $rep->action = 'jcommunity~account:show';
-            $rep->params = array('user' => $user);
+            $rep->params = array('user' => $login);
 
             return $rep;
         }
 
-        $form = jForms::get('account', $user);
+        $form = jForms::get($this->getAccountForm(), $login);
         if (!$form) {
             $rep = $this->getResponse('redirect');
             $rep->action = 'jcommunity~account:show';
-            $rep->params = array('user' => $user);
+            $rep->params = array('user' => $login);
 
             return $rep;
         }
 
-        jEvent::notify('jcommunity_init_edit_form_account', array('login' => $user, 'form' => $form));
+        jEvent::notify('jcommunity_init_edit_form_account', array('login' => $login, 'form' => $form));
 
         $rep = $this->getResponse('html');
 
         $tpl = new jTpl();
-        $tpl->assign('username', $user);
+        $tpl->assign('username', $login);
         $tpl->assign('form', $form);
 
-        jEvent::notify('jcommunity_edit_account', array('login' => $user, 'rep' => $rep, 'form' => $form, 'tpl' => $tpl));
+        jEvent::notify('jcommunity_edit_account', array('login' => $login, 'rep' => $rep, 'form' => $form, 'tpl' => $tpl));
 
         $rep->body->assign('MAIN', $tpl->fetch('account_edit'));
 
@@ -147,21 +160,21 @@ class accountCtrl extends jController
 
     public function save()
     {
-        $user = $this->param('user');
+        $login = $this->param('user');
         $config = new \Jelix\JCommunity\Config();
 
         $rep = $this->getResponse('redirect');
         $rep->action = 'jcommunity~account:show';
-        $rep->params = array('user' => $user);
+        $rep->params = array('user' => $login);
 
-        if ($user == '' || !jAuth::isConnected() || jAuth::getUserSession()->login != $user) {
+        if ($login == '' || !jAuth::isConnected() || jAuth::getUserSession()->login != $login) {
             return $rep;
         }
-        $form = jForms::get('account', $user);
+        $form = jForms::get($this->getAccountForm(), $login);
         if (!$form) {
             return $rep;
         }
-        jEvent::notify('jcommunity_init_edit_form_account', array('login' => $user, 'form' => $form));
+        jEvent::notify('jcommunity_init_edit_form_account', array('login' => $login, 'form' => $form));
 
         $form->initFromRequest();
         $form->check();
@@ -169,23 +182,29 @@ class accountCtrl extends jController
 
         if ($config->verifyNickname() &&
             $form->getControl('nickname') !== null &&
-            $accountFact->verifyNickname($user, $form->getData('nickname'))
+            $accountFact->verifyNickname($login, $form->getData('nickname'))
         ) {
             $form->setErrorOn('nickname', jLocale::get('account.error.dup.nickname'));
         }
 
-        jEvent::notify('jcommunity_check_before_save_account', array('login' => $user, 'form' => $form));
+        jEvent::notify('jcommunity_check_before_save_account', array('login' => $login, 'form' => $form));
         if (count($form->getErrors())) {
             $rep->action = 'jcommunity~account:edit';
         } else {
-            extract($form->prepareDaoFromControls($this->getDaoName(), null, $this->getProfileName()), EXTR_PREFIX_ALL, 'form');
-            jEvent::notify('jcommunity_save_account', array('login' => $user, 'form' => $form, 'factory' => $form_dao, 'record' => $form_daorec, 'to_insert' => $form_toInsert));
-            if ($form_toInsert) {
-                $form_dao->insert($form_daorec);
+            $objects = $form->prepareDaoFromControls($this->getDaoName(), null, $this->getProfileName());
+            jEvent::notify('jcommunity_save_account', array(
+                'login' => $login,
+                'form' => $form,
+                'factory' => $objects['dao'],
+                'record' => $objects['daorec'],
+                'to_insert' => $objects['toInsert'])
+            );
+            if ($objects['toInsert']) {
+                $objects['dao']->insert($objects['daorec']);
             } else {
-                $form_dao->update($form_daorec);
+                $objects['dao']->update($objects['daorec']);
             }
-            jForms::destroy('account', $user);
+            jForms::destroy($this->getAccountForm(), $login);
         }
 
         return $rep;
@@ -193,17 +212,16 @@ class accountCtrl extends jController
 
     public function destroy()
     {
-        $user = $this->param('user');
-        if ($user == '' || !jAuth::isConnected() || jAuth::getUserSession()->login != $user) {
+        $login = $this->param('user');
+        if ($login == '' || !jAuth::isConnected() || jAuth::getUserSession()->login != $login) {
             $rep = $this->getResponse('redirect');
             $rep->action = 'jcommunity~account:show';
-            $rep->params = array('user' => $user);
-
+            $rep->params = array('user' => $login);
             return $rep;
         }
         $rep = $this->getResponse('html');
         $tpl = new jTpl();
-        $tpl->assign('username', $user);
+        $tpl->assign('username', $login);
         $rep->body->assign('MAIN', $tpl->fetch('account_destroy'));
 
         return $rep;
@@ -211,20 +229,20 @@ class accountCtrl extends jController
 
     public function dodestroy()
     {
-        $user = $this->param('user');
+        $login = $this->param('user');
         $rep = $this->getResponse('redirect');
         $rep->action = 'jcommunity~account:show';
-        $rep->params = array('user' => $user);
+        $rep->params = array('user' => $login);
 
-        if ($user == '' || !jAuth::isConnected() || jAuth::getUserSession()->login != $user) {
+        if ($login == '' || !jAuth::isConnected() || jAuth::getUserSession()->login != $login) {
             return $rep;
         }
 
         $rep = $this->getResponse('html');
         $tpl = new jTpl();
-        $tpl->assign('username', $user);
+        $tpl->assign('username', $login);
 
-        if (jAuth::removeUser($user)) {
+        if (jAuth::removeUser($login)) {
             jAuth::logout();
             $rep->body->assign('MAIN', $tpl->fetch('account_destroy_done'));
         } else {
