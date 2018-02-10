@@ -1,16 +1,16 @@
-Bonjour,
+{meta Subject 'Réinitialisation de mot de passe sur le site '.$domain_name}
+<p>Bonjour,</p>
 
-Vous venez de demander une réinitialisation du mot de passe
-de votre compte {$user->login} sur le site {$domain_name}.
+<p>Vous venez de demander une réinitialisation du mot de passe de votre
+compte <em>"{$user->login}"</em> sur le site <a href="{$website_uri}" class="notexpandlink">{$domain_name}</a>.</p>
 
-Si vous voulez confirmer ce changement, cliquez sur le lien
-suivant :
+<p>Si vous voulez confirmer cette réinitialisation, <a href="{$confirmation_link}">cliquez sur ce lien</a>.</p>
 
-{$confirmation_link}
+<p>Vous pourrez alors changer le mot de passe. Ce lien est valide 48h.</p>
 
-Vous pourrez alors changer le mot de passe. Ce lien est valide 48h.
+<p>Si cette demande de réinitialisation est une erreur, ignorez ce mail,
+et votre mot de passe actuel sera toujours valide.</p>
 
-Si cette demande de réinitialisation est une erreur, ignorez ce mail,
-et votre mot de passe actuel sera toujours valide.
+<p>À tout de suite sur {$domain_name} !</p>
 
-À bientôt sur {$domain_name}.
+

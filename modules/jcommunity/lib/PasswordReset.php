@@ -13,7 +13,7 @@ class PasswordReset {
 
     function sendEmail($login, $email) {
         $user = \jAuth::getUser($login);
-        if (!$user || $user->email != $email) {
+        if (!$user || $user->email == '' || $user->email != $email) {
             return self::RESET_BAD_LOGIN_EMAIL;
         }
 
@@ -32,9 +32,9 @@ class PasswordReset {
         $mail->From = \jApp::config()->mailer['webmasterEmail'];
         $mail->FromName = \jApp::config()->mailer['webmasterName'];
         $mail->Sender = \jApp::config()->mailer['webmasterEmail'];
-        $mail->Subject = \jLocale::get('password.mail.pwd.change.subject');
+        $mail->Subject = \jLocale::get('password.mail.pwd.change.subject', $domain);
 
-        $tpl = new \jTpl();
+        $tpl = $mail->Tpl('mail_password_change', true);
         $tpl->assign('user', $user);
         $tpl->assign('domain_name', $domain);
         $tpl->assign('website_uri', \jApp::coord()->request->getServerURI());
@@ -43,7 +43,6 @@ class PasswordReset {
             array('login' => $user->login, 'key' => $user->keyactivate)
         ));
 
-        $mail->Body = $tpl->fetch('mail_password_change', 'text');
         $mail->AddAddress($user->email);
         $mail->Send();
 

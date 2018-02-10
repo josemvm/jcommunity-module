@@ -50,9 +50,9 @@ class Registration
         $mail->From = \jApp::config()->mailer['webmasterEmail'];
         $mail->FromName = \jApp::config()->mailer['webmasterName'];
         $mail->Sender = \jApp::config()->mailer['webmasterEmail'];
-        $mail->Subject = \jLocale::get('register.mail.new.subject').$domain;
+        $mail->Subject = \jLocale::get('register.mail.new.subject', $domain);
 
-        $tpl = new \jTpl();
+        $tpl = $mail->Tpl('mail_registration', true);
         $tpl->assign('user', $user);
         $tpl->assign('domain_name', $domain);
         $tpl->assign('website_uri', \jApp::coord()->request->getServerURI());
@@ -61,7 +61,6 @@ class Registration
             array('login' => $user->login, 'key' => $user->keyactivate)
         ));
 
-        $mail->Body = $tpl->fetch('mail_registration', 'text');
         $mail->AddAddress($user->email);
         $mail->Send();
     }
