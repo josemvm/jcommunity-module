@@ -34,7 +34,7 @@ class AbstractController extends \jController
             }
         }
         if ($this->checkIsConnected && \jAuth::isConnected()) {
-            return $this->noaccess();
+            return $this->noaccess('no_access_auth');
         }
 
         return null;
@@ -51,23 +51,33 @@ class AbstractController extends \jController
         return $this->getResponse($response);
     }
 
-    protected function noaccess()
+    protected function noaccess($errorId = '')
     {
         $rep = $this->_getjCommunityResponse();
         $rep->setHttpStatus(403, 'Forbidden');
+        return $this->showError($rep, $errorId);
+    }
+
+    protected function showError($rep, $errorId) {
+
         $tpl = new \jTpl();
-        $rep->body->assign('MAIN', $tpl->fetch('no_access'));
+        if (\jAuth::isConnected()) {
+            $tpl->assign('login', \jAuth::getUserSession()->login);
+        }
+        else {
+            $tpl->assign('login', '');
+        }
+        $tpl->assign('error', $errorId);
+        $rep->body->assign('MAIN', $tpl->fetch('error'));
 
         return $rep;
     }
 
-    protected function notavailable()
+    protected function notavailable($errorId = 'not_available')
     {
         $rep = $this->_getjCommunityResponse();
         $rep->setHttpStatus(404, 'Not found');
-        $tpl = new \jTpl();
-        $rep->body->assign('MAIN', $tpl->fetch('not_available'));
+        return $this->showError($rep, $errorId);
 
-        return $rep;
     }
 }

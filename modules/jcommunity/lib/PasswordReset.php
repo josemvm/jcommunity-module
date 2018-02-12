@@ -97,6 +97,7 @@ class PasswordReset {
 
     function changePassword($user, $newPassword) {
         $user->status = Account::STATUS_VALID;
+        $user->keyactivate = '';
         \jAuth::updateUser($user);
         \jAuth::changePassword($user->login, $newPassword);
     }

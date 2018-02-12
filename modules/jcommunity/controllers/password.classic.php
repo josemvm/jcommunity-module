@@ -30,7 +30,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController
         $user = jAuth::getUserSession();
 
         if ($this->param('user') != $user->login) {
-            return $this->noaccess();
+            return $this->noaccess('no_access_wronguser');
         }
 
         $rep = $this->getResponse('html');
@@ -69,7 +69,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController
         $user = jAuth::getUserSession();
 
         if ($this->param('user') != $user->login) {
-            return $this->noaccess();
+            return $this->noaccess('no_access_wronguser');
         }
 
         $rep = $this->getResponse('redirect');
