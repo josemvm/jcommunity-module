@@ -17,7 +17,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController
     protected $configMethodCheck = 'isResetPasswordEnabled';
 
     /**
-     * form to reset a password.
+     * form to request a reset password.
      */
     public function index()
     {
@@ -28,13 +28,13 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController
 
         $rep = $this->_getjCommunityResponse();
         $rep->title = jLocale::get('password.form.title');
-        $rep->body->assignZone('MAIN', 'password');
+        $rep->body->assignZone('MAIN', 'passwordReset');
 
         return $rep;
     }
 
     /**
-     * send an email to change the password.
+     * send an email to reset the password.
      */
     public function send()
     {
@@ -46,7 +46,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController
         $rep = $this->getResponse('redirect');
         $rep->action = 'password:index';
 
-        $form = jForms::fill('password');
+        $form = jForms::fill('password_reset');
         if (!$form->check()) {
             return $rep;
         }
@@ -61,12 +61,19 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController
             return $rep;
         }
 
-        jForms::destroy('password');
+        jForms::destroy('password_reset');
         $rep->action = 'password:sent';
 
         return $rep;
     }
 
+    /**
+     * Display the message that confirms the email sending
+     *
+     * @return jResponse|jResponseHtml|jResponseJson|jResponseRedirect|void
+     * @throws Exception
+     * @throws jExceptionSelector
+     */
     public function sent() {
         $repError = $this->_check();
         if ($repError) {
@@ -76,7 +83,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController
         $rep = $this->_getjCommunityResponse();
         $rep->title = jLocale::get('password.waiting.title');
         $tpl = new jTpl();
-        $rep->body->assign('MAIN', $tpl->fetch('password_waiting'));
+        $rep->body->assign('MAIN', $tpl->fetch('password_reset_waiting'));
 
         return $rep;
     }
@@ -98,7 +105,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController
         $passReset = new \Jelix\JCommunity\PasswordReset();
         $tpl = new jTpl();
 
-        $form = jForms::get('password_change');
+        $form = jForms::get('password_reset_change');
         if ($form == null) {
             $login = $this->param('login');
             $key = $this->param('key');
@@ -107,24 +114,24 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController
             if (is_string($user)) {
                 $status = $user;
                 $tpl->assign('error_status', $status);
-                $rep->body->assign('MAIN', $tpl->fetch('password_change'));
+                $rep->body->assign('MAIN', $tpl->fetch('password_reset_change'));
                 return $rep;
             }
 
-            $form = jForms::create('password_change');
+            $form = jForms::create('password_reset_change');
             $form->setData('pchg_login', $login);
             $form->setData('pchg_key', $key);
         }
         $tpl->assign('error_status', '');
         $tpl->assign('form', $form);
 
-        $rep->body->assign('MAIN', $tpl->fetch('password_change'));
+        $rep->body->assign('MAIN', $tpl->fetch('password_reset_change'));
 
         return $rep;
     }
 
     /**
-     * activate a new password.
+     * Save a new password after a reset request
      */
     public function save()
     {
@@ -140,7 +147,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController
             return $rep;
         }
 
-        $form = jForms::fill('password_change');
+        $form = jForms::fill('password_reset_change');
         if ($form == null) {
             return $rep;
         }
@@ -153,7 +160,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController
         $login = $form->getData('pchg_login');
         $key = $form->getData('pchg_key');
         $passwd = $form->getData('pchg_password');
-        jForms::destroy('password_change');
+        jForms::destroy('password_reset_change');
 
         $user = $passReset->checkKey($login, $key);
         if (is_string($user)) {
@@ -174,7 +181,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController
         $rep = $this->_getjCommunityResponse();
         $rep->title = jLocale::get('password.form.change.title');
         $tpl = new jTpl();
-        $rep->body->assign('MAIN', $tpl->fetch('password_ok'));
+        $rep->body->assign('MAIN', $tpl->fetch('password_reset_ok'));
 
         return $rep;
     }
