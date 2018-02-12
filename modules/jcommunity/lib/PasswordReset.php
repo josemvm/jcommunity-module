@@ -39,7 +39,7 @@ class PasswordReset {
         $tpl->assign('domain_name', $domain);
         $tpl->assign('website_uri', \jApp::coord()->request->getServerURI());
         $tpl->assign('confirmation_link', \jUrl::getFull(
-            'jcommunity~password:resetform',
+            'jcommunity~password_reset:resetform',
             array('login' => $user->login, 'key' => $user->keyactivate)
         ));
 

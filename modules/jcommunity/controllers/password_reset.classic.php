@@ -8,7 +8,7 @@
 * @link         http://jelix.org
 * @licence      http://www.gnu.org/licenses/gpl.html GNU General Public Licence, see LICENCE file
 */
-class passwordCtrl extends \Jelix\JCommunity\AbstractController
+class password_resetCtrl extends \Jelix\JCommunity\AbstractController
 {
     public $pluginParams = array(
       '*' => array('auth.required' => false),
@@ -44,7 +44,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController
         }
 
         $rep = $this->getResponse('redirect');
-        $rep->action = 'password:index';
+        $rep->action = 'password_reset:index';
 
         $form = jForms::fill('password_reset');
         if (!$form->check()) {
@@ -62,7 +62,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController
         }
 
         jForms::destroy('password_reset');
-        $rep->action = 'password:sent';
+        $rep->action = 'password_reset:sent';
 
         return $rep;
     }
@@ -141,7 +141,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController
         }
 
         $rep = $this->getResponse('redirect');
-        $rep->action = 'password:resetform';
+        $rep->action = 'password_reset:resetform';
 
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             return $rep;
@@ -169,7 +169,7 @@ class passwordCtrl extends \Jelix\JCommunity\AbstractController
         }
         $passReset->changePassword($user, $passwd);
 
-        $rep->action = 'password:changed';
+        $rep->action = 'password_reset:changed';
         return $rep;
     }
 

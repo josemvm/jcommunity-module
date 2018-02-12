@@ -6,7 +6,7 @@
 
     {@jcommunity~password.form.change.text.html@}
 
-    {formfull $form,'jcommunity~password:save', array()}
+    {formfull $form,'jcommunity~password_reset:save', array()}
 
 {/if}
 
