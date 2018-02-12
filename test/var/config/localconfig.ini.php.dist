@@ -1,5 +1,15 @@
 
 forceHTTPPort=8024
+
 [jcommunity]
-registrationEnabled=on
-resetPasswordEnabled=on
+;loginResponse = html
+;verifyNickname = on
+;registrationEnabled=on
+;resetPasswordEnabled=on
+;passwordChangeEnabled=on
+;accountDestroyEnabled=on
+;useJAuthDbAdminRights=off
+;publicProperties[]=login
+;publicProperties[]=nickname
+;publicProperties[]=create_date
+;disableJPref = on
