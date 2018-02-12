@@ -13,6 +13,10 @@ class AbstractController extends \jController
 {
     protected $configMethodCheck = '';
 
+    protected $checkIsConnected = true;
+
+    protected $responseId = '';
+
     protected $config;
 
     public function __construct($request)
@@ -29,17 +33,17 @@ class AbstractController extends \jController
                 return $this->notavailable();
             }
         }
-        if (\jAuth::isConnected()) {
+        if ($this->checkIsConnected && \jAuth::isConnected()) {
             return $this->noaccess();
         }
 
-        return;
+        return null;
     }
 
     protected function _getjCommunityResponse()
     {
         $response = 'html';
-        if (isset(\jApp::config()->jcommunity)) {
+        if ($this->responseId == ''  && isset(\jApp::config()->jcommunity)) {
             $conf = \jApp::config()->jcommunity;
             $response = (isset($conf['loginResponse']) ? $conf['loginResponse'] : 'html');
         }
