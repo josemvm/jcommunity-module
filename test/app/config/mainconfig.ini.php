@@ -84,7 +84,7 @@ default=messages.log
 
 [mailer]
 webmasterEmail="root@localhost"
-webmasterName=
+webmasterName="Root"
 mailerType=file
 
 

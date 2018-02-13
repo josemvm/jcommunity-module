@@ -13,3 +13,6 @@ forceHTTPPort=8024
 ;publicProperties[]=nickname
 ;publicProperties[]=create_date
 ;disableJPref = on
+
+[mailer]
+webmasterEmail = laurent@jelix.org
