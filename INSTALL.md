@@ -1,7 +1,7 @@
 Installation
 ============
 
-Latest jCommunity version works only with Jelix 1.6 and higher.
+Latest jCommunity version works only with Jelix 1.6.16 and higher.
 
 
 Get the module from a zip
@@ -20,12 +20,12 @@ Get the module from Composer
 In your composer.json, in the require section, indicate:
 
 ```
-"jelix/jcommunity-module": "1.1"
+"jelix/jcommunity-module": "1.2"
 ```
 
 After a `composer update`:
 
-1. if you use Jelix 1.6 or lower, you can declare jcommunity in the modulePath
+1. if you use Jelix 1.6, you can declare jcommunity in the modulePath
    parameter of the configuration. Example:
     ```
     modulePath=(...);app:vendors/jelix/jcommunity-module/modules/
@@ -67,23 +67,30 @@ Configure also parameters in the mailer section. jCommunity needs to send mail t
 The installer supports some parameters. You should list them into the
 `jcommunity.installparam`, with a semi colon as separator.
 
-- `rewriteconfig`: indicate to change automatically the jauth configuration
-- `defaultuser` : register an "admin" user (passowrd: "admin") into the community_users table
+- `manualconfig` (1.2+): it does not set authentication parameters into the auth.coord.ini.php
+  (so it does not indicate to use the dao and the form of jcommunity etc)
+- `migratejauthdbusers` (1.1+): indicate to do migration of jlx_users records 
+  into the jCommunity table 
+- `defaultuser` : register an "admin" user (password: "admin") into the jCommunity table
+  (if there is not the flags `migratejauthdbusers`).
+- `defaultusers` : register users listed into a specific JSON file into the jCommunity table
+  (if there is not the flags `migratejauthdbusers`, and it replaces `defaultuser`). 
+  `defaultusers=mymodule~defaultusers.json`. So if your table contains fields
+  that should contain default values, you have to provide your own json file.
 - `masteradmin` (1.1+): indicate that jcommunity is used for master_admin module.
-  see [the dedicated chapter](master_admin)
-- `notjcommunitytable` (1.1+): do not create the community_users table. It's up to you
-  to do changes into your own SQL table. Not compatible with migratejauthdbusers
-  and defaultuser
-- `migratejauthdbusers` (1.1+): indicate to do migration  jlx_users records to community_users
+  see [the dedicated chapter](https://github.com/jelix/jcommunity-module/wiki/master_admin)
+
+Note: the jCommunity table is the table indicated into the dao set into auth.coord.ini.php.
+By default it is community_users, but it may be an other table if you don't use
+the dao file provided by the module.
 
 ex:
 
 ```
-jcommunity.installparam = "rewriteconfig;defaultuser"
+jcommunity.installparam = "defaultuser;masteradmin"
 ```
 
 Don't forget double quotes, else characters after ";" will be interpreted as a comment.
-
 
 With jCommunity 1.1+, you can use jPref to allow to change some settings. If you
 want to use it, you should also install the jpref module:
@@ -101,7 +108,8 @@ php cmd.php installapp
 
 It then creates a `community_users` table. If you have already a table of users, you can
 add new fields of `community_users` in your table. You should then override all DAOs of
-the jcommunity module to change fieldnames and the table.
+the jcommunity module to change fieldnames and the table. Or indicate a dao
+of another module.
 
 The auth coordplugin is automatically activated in your configuration. However,
 verify in your ini file `yourapp/var/config/auth.coord.ini.php`, that you have these values: 
@@ -130,12 +138,23 @@ You should add a `jcommunity` section, and you can set these parameters:
 
 - `loginResponse`: the alias of the response in the jcommunity controller
   to display the login form. By default: `html`.
+- `passwordChangeEnabled`: activate or not the feature allowing to change our password.  By default: `on`.
+- `accountDestroyEnabled`: activate or not to any user to delete his account.  By default: `on`.
 - `registrationEnabled`: indicates if the registration feature is enabled
   (`on`) or not (`off`). By default: `on`
 - `resetPasswordEnabled`: indicates if the reset password feature is enabled
   (`on`) or not (`off`). By default: `on`
 - `disableJPref`: when `on`, indicates to not use jPref (see below) to store 
   "registrationEnabled" and "resetPasswordEnabled" preferences. By default: `off`.
+- `verifyNickname`: says to verify or not the content of the nickname field
+   when the user edit his profile.  By default: `on`. Set to `off` if you don't
+   have such field.
+- `useJAuthDbAdminRights`: when set to `on` (default value), jCommunity can
+   rely on jAcl2 to check the right `auth.user.change.password` and `auth.user.modify` 
+   to know if password change and account change is allowed.
+- `publicProperties`: it indicates the list of users properties that can be shown
+   to any other users, when his profile is shown. By default, only the login,
+   the nickname and the creation date are shown.
 
 ex:
 
@@ -144,6 +163,7 @@ ex:
 loginresponse = html  ; htmlauth for master_admin
 registrationEnabled = off
 resetPasswordEnabled = on
+publicProperties=login,firstname,lastname
 ```
 
 
