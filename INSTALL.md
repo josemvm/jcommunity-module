@@ -77,6 +77,7 @@ The installer supports some parameters. You should list them into the
   (if there is not the flags `migratejauthdbusers`, and it replaces `defaultuser`). 
   `defaultusers=mymodule~defaultusers.json`. So if your table contains fields
   that should contain default values, you have to provide your own json file.
+  The JSON file should be in the install/ directory of the given module.
 - `masteradmin` (1.1+): indicate that jcommunity is used for master_admin module.
   see [the dedicated chapter](https://github.com/jelix/jcommunity-module/wiki/master_admin)
 
