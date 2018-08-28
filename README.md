@@ -17,7 +17,7 @@ It provides:
 Installation
 ------------
 
-Current version works only with Jelix 1.6 to 1.7.
+Current version works only with Jelix 1.6.19+ and 1.7.
 
 See INSTALL.md or [the wiki](https://github.com/jelix/jcommunity-module/wiki/installation)
 

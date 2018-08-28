@@ -45,8 +45,8 @@ Using jCommunity with master_admin
 jCommunity 1.1+ can be used with the master_admin module. Continue the
 installation by reading [the specific manual for this purpose](https://github.com/jelix/jcommunity-module/wiki/master_admin).
 
-Setup
------
+Setup with Jelix 1.6
+---------------------
 
 In the configuration of the application, activate the module and the auth plugin
 for the coordinator:
@@ -101,10 +101,33 @@ want to use it, you should also install the jpref module:
 jpref.access = 2
 ```
 
+Setup with Jelix 1.7
+---------------------
+
+Launch the configurator for your application to enable the module
+
+```bash
+php yourapp/cmd.php module:configure jcommunity
+```
+
+It will asks you some values for configuration parameters (see parameters in
+the section above, about `jcommunity.installparam`), and will set for you the
+`jcommunity.installparam` parameter in the configuration.
+
+With jCommunity 1.1+, you can use jPref to allow to change some settings. If you
+want to use it, you should also install the jpref module:
+
+```bash
+php yourapp/cmd.php module:configure jpref
+```
+
+Finishing the setup
+--------------------
+
 To finish the setup, launch the installer
 
 ```
-php cmd.php installapp
+php yourapp/install/installer.php
 ```
 
 It then creates a `community_users` table. If you have already a table of users, you can
